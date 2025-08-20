@@ -1,10 +1,10 @@
-import { createSocketCommand } from "../Adapters/CommandAdapter";
-import { EventBus } from "../Components/EventBus";
+
+import type { EventBus } from "@/EventBus.ts";
 import { SOCKET_COMMAND } from "../Constants.ts";
-import { Command } from "../Domain/Commands/Command";
 import { SOCKET_CLOSED } from "../Events";
 import { MessageService } from "./MessageService";
 import { close, connect, onClose, onMessage, send } from "./Websocket";
+import type { Command } from "@/Domain/Commands/Command.ts";
 
 export class WebSocketController {
   private socket: WebSocket | null = null;

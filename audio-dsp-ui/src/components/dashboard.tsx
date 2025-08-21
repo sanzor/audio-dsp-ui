@@ -1,10 +1,9 @@
 import { useAuth } from "@/Auth/UseAuth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sidebar } from "./ui/sidebar"; // Adjust path if needed
 import { SidebarProvider } from "./ui/sidebar-provider";
-import { SidebarContent } from "./sidebar-content";
 import { dummyData } from "@/DummyData";
+import { AppSidebar } from "./app-sidebar";
 
 
 export function Dashboard() {
@@ -22,9 +21,7 @@ export function Dashboard() {
   return (
       <SidebarProvider> {/* ✅ Provide context here */}
       <div className="flex">
-        <Sidebar>
-          <SidebarContent tracks={dummyData}></SidebarContent>
-        </Sidebar>
+        <AppSidebar projects={dummyData}></AppSidebar>
         <main className="flex-1">Main content here</main>
       </div>
     </SidebarProvider>

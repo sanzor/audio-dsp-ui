@@ -6,8 +6,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-// import { useSidebar } from "./ui/use-sidebar"
-
 export function NavProjects({
   projects,
 }: {
@@ -17,7 +15,6 @@ export function NavProjects({
     regions: { region_id: number; name: string }[]
   }[]
 }) {
-  // const { _ } = useSidebar()
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">

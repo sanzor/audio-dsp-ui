@@ -4,7 +4,7 @@ import {
   refreshToken,
   logout,
   getGoogleOAuthUrl,
-} from './AuthService';
+} from '../Services/AuthService';
 import type { SessionResponse, RefreshResponse } from './AuthTypes';
 import { createContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { User } from '@/Domain/User';

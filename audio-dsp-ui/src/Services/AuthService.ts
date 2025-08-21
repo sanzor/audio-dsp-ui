@@ -3,7 +3,7 @@
 import type {
   SessionResponse,
   RefreshResponse,
-} from './AuthTypes';
+} from '../Auth/AuthTypes';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
 

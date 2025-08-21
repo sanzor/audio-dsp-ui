@@ -7,9 +7,9 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 export function NavProjects({
-  projects,
+  tracks: projects,
 }: {
-  projects: {
+  tracks: {
     id: number
     name: string
     regions: { region_id: number; name: string }[]

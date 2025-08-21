@@ -24,6 +24,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
+import type { TrackMeta } from "@/Domain/TrackMeta"
 
 // This is sample data.
 const data = {
@@ -154,15 +155,29 @@ const data = {
     },
   ],
 }
-export function AppSidebar({ projects, ...props }: { projects: TrackMetaWithRegions[] } & React.ComponentProps<typeof Sidebar>) {
+type AppSidebarProps = {
+  tracks: TrackMeta[];                          // <- or with regions if needed
+  onAddTrack: (track: Partial<TrackMeta>) => void;
+  onRemoveTrack: (trackId: number) => void;
+  onRefresh: () => void;
+};
+export function AppSidebar({ tracks,onAddTrack,onRemoveTrack,onRefresh }:AppSidebarProps) {
+  const addTrackClick=(_)=>{
+      onAddTrack({});
+  };
+
+  const onRemoveTrackClick=(_)=>{
+      onAddTrack({});
+  };
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
+        <button> onClick={addTrackClick}</button>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={projects} /> {/* ✅ Here */}
+        <NavProjects tracks={tracks} /> {/* ✅ Here */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

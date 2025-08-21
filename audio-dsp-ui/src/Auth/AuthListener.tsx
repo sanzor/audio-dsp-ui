@@ -14,7 +14,9 @@ export function AuthListener() {
         // await getSession().then(() => navigate("/dashboard"));
 
         // Option 2: Just navigate to dashboard (session will load there)
-        navigate("/dashboard");
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 200); //
 
         // Optional: show a loading spinner, etc.
       }

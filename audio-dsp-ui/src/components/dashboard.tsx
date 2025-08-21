@@ -1,6 +1,11 @@
 import { useAuth } from "@/Auth/UseAuth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Sidebar } from "./ui/sidebar"; // Adjust path if needed
+import { SidebarProvider } from "./ui/sidebar-provider";
+import { SidebarContent } from "./sidebar-content";
+import { dummyData } from "@/DummyData";
+
 
 export function Dashboard() {
   const { user, loading } = useAuth();
@@ -15,9 +20,13 @@ export function Dashboard() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div>
-      <h1>Welcome, {user?.name}</h1>
-      <p>Email: {user?.email}</p>
-    </div>
+      <SidebarProvider> {/* ✅ Provide context here */}
+      <div className="flex">
+        <Sidebar>
+          <SidebarContent tracks={dummyData}></SidebarContent>
+        </Sidebar>
+        <main className="flex-1">Main content here</main>
+      </div>
+    </SidebarProvider>
   );
 }

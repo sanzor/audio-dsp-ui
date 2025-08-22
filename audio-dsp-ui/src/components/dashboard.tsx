@@ -3,15 +3,19 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTracks } from "@/Providers/UseTracks";
 import type { AddTrackParams } from "@/Dtos/Tracks/AddTrackParams";
+import type { AddTrackResult } from "@/Dtos/Tracks/AddTrackResult";
+import type { RemoveTrackResult } from "@/Dtos/Tracks/RemoveTrackResult";
+import { AppSidebar } from "./app-sidebar";
+import { SidebarProvider } from "./ui/sidebar-provider";
+import { TrackCreateModal } from "./create-track-modal";
 
 
 
 
 export function Dashboard() {
   const { user, loading } = useAuth();
-
-  const [showCreateTrackModal,setShowCreateTrackModal]=useState(false);
-  const {tracks}=useTracks();
+  const [modalOpen, setModalOpen] = useState(false);
+  const {tracks,addTrack,removeTrack}=useTracks();
   const navigate = useNavigate(); // ✅ must be called here
 
   useEffect(() => {
@@ -22,24 +26,37 @@ export function Dashboard() {
 
   if (loading) return <div>Loading...</div>;
 
-  const onRemoveTrack=(trackId:number)=>void{
-
+  const onRemoveTrack = async (trackId: number): Promise<RemoveTrackResult> => {
+    return await removeTrack({ trackId: trackId.toString() });
   };
-  const onSubmit=async (data:AddTrackParams)=>AddTrackResult{
-      await addTrack(data);
+
+  // 🧩 Add track
+  const onSubmit = async (data: AddTrackParams): Promise<AddTrackResult> => {
+    const result = await addTrack(data);
+    setModalOpen(false); // ✅ Close after submission
+    return result;
+  };
+  
+  const onClose = () => {
+    setModalOpen(false); // ✅ Close modal
   };
   return (
-      <SidebarProvider> {/* ✅ Provide context here */}
+    <SidebarProvider>
       <div className="flex">
-        <AppSidebar 
-          onAddTrackClick={()=>setShowCreateTrackModal(true)}
+        <AppSidebar
+          onAddTrackClick={() => setModalOpen(true)}
           onRemoveTrack={onRemoveTrack}
-          tracks={tracks.map((track)=>({
+          tracks={tracks.map((track) => ({
             ...track,
-            regions:[]
-          }))}>
-        </AppSidebar>
-        {showCreateTrackModal && (<TrackCreateModal onSubmit={onSubmit}></TrackCreateModal>)}
+            regions: [],
+          }))}
+        />
+        <TrackCreateModal 
+          open={modalOpen} 
+          onClose={onClose} 
+          onSubmit={onSubmit} 
+        />
+
         <main className="flex-1">Main content here</main>
       </div>
     </SidebarProvider>

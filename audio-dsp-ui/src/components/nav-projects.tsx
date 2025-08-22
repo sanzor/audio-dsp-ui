@@ -10,23 +10,16 @@ import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
 
 export interface NaveProjectsProps{
   tracks:TrackMetaWithRegions[],
-  
+  onRemoveTrack:(trackId:number)=>void
+
 }
-export function NavProjects({
-  tracks: projects,
-}: {
-  tracks: {
-    id: number
-    name: string
-    regions: { region_id: number; name: string }[]
-  }[]
-}) {
+export function NavProjects({tracks}:NaveProjectsProps) {
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
-        {projects.map((track) => (
+        {tracks.map((track) => (
           <SidebarMenuItem key={track.id}>
             <SidebarMenuButton asChild>
               <div className="flex items-center gap-2">

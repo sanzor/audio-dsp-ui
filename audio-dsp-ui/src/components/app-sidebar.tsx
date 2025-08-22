@@ -8,6 +8,7 @@ import {
   GalleryVerticalEnd,
   Map,
   PieChart,
+  Plus,
   Settings2,
   SquareTerminal,
 } from "lucide-react"
@@ -24,6 +25,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
+import { Button } from "./ui/button"
 
 // This is sample data.
 const data = {
@@ -154,27 +156,36 @@ const data = {
     },
   ],
 }
-type AppSidebarProps = {
+export type AppSidebarProps = {
   tracks: TrackMetaWithRegions[];                          // <- or with regions if needed
   onAddTrackClick: () => void;
   onRemoveTrack: (trackId: number) => void;
 };
 export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onRemoveTrack }:AppSidebarProps) {
-  const addTrackClick=(_)=>{
+  const addTrackClick=():void=>{
       onAddTrack();
   };
-
+  const removeTrack=(elem:number)=>{
+    onRemoveTrack(elem)
+  }
 
   return (
 
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <button> onClick={addTrackClick()}</button>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
+        <div className="px-2">
+          <Button
+           onClick={addTrackClick}
+           className="w-full justify-left bg-green-600 hover:bg-green-700 text-white font-medium shadow-sm rounded-md !bg-green-600 !text-white">
+          <Plus className="mr-2 h-5 w-5" />
+          Add Track
+        </Button>
+        </div>
         <NavMain items={data.navMain} />
-        <NavProjects tracks={tracks} onRemoveTrack={onRemoveTrack} /> {/* ✅ Here */}
+        <NavProjects tracks={tracks} onRemoveTrack={removeTrack} /> {/* ✅ Here */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

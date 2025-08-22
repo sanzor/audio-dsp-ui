@@ -1,3 +1,4 @@
 export interface TrackInfo{
-    name:string
+    name:string,
+    extension?:string
 }

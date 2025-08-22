@@ -9,12 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog"
-
 import type { AddTrackParams } from "@/Dtos/Tracks/AddTrackParams"
 import type { CanonicalAudio } from "@/Audio/CanonicalAudio"
 import type { ABuffer } from "@/Domain/ABuffer"
 
 import { toAudioBuffer, interleave, encodeWav } from "@/Audio/Utils"
+import { getFileExtension } from "@/Utils/AudioUtils"
 
 interface TrackCreateModalProps {
   open: boolean
@@ -29,11 +29,11 @@ export function TrackCreateModal({
   onSubmit,
   canonicalAudio,
 }: TrackCreateModalProps) {
-  const [trackName, setTrackName] = useState("")
-  const [duration, setDuration] = useState(0)
-  const [fileName, setFileName] = useState("")
-  const [audioBufferPayload, setAudioBufferPayload] = useState<ABuffer | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [trackName, setTrackName] = useState("");
+  const [duration, setDuration] = useState(0);
+  const [audioBufferPayload, setAudioBufferPayload] = useState<ABuffer | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [audioFileExtension, setAudioFileExtension] = useState<string | undefined>(undefined);
 
   const handleSubmit = () => {
     if (!audioBufferPayload) {
@@ -43,7 +43,7 @@ export function TrackCreateModal({
 
     const addTrackParams: AddTrackParams = {
       rawTrack: {
-        info: { name: trackName },
+        info: { name: trackName ,extension:audioFileExtension??undefined},
         data: audioBufferPayload,
       },
     }
@@ -51,30 +51,34 @@ export function TrackCreateModal({
     onSubmit(addTrackParams)
   }
 
-  // Handle audio from recording (canonicalAudio)
+  // Initialize from recorded audio (if present)
   useEffect(() => {
     if (!canonicalAudio) return
 
-    setTrackName("Untitled Recording")
-    setFileName("Recorded Audio")
-    setDuration(canonicalAudio.duration)
-
     const abuffer = toAudioBuffer(canonicalAudio)
-    setAudioBufferPayload(abuffer)
+    setAudioBufferPayload(abuffer);
+    setTrackName("Untitled Recording");
+    setDuration(canonicalAudio.duration)
 
     const interleaved = interleave(canonicalAudio.samples)
     const blob = encodeWav(interleaved, canonicalAudio.sampleRate, canonicalAudio.channels)
+
     const url = URL.createObjectURL(blob)
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(url);
+    setAudioFileExtension("wav");
+    return () => {
+      URL.revokeObjectURL(url)
+    }
+  }, [canonicalAudio,previewUrl])
 
-    setPreviewUrl(url)
-    return () => URL.revokeObjectURL(url)
-  }, [canonicalAudio])
-
+  // Handle user file upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    const extension=getFileExtension(file.name);
 
-    setFileName(file.name)
+   
     setTrackName(file.name.replace(/\.[^/.]+$/, ""))
 
     const arrayBuffer = await file.arrayBuffer()
@@ -93,13 +97,13 @@ export function TrackCreateModal({
     const abuffer = toAudioBuffer(canonical)
     setAudioBufferPayload(abuffer)
     setDuration(buffer.duration)
-
+    setAudioFileExtension(extension);
     const interleaved = interleave(canonical.samples)
     const blob = encodeWav(interleaved, canonical.sampleRate, canonical.channels)
-    const url = URL.createObjectURL(blob)
 
+    const url = URL.createObjectURL(blob)
+    if (previewUrl) URL.revokeObjectURL(previewUrl)
     setPreviewUrl(url)
-    return () => URL.revokeObjectURL(url)
   }
 
   return (
@@ -127,15 +131,15 @@ export function TrackCreateModal({
             />
           </div>
 
-          {/* File Name */}
+          {/* Extension */}
           <div className="grid grid-cols-4 items-center gap-4">
-            <label htmlFor="file-name" className="text-right text-sm font-medium">
-              File
+            <label htmlFor="extension" className="text-right text-sm font-medium">
+              Extension
             </label>
             <Input
-              id="file-name"
+              id="extension"
               className="col-span-3"
-              value={fileName}
+              value={audioFileExtension}
               readOnly
               placeholder="No file selected"
             />
@@ -154,7 +158,7 @@ export function TrackCreateModal({
             />
           </div>
 
-          {/* Upload */}
+          {/* File Upload */}
           <div className="grid grid-cols-4 items-center gap-4">
             <label htmlFor="audio-upload" className="text-right text-sm font-medium">
               Upload
@@ -193,3 +197,4 @@ export function TrackCreateModal({
     </Dialog>
   )
 }
+

@@ -1,20 +1,17 @@
 import { useAuth } from "@/Auth/UseAuth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarProvider } from "./ui/sidebar-provider";
-import { dummyData } from "@/DummyData";
-import { AppSidebar } from "./app-sidebar";
 import { useTracks } from "@/Providers/UseTracks";
+import type { AddTrackParams } from "@/Dtos/Tracks/AddTrackParams";
+
+
 
 
 export function Dashboard() {
   const { user, loading } = useAuth();
-   const {
-    tracks,         // ✅ the actual list of tracks
-    removeTrack,    // ✅ action methods
-    addTrack,
-    refreshTracks,
-  } = useTracks();   // ✅ get them from context
+
+  const [showCreateTrackModal,setShowCreateTrackModal]=useState(false);
+  const {tracks}=useTracks();
   const navigate = useNavigate(); // ✅ must be called here
 
   useEffect(() => {
@@ -25,14 +22,24 @@ export function Dashboard() {
 
   if (loading) return <div>Loading...</div>;
 
+  const onRemoveTrack=(trackId:number)=>void{
+
+  };
+  const onSubmit=async (data:AddTrackParams)=>AddTrackResult{
+      await addTrack(data);
+  };
   return (
       <SidebarProvider> {/* ✅ Provide context here */}
       <div className="flex">
         <AppSidebar 
+          onAddTrackClick={()=>setShowCreateTrackModal(true)}
+          onRemoveTrack={onRemoveTrack}
           tracks={tracks.map((track)=>({
             ...track,
             regions:[]
-          }))}></AppSidebar>
+          }))}>
+        </AppSidebar>
+        {showCreateTrackModal && (<TrackCreateModal onSubmit={onSubmit}></TrackCreateModal>)}
         <main className="flex-1">Main content here</main>
       </div>
     </SidebarProvider>

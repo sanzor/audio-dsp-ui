@@ -1,8 +1,11 @@
 // src/contexts/TrackContext.tsx
 import { createContext, useEffect, useState, useCallback, type ReactNode } from 'react'
 import type { TrackMeta } from '@/Domain/TrackMeta'
-import type { GetTrackParams } from '@/Dtos/Tracks/GetTrackParams'
 import { apiAddTrack, apiGetTracks, apiRemoveTrack } from '@/Services/TracksService'
+import type { AddTrackParams } from '@/Dtos/Tracks/AddTrackParams'
+import type { AddTrackResult } from '@/Dtos/Tracks/AddTrackResult'
+import type { RemoveTrackParams } from '@/Dtos/Tracks/RemoveTrackParams'
+import type { RemoveTrackResult } from '@/Dtos/Tracks/RemoveTrackResult'
 
 
 // --- Types
@@ -11,8 +14,8 @@ interface TrackContextType {
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
-  addTrack: (params: GetTrackParams) => Promise<void>
-  removeTrack: (params: GetTrackParams) => Promise<void>
+  addTrack: (params: AddTrackParams) => Promise<AddTrackResult>
+  removeTrack: (params: RemoveTrackParams) => Promise<RemoveTrackResult>
 }
 interface TracksProviderProps {
   children: ReactNode
@@ -43,14 +46,16 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
     }
   }, [])
 
-  const addTrack = async (params: GetTrackParams) => {
-    await apiAddTrack(params)
+  const addTrack = async (params: AddTrackParams):Promise<AddTrackResult>=> {
+    const result=await apiAddTrack(params)
     await refresh()
+    return result
   }
 
-  const removeTrack = async (params: GetTrackParams) => {
-    await apiRemoveTrack(params)
-    await refresh()
+  const removeTrack = async (params: RemoveTrackParams):Promise<RemoveTrackResult> => {
+    const result=await apiRemoveTrack(params)
+    await refresh();
+    return result;
   }
 
   useEffect(() => {

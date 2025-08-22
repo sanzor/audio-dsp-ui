@@ -10,6 +10,10 @@ import type { CopyTrackParams } from '@/Dtos/Tracks/CopyTrackParams';
 import type { CopyTrackResult } from '@/Dtos/Tracks/CopyTrackResult';
 import type { GetTrackRawParams } from '@/Dtos/Tracks/GetTrackRawParams';
 import type { GetTrackRawResult } from '@/Dtos/Tracks/GetTrackRawResult';
+import type { AddTrackParams } from '@/Dtos/Tracks/AddTrackParams';
+import type { AddTrackResult } from '@/Dtos/Tracks/AddTrackResult';
+import type { RemoveTrackParams } from '@/Dtos/Tracks/RemoveTrackParams';
+import type { RemoveTrackResult } from '@/Dtos/Tracks/RemoveTrackResult';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -56,14 +60,14 @@ export async function apiGetTrackRaw(params:GetTrackRawParams): Promise<GetTrack
   return res.json();
 }
 
-export async function apiAddTrack(params:GetTrackParams): Promise<GetTrackResult> {
+export async function apiAddTrack(params:AddTrackParams): Promise<AddTrackResult> {
   const res = await fetch(`${BASE_URL}/tracks/add-track`, {
     method: 'POST', // ✅ must be POST to send body
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(params),
+    body: JSON.stringify(params.rawTrack),
   });
 
   if (!res.ok) {
@@ -73,8 +77,8 @@ export async function apiAddTrack(params:GetTrackParams): Promise<GetTrackResult
   return res.json();
 }
 
-export async function apiRemoveTrack(params:GetTrackParams): Promise<GetTrackResult> {
-  const res = await fetch(`${BASE_URL}/tracks/get-meta?track_id=${params.track_id}`, {
+export async function apiRemoveTrack(params:RemoveTrackParams): Promise<RemoveTrackResult> {
+  const res = await fetch(`${BASE_URL}/tracks/get-meta?track_id=${params.trackId}`, {
     method: 'DELETE',
     credentials: 'include'
   });

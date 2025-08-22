@@ -5,7 +5,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
+
+export interface NaveProjectsProps{
+  tracks:TrackMetaWithRegions[],
+  
+}
 export function NavProjects({
   tracks: projects,
 }: {

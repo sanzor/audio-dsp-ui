@@ -24,7 +24,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
-import type { TrackMeta } from "@/Domain/TrackMeta"
 
 // This is sample data.
 const data = {
@@ -156,28 +155,26 @@ const data = {
   ],
 }
 type AppSidebarProps = {
-  tracks: TrackMeta[];                          // <- or with regions if needed
-  onAddTrack: (track: Partial<TrackMeta>) => void;
+  tracks: TrackMetaWithRegions[];                          // <- or with regions if needed
+  onAddTrackClick: () => void;
   onRemoveTrack: (trackId: number) => void;
-  onRefresh: () => void;
 };
-export function AppSidebar({ tracks,onAddTrack,onRemoveTrack,onRefresh }:AppSidebarProps) {
+export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onRemoveTrack }:AppSidebarProps) {
   const addTrackClick=(_)=>{
-      onAddTrack({});
+      onAddTrack();
   };
 
-  const onRemoveTrackClick=(_)=>{
-      onAddTrack({});
-  };
+
   return (
+
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <button> onClick={addTrackClick}</button>
+        <button> onClick={addTrackClick()}</button>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects tracks={tracks} /> {/* ✅ Here */}
+        <NavProjects tracks={tracks} onRemoveTrack={onRemoveTrack} /> {/* ✅ Here */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

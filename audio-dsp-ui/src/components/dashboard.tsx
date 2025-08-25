@@ -40,16 +40,16 @@ export function Dashboard() {
   const onClose = () => {
     setModalOpen(false); // ✅ Close modal
   };
-  return (
+ return (
     <SidebarProvider>
       <div className="flex">
         <AppSidebar
           onAddTrackClick={() => setModalOpen(true)}
           onRemoveTrack={onRemoveTrack}
-          tracks={tracks.map((track) => ({
-            ...track,
-            regions: [],
-          }))}
+           tracks={(Array.isArray(tracks) ? tracks : []).map(track => ({
+          ...track,
+          regions: [],
+           }))}
         />
         <TrackCreateModal 
           open={modalOpen} 

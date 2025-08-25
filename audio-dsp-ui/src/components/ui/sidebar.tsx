@@ -27,12 +27,6 @@ import { useSidebar } from "./use-sidebar"
 
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 
-
-
-
-
-
-
 function Sidebar({
   side = "left",
   variant = "sidebar",
@@ -46,9 +40,6 @@ function Sidebar({
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
-  console.log("📦 Sidebar loaded")
-  console.log("variant:", variant)
-  console.log("isMobile:", isMobile)
   if (collapsible === "none") {
     return (
       <div
@@ -88,7 +79,6 @@ function Sidebar({
       </Sheet>
     )
   }
-  console.log("📦 Sidebar rendered", { state, open, variant, collapsible, side });
 
   return (
     <div

@@ -22,6 +22,7 @@ export function useTokenAutoRefresh({
   const isRefreshingRef = useRef(false);
   console.log('🔄 useTokenAutoRefresh called - enabled:', enabled, 'user:', user?.name || 'null');
   useEffect(() => {
+    console.log(user);
      if (!enabled || !user) {
       console.log('❌ Auto-refresh disabled or no user, clearing interval');
       if (intervalRef.current) {

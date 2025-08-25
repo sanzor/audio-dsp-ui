@@ -5,19 +5,36 @@ import type {
   RefreshResponse,
 } from '../Auth/AuthTypes';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Fetches the current user session.
  */
 export async function getSession(): Promise<SessionResponse> {
-  const res = await fetch(`${BASE_URL}/auth/google/session`, {
-    method: 'GET',
-    credentials: 'include',
-  });
+  const url = `${BASE_URL}/auth/google/session`;
+  console.log("📡 Fetching session from:", url);
 
-  if (!res.ok) throw new Error('Failed to fetch session');
-  return res.json();
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    console.log("📥 Response status:", res.status);
+
+    if (!res.ok) {
+      const text = await res.text(); // helpful for debugging backend errors
+      console.error("❌ Response not OK:", res.status, text);
+      throw new Error(`Failed to fetch session: ${res.status}`);
+    }
+
+    const session = await res.json();
+    console.log("✅ Session received:", session);
+    return session;
+  } catch (error) {
+    console.error("❌ Fetch failed:", error);
+    throw error;
+  }
 }
 
 /**

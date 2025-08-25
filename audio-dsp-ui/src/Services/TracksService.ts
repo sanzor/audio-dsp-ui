@@ -21,13 +21,15 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
  * Fetches the current user session.
  */
 export async function apiGetTracks(): Promise<TrackMeta[]> {
-  const res = await fetch(`${BASE_URL}/tracks/`, {
+  const res = await fetch(`${BASE_URL}/tracks/get-all`, {
     method: 'GET',
     credentials: 'include',
   });
 
   if (!res.ok) throw new Error('Failed to fetch session');
-  return res.json();
+  const tracks= res.json();
+  console.log(tracks);
+  return tracks;
 }
 
 export async function apiGetTrackMeta(params:GetTrackParams): Promise<GetTrackResult> {
@@ -60,21 +62,30 @@ export async function apiGetTrackRaw(params:GetTrackRawParams): Promise<GetTrack
   return res.json();
 }
 
-export async function apiAddTrack(params:AddTrackParams): Promise<AddTrackResult> {
+export async function apiAddTrack(params: AddTrackParams): Promise<AddTrackResult> {
+  const formData = new FormData();
+
+  formData.append("name", params.rawTrack.info.name);
+  formData.append("extension", params.rawTrack.info.extension ?? "wav");
+
+  // ABuffer metadata
+  formData.append("sample_rate", String(params.rawTrack.data.sample_rate));
+  formData.append("channels", String(params.rawTrack.data.channels));
+
+  // Convert samples to Blob
+  const blob = new Blob([new Float32Array(params.rawTrack.data.samples).buffer], {
+    type: "application/octet-stream"
+  });
+  formData.append("samples", blob, "samples.raw");
+
   const res = await fetch(`${BASE_URL}/tracks/add-track`, {
-    method: 'POST', // ✅ must be POST to send body
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(params.rawTrack),
+    method: "POST",
+    credentials: "include",
+    body: formData,
   });
 
-  if (!res.ok) {
-    throw new Error(`Failed to update track: ${res.statusText}`);
-  }
-
-  return res.json();
+  if (!res.ok) throw new Error(`Upload failed: ${res.statusText}`);
+  return await res.json();
 }
 
 export async function apiRemoveTrack(params:RemoveTrackParams): Promise<RemoveTrackResult> {

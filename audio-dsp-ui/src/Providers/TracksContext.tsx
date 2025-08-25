@@ -16,6 +16,7 @@ interface TrackContextType {
   refresh: () => Promise<void>
   addTrack: (params: AddTrackParams) => Promise<AddTrackResult>
   removeTrack: (params: RemoveTrackParams) => Promise<RemoveTrackResult>
+  listTracks:()=>Promise<TrackMeta[]>
 }
 interface TracksProviderProps {
   children: ReactNode
@@ -47,6 +48,7 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
   }, [])
 
   const addTrack = async (params: AddTrackParams):Promise<AddTrackResult>=> {
+    
     const result=await apiAddTrack(params)
     await refresh()
     return result
@@ -57,13 +59,16 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
     await refresh();
     return result;
   }
-
+  const listTracks=async():Promise<TrackMeta[]>=>{
+    const result=await apiGetTracks();
+    return result;
+  }
   useEffect(() => {
     refresh()
   }, [refresh])
 
   return (
-    <TrackContext.Provider value={{ tracks, loading, error, refresh, addTrack, removeTrack }}>
+    <TrackContext.Provider value={{ tracks, loading, error, refresh, addTrack, removeTrack, listTracks }}>
       {children}
     </TrackContext.Provider>
   )

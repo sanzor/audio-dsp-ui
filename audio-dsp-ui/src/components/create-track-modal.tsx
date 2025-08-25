@@ -36,6 +36,7 @@ export function TrackCreateModal({
   const [audioFileExtension, setAudioFileExtension] = useState<string | undefined>(undefined);
 
   const handleSubmit = () => {
+    
     if (!audioBufferPayload) {
       console.error("Audio buffer not ready.")
       return
@@ -47,7 +48,8 @@ export function TrackCreateModal({
         data: audioBufferPayload,
       },
     }
-
+    console.log("Submitting form");
+    console.log(JSON.stringify(addTrackParams.rawTrack.info));
     onSubmit(addTrackParams)
   }
 
@@ -139,7 +141,7 @@ export function TrackCreateModal({
             <Input
               id="extension"
               className="col-span-3"
-              value={audioFileExtension}
+              value={audioFileExtension ?? ""}
               readOnly
               placeholder="No file selected"
             />

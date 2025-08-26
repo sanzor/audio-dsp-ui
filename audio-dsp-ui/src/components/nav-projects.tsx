@@ -8,13 +8,15 @@ import {
 } from "@/components/ui/sidebar";
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
 
+
 export interface NaveProjectsProps{
   tracks:TrackMetaWithRegions[],
   onRemoveTrack:(trackId:number)=>void
 
 }
 export function NavProjects({tracks}:NaveProjectsProps) {
-  console.log(tracks);
+
+
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Projects</SidebarGroupLabel>

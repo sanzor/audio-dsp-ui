@@ -33,19 +33,19 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const refresh = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await apiGetTracks();
-      setTracks(data);
-      console.log(tracks);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch tracks')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  setLoading(true);
+  setError(null);
+  try {
+    const data = await apiGetTracks();
+    setTracks(data);
+    console.log("✅ Fetched tracks:", data);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    setError(err.message || 'Failed to fetch tracks');
+  } finally {
+    setLoading(false);
+  }
+}, []);
   useEffect(() => {
     if (authLoading) return;     // Wait until auth is ready
     if (!user) return;           // No user? Don't call refresh
@@ -67,13 +67,6 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
     const result=await apiGetTracks();
     return result;
   }
-    // ✅ Wait for auth to finish before fetching tracks
-  // useEffect(() => {
-  //   if (!authLoading && user) {
-  //     refresh();
-  //   }
-  // }, [authLoading, user, refresh]);
-
   return (
     <TrackContext.Provider value={{ tracks, loading, error, refresh, addTrack, removeTrack, listTracks }}>
       {children}

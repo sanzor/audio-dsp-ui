@@ -1,5 +1,5 @@
 import { useAuth } from "@/Auth/UseAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTracks } from "@/Providers/UseTracks";
 import type { AddTrackParams } from "@/Dtos/Tracks/AddTrackParams";
@@ -12,12 +12,27 @@ import { TrackCreateModal } from "./create-track-modal";
 
 
 
+
 export function Dashboard() {
   const { user, loading } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const {tracks,addTrack,removeTrack}=useTracks();
-  const navigate = useNavigate(); // ✅ must be called here
 
+  const tracksWithRegions = useMemo(() => {
+  const result = (Array.isArray(tracks) ? tracks : []).map((track) => ({
+    ...track,
+    regions: [],
+  }));
+
+  console.log("🧠 useMemo computed:", result); // <-- debug output
+
+  return result;
+}, [tracks]);
+  
+  const navigate = useNavigate(); // ✅ must be called here
+    useEffect(()=>{
+      console.log("Tracks inside  dashboard",tracks);
+    },[tracks])
   useEffect(() => {
     if (!loading && !user) {
       navigate("/login");
@@ -47,10 +62,7 @@ export function Dashboard() {
         <AppSidebar
           onAddTrackClick={() => setModalOpen(true)}
           onRemoveTrack={onRemoveTrack}
-           tracks={(Array.isArray(tracks) ? tracks : []).map(track => ({
-          ...track,
-          regions: [],
-           }))}
+           tracks={tracksWithRegions}
         />
         <TrackCreateModal 
           open={modalOpen} 

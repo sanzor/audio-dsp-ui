@@ -27,6 +27,7 @@ import {
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
 import { Button } from "./ui/button"
 
+
 // This is sample data.
 const data = {
   user: {
@@ -168,7 +169,9 @@ export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onRemoveTrack }:
   const removeTrack=(elem:number)=>{
     onRemoveTrack(elem)
   }
-
+  React.useEffect(()=>{
+    console.log("Tracks from app-sidebar",tracks);
+  },[tracks])
   return (
 
     <Sidebar collapsible="icon">

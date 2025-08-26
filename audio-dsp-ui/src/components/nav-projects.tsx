@@ -14,7 +14,7 @@ export interface NaveProjectsProps{
 
 }
 export function NavProjects({tracks}:NaveProjectsProps) {
-
+  console.log(tracks);
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Projects</SidebarGroupLabel>

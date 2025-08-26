@@ -15,7 +15,7 @@ import type { AddTrackResult } from '@/Dtos/Tracks/AddTrackResult';
 import type { RemoveTrackParams } from '@/Dtos/Tracks/RemoveTrackParams';
 import type { RemoveTrackResult } from '@/Dtos/Tracks/RemoveTrackResult';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Fetches the current user session.
@@ -27,7 +27,8 @@ export async function apiGetTracks(): Promise<TrackMeta[]> {
   });
 
   if (!res.ok) throw new Error('Failed to fetch session');
-  const tracks= res.json();
+
+  const tracks = await res.json(); // ✅ await here
   console.log(tracks);
   return tracks;
 }
@@ -39,7 +40,7 @@ export async function apiGetTrackMeta(params:GetTrackParams): Promise<GetTrackRe
   });
 
   if (!res.ok) throw new Error('Refresh token failed');
-  return res.json();
+  return await res.json();
 }
 
 export async function apiGetTrackInfo(params:GetTrackParams): Promise<GetTrackResult> {
@@ -49,7 +50,7 @@ export async function apiGetTrackInfo(params:GetTrackParams): Promise<GetTrackRe
   });
 
   if (!res.ok) throw new Error('Refresh token failed');
-  return res.json();
+  return await res.json();
 }
 
 export async function apiGetTrackRaw(params:GetTrackRawParams): Promise<GetTrackRawResult> {
@@ -59,10 +60,11 @@ export async function apiGetTrackRaw(params:GetTrackRawParams): Promise<GetTrack
   });
 
   if (!res.ok) throw new Error('Refresh token failed');
-  return res.json();
+  return await res.json();
 }
 
 export async function apiAddTrack(params: AddTrackParams): Promise<AddTrackResult> {
+  console.log("Inside api add track");
   const formData = new FormData();
 
   formData.append("name", params.rawTrack.info.name);
@@ -78,7 +80,7 @@ export async function apiAddTrack(params: AddTrackParams): Promise<AddTrackResul
   });
   formData.append("samples", blob, "samples.raw");
 
-  const res = await fetch(`${BASE_URL}/tracks/add-track`, {
+  const res = await fetch(`${BASE_URL}/tracks/add-track-multi`, {
     method: "POST",
     credentials: "include",
     body: formData,
@@ -95,7 +97,7 @@ export async function apiRemoveTrack(params:RemoveTrackParams): Promise<RemoveTr
   });
 
   if (!res.ok) throw new Error('Refresh token failed');
-  return res.json();
+  return await res.json();
 }
 
 export async function apiUpdateTrack(params: UpdateTrackParams): Promise<UpdateTrackResult> {
@@ -111,7 +113,7 @@ export async function apiUpdateTrack(params: UpdateTrackParams): Promise<UpdateT
   if (!res.ok) {
     throw new Error(`Failed to update track: ${res.statusText}`);
   }
-  return res.json();
+  return await res.json();
 }
 
 export async function apiCopyTrack(params: CopyTrackParams): Promise<CopyTrackResult> {
@@ -127,6 +129,6 @@ export async function apiCopyTrack(params: CopyTrackParams): Promise<CopyTrackRe
   if (!res.ok) {
     throw new Error(`Failed to update track: ${res.statusText}`);
   }
-  return res.json();
+  return await res.json();
 }
 

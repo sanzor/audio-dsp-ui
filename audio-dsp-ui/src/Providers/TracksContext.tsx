@@ -6,6 +6,7 @@ import type { AddTrackParams } from '@/Dtos/Tracks/AddTrackParams'
 import type { AddTrackResult } from '@/Dtos/Tracks/AddTrackResult'
 import type { RemoveTrackParams } from '@/Dtos/Tracks/RemoveTrackParams'
 import type { RemoveTrackResult } from '@/Dtos/Tracks/RemoveTrackResult'
+import { useAuth } from '@/Auth/UseAuth'
 
 
 // --- Types
@@ -27,18 +28,17 @@ export const TrackContext = createContext<TrackContextType | null>(null)
 
 // --- Provider
 export const TracksProvider = ({ children }: TracksProviderProps) => {
-  const [tracks, setTracks] = useState<TrackMeta[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
-  useEffect(() => {
-    refresh()
-  }, [])
+  const { user, loading: authLoading } = useAuth(); // ✅ correctly rename this
+  const [tracks, setTracks] = useState<TrackMeta[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const refresh = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const data = await apiGetTracks()
-      setTracks(data)
+      const data = await apiGetTracks();
+      setTracks(data);
+      console.log(tracks);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || 'Failed to fetch tracks')
@@ -46,9 +46,13 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
       setLoading(false)
     }
   }, [])
-
+  useEffect(() => {
+    if (authLoading) return;     // Wait until auth is ready
+    if (!user) return;           // No user? Don't call refresh
+    refresh();                   // ✅ Safe to fetch
+  }, [authLoading, user, refresh]);
   const addTrack = async (params: AddTrackParams):Promise<AddTrackResult>=> {
-    
+    console.log("inside add track - context");
     const result=await apiAddTrack(params)
     await refresh()
     return result
@@ -63,9 +67,12 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
     const result=await apiGetTracks();
     return result;
   }
-  useEffect(() => {
-    refresh()
-  }, [refresh])
+    // ✅ Wait for auth to finish before fetching tracks
+  // useEffect(() => {
+  //   if (!authLoading && user) {
+  //     refresh();
+  //   }
+  // }, [authLoading, user, refresh]);
 
   return (
     <TrackContext.Provider value={{ tracks, loading, error, refresh, addTrack, removeTrack, listTracks }}>

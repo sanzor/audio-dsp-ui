@@ -32,6 +32,7 @@ export function Dashboard() {
 
   // 🧩 Add track
   const onSubmit = async (data: AddTrackParams): Promise<AddTrackResult> => {
+    console.log("Submit inside dashboard");
     const result = await addTrack(data);
     setModalOpen(false); // ✅ Close after submission
     return result;

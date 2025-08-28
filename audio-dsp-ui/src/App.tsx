@@ -15,32 +15,32 @@ import { AuthListener } from './Auth/AuthListener';
 console.log('📁 App.js file loaded');
 
 function AppContent() {
-  console.log('🏠 AppContent component rendering...');
+  // console.log('🏠 AppContent component rendering...');
   
   const authResult = useAuth();
-  console.log('🔐 useAuth result:', authResult);
+  // console.log('🔐 useAuth result:', authResult);
   
   const { user, loading } = authResult;
   
-  console.log('👤 User state:', user);
-  console.log('⏳ Loading state:', loading);
+  // console.log('👤 User state:', user);
+  // console.log('⏳ Loading state:', loading);
 
   // Call the auto-refresh hook
-  console.log('🔄 About to call useTokenAutoRefresh...');
+  // console.log('🔄 About to call useTokenAutoRefresh...');
   useTokenAutoRefresh({
     enabled: true,
     interval: 2 * 60 * 1000, // 2 minutes for testing
   });
-  console.log('✅ useTokenAutoRefresh called');
+  // console.log('✅ useTokenAutoRefresh called');
 
-  console.log('🏠 App render - user:', user?.name || 'null', 'loading:', loading);
+  // console.log('🏠 App render - user:', user?.name || 'null', 'loading:', loading);
 
   if (loading) {
-    console.log('⏳ Still loading, showing loading screen');
+    // console.log('⏳ Still loading, showing loading screen');
     return <div>Loading...</div>;
   }
 
-  console.log('✅ Not loading, rendering routes');
+  // console.log('✅ Not loading, rendering routes');
 
   return (
     <>

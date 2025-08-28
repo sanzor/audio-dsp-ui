@@ -27,13 +27,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const initRef = useRef(false);
-  console.log('🏗️ AuthProvider render - user:', user?.name || 'null', 'loading:', loading);
+  // console.log('🏗️ AuthProvider render - user:', user?.name || 'null', 'loading:', loading);
 
   const checkSession = async (): Promise<SessionResponse> => {
-    console.log('🔍 Checking session...');
+    // console.log('🔍 Checking session...');
     const res = await getSession();
     if (res.user) {
-      console.log('✅ Session found for user:', res.user.name);
+      // console.log('✅ Session found for user:', res.user.name);
       setUser({
         id: Number.parseInt(res.user.user_id),
         name: res.user.name,
@@ -41,24 +41,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         photo: res.user.photo,
       });
     } else {
-      console.log('❌ No session found');
+      // console.log('❌ No session found');
       setUser(null);
     }
     return res;
   };
 
    const handleRefreshToken = async (): Promise<RefreshResponse> => {
-    console.log('🔄 RefreshToken called from context');
+    // console.log('🔄 RefreshToken called from context');
     try {
       const result = await refreshToken();
-      console.log('✅ Token refreshed, checking session...');
+      // console.log('✅ Token refreshed, checking session...');
       
       // After successful refresh, update the user session
       await checkSession();
       
       return result;
     } catch (error) {
-      console.error('❌ Refresh failed, clearing user:', error);
+      // console.error('❌ Refresh failed, clearing user:', error);
       setUser(null);
       throw error;
     }

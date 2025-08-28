@@ -12,7 +12,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
  */
 export async function getSession(): Promise<SessionResponse> {
   const url = `${BASE_URL}/auth/google/session`;
-  console.log("📡 Fetching session from:", url);
+  // console.log("📡 Fetching session from:", url);
 
   try {
     const res = await fetch(url, {
@@ -20,16 +20,16 @@ export async function getSession(): Promise<SessionResponse> {
       credentials: 'include',
     });
 
-    console.log("📥 Response status:", res.status);
+    // console.log("📥 Response status:", res.status);
 
     if (!res.ok) {
-      const text = await res.text(); // helpful for debugging backend errors
-      console.error("❌ Response not OK:", res.status, text);
+      // const text = await res.text(); // helpful for debugging backend errors
+      // console.error("❌ Response not OK:", res.status, text);
       throw new Error(`Failed to fetch session: ${res.status}`);
     }
 
     const session = await res.json();
-    console.log("✅ Session received:", session);
+    // console.log("✅ Session received:", session);
     return session;
   } catch (error) {
     console.error("❌ Fetch failed:", error);

@@ -1,5 +1,5 @@
 // src/contexts/TrackContext.tsx
-import { createContext, useEffect, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useEffect, useState, useCallback, type ReactNode, useRef } from 'react'
 import type { TrackMeta } from '@/Domain/TrackMeta'
 import { apiAddTrack, apiGetTracks, apiRemoveTrack } from '@/Services/TracksService'
 import type { AddTrackParams } from '@/Dtos/Tracks/AddTrackParams'
@@ -32,13 +32,15 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
   const [tracks, setTracks] = useState<TrackMeta[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const hasRefreshed = useRef(false);
   const refresh = useCallback(async () => {
   setLoading(true);
   setError(null);
   try {
+   
     const data = await apiGetTracks();
     setTracks(data);
-    console.log("✅ Fetched tracks:", data);
+    // console.log("✅ Fetched tracks:", data);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     setError(err.message || 'Failed to fetch tracks');
@@ -47,10 +49,11 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
   }
 }, []);
   useEffect(() => {
-    if (authLoading) return;     // Wait until auth is ready
-    if (!user) return;           // No user? Don't call refresh
-    refresh();                   // ✅ Safe to fetch
-  }, [authLoading, user, refresh]);
+  if (authLoading || !user || hasRefreshed.current) return;
+
+  hasRefreshed.current = true;
+  refresh();
+}, [authLoading, user, refresh]);
   const addTrack = async (params: AddTrackParams):Promise<AddTrackResult>=> {
     console.log("inside add track - context");
     const result=await apiAddTrack(params)

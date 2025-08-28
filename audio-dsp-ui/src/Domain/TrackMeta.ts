@@ -1,4 +1,6 @@
+import type { TrackInfo } from "./TrackInfo";
+
 export interface TrackMeta{
-    id:number,
-    name:string
+    track_info:TrackInfo,
+    track_id:string
 }

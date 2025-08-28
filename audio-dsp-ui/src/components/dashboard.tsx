@@ -1,5 +1,5 @@
 import { useAuth } from "@/Auth/UseAuth";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTracks } from "@/Providers/UseTracks";
 import type { AddTrackParams } from "@/Dtos/Tracks/AddTrackParams";
@@ -8,6 +8,7 @@ import type { RemoveTrackResult } from "@/Dtos/Tracks/RemoveTrackResult";
 import { AppSidebar } from "./app-sidebar";
 import { SidebarProvider } from "./ui/sidebar-provider";
 import { TrackCreateModal } from "./create-track-modal";
+import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
 
 
 
@@ -18,21 +19,28 @@ export function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const {tracks,addTrack,removeTrack}=useTracks();
 
-  const tracksWithRegions = useMemo(() => {
-  const result = (Array.isArray(tracks) ? tracks : []).map((track) => ({
-    ...track,
-    regions: [],
-  }));
+ const [tracksWithRegions, setTracksWithRegions] = useState<TrackMetaWithRegions[]>([]);
 
-  console.log("🧠 useMemo computed:", result); // <-- debug output
-
-  return result;
-}, [tracks]);
-  
+  useEffect(()=>{
+    console.log("✅ Dashboard effect triggered");
+    console.log("🔍 tracks value in effect:", tracks, typeof tracks);
+console.log("🔍 Array.isArray(tracks):", Array.isArray(tracks));
+    if(!Array.isArray(tracks)){
+      return;
+    }
+    const result=tracks.map((track)=>(
+      {
+        ...track,
+        regions:[]
+      }
+    ));
+    console.log(result);
+    setTracksWithRegions(result);
+  },[tracks]);
   const navigate = useNavigate(); // ✅ must be called here
     useEffect(()=>{
       console.log("Tracks inside  dashboard",tracks);
-    },[tracks])
+    },[tracks]);
   useEffect(() => {
     if (!loading && !user) {
       navigate("/login");

@@ -20,9 +20,9 @@ export function useTokenAutoRefresh({
   const { refreshToken,user } = useAuth();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const isRefreshingRef = useRef(false);
-  console.log('🔄 useTokenAutoRefresh called - enabled:', enabled, 'user:', user?.name || 'null');
+  // console.log('🔄 useTokenAutoRefresh called - enabled:', enabled, 'user:', user?.name || 'null');
   useEffect(() => {
-    console.log(user);
+    // console.log(user);
      if (!enabled || !user) {
       console.log('❌ Auto-refresh disabled or no user, clearing interval');
       if (intervalRef.current) {
@@ -37,16 +37,17 @@ export function useTokenAutoRefresh({
 
        // For development: test refresh after 5 seconds
     if (process.env.NODE_ENV === 'development') {
-      console.log('🧪 Development mode: will test refresh in 5 seconds');
+      // console.log('🧪 Development mode: will test refresh in 5 seconds');
       setTimeout(async () => {
         if (!isRefreshingRef.current && user) {
-          console.log('🧪 Testing token refresh...');
+          // console.log('🧪 Testing token refresh...');
           isRefreshingRef.current = true;
           try {
             await refreshToken();
-            console.log('✅ Test refresh successful');
+            // console.log('✅ Test refresh successful');
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (error) {
-            console.error('❌ Test refresh failed:', error);
+            // console.error('❌ Test refresh failed:', error);
           } finally {
             isRefreshingRef.current = false;
           }
@@ -55,18 +56,19 @@ export function useTokenAutoRefresh({
     }
     intervalRef.current = setInterval(async () => {
       if (isRefreshingRef.current) {
-        console.log('⏭️ Refresh already in progress, skipping');
+        // console.log('⏭️ Refresh already in progress, skipping');
         return;
       }
 
-      console.log('🔄 Auto-refresh triggered');
+      // console.log('🔄 Auto-refresh triggered');
       isRefreshingRef.current = true;
 
       try {
         await refreshToken();
-        console.log('✅ Auto-refresh successful');
+        // console.log('✅ Auto-refresh successful');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        console.error('❌ Auto-refresh failed:', error);
+        // console.error('❌ Auto-refresh failed:', error);
         // You might want to handle this by redirecting to login
         // or showing a notification to the user
       } finally {
@@ -75,7 +77,7 @@ export function useTokenAutoRefresh({
     }, interval);
 
    return () => {
-      console.log('🧹 Cleaning up auto-refresh interval');
+      // console.log('🧹 Cleaning up auto-refresh interval');
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;

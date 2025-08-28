@@ -1,8 +1,9 @@
 import { useContext } from 'react';
-import {TrackContext as TracksContext} from "./TracksContext";
+import { TrackContext } from './TracksContext';
+
 
 export const useTracks = () => {
-  const context = useContext(TracksContext)
+  const context = useContext(TrackContext)
   if (!context) throw new Error('useTracks must be used within a TrackProvider')
   return context
 }

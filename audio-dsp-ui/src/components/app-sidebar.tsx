@@ -1,13 +1,10 @@
 import * as React from "react"
 import {
   AudioWaveform,
-  BookOpen,
-  Bot,
   Command,
-  Frame,
+
   GalleryVerticalEnd,
-  Map,
-  PieChart,
+
   Plus,
   Settings2,
   SquareTerminal,
@@ -37,7 +34,7 @@ const data = {
   },
   teams: [
     {
-      name: "Acme Inc",
+      name: "Adaw Inc",
       logo: GalleryVerticalEnd,
       plan: "Enterprise",
     },
@@ -53,68 +50,7 @@ const data = {
     },
   ],
   navMain: [
-    {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
+
     {
       title: "Settings",
       url: "#",
@@ -138,23 +74,28 @@ const data = {
         },
       ],
     },
+    {
+      title: "Tracks",
+      url: "#",
+      icon: SquareTerminal,
+      isActive: true,
+      items: [
+        {
+          title: "History",
+          url: "#",
+        },
+        {
+          title: "Starred",
+          url: "#",
+        },
+        {
+          title: "Settings",
+          url: "#",
+        },
+      ],
+    }
   ],
   projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
   ],
 }
 export type AppSidebarProps = {
@@ -163,6 +104,7 @@ export type AppSidebarProps = {
   onRemoveTrack: (trackId: number) => void;
 };
 export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onRemoveTrack }:AppSidebarProps) {
+
   const addTrackClick=():void=>{
       onAddTrack();
   };
@@ -187,12 +129,13 @@ export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onRemoveTrack }:
           Add Track
         </Button>
         </div>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} tracks={tracks} />
         <NavProjects tracks={tracks} onRemoveTrack={removeTrack} /> {/* ✅ Here */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   )

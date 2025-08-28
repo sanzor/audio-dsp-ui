@@ -28,9 +28,9 @@ export async function apiGetTracks(): Promise<TrackMeta[]> {
 
   if (!res.ok) throw new Error('Failed to fetch session');
 
-  const tracks = await res.json(); // ✅ await here
-  console.log(tracks);
-  return tracks;
+  const json = await res.json(); // ✅ await here
+  console.log(json);
+  return json.tracks;
 }
 
 export async function apiGetTrackMeta(params:GetTrackParams): Promise<GetTrackResult> {

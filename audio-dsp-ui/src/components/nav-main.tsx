@@ -17,9 +17,12 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
+import type { Region } from "@/Domain/Region"
 
 export function NavMain({
   items,
+  tracks
 }: {
   items: {
     title: string
@@ -30,11 +33,48 @@ export function NavMain({
       title: string
       url: string
     }[]
-  }[]
+  }[],
+  tracks:TrackMetaWithRegions[]
 }) {
+  function TrackItem({track}:{track:TrackMetaWithRegions}){
+         <Collapsible
+            key={track.track_id}
+            asChild
+            defaultOpen={true}
+            className="group/collapsible"
+          >
+            <SidebarMenuItem>
+              <CollapsibleTrigger asChild>
+                <SidebarMenuButton tooltip={track.track_info.name}>
+                  {/* {item.icon && <item.icon />} */}
+                  <span>{track.track_info.name}</span>
+                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                </SidebarMenuButton>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarMenuSub>
+                  {track.regions.map((region) => 
+                    <RegionItem region={region}>
+                    </RegionItem>)
+                  }
+                </SidebarMenuSub>
+              </CollapsibleContent>
+            </SidebarMenuItem>
+          </Collapsible>
+    return (<></>)
+  };
+  function RegionItem({region}:{region:Region}){
+    return (<SidebarMenuSubItem key={region.region_id}>
+                      <SidebarMenuSubButton asChild>
+                        
+                          <span>{region.name}</span>
+
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>)
+  }
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>Tracks</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible

@@ -9,22 +9,30 @@ import { AppSidebar } from "./app-sidebar";
 import { SidebarProvider } from "./ui/sidebar-provider";
 import { TrackCreateModal } from "./create-track-modal";
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
-
-
+import { TrackRenameModal } from "./rename-track-modal";
+import { DetailsTrackModal } from "./details-track-modal";
+import { CopyTrackModal } from "./copy-track-modal";
+import type { CopyTrackParams } from "@/Dtos/Tracks/CopyTrackParams";
+import { apiCopyTrack } from "@/Services/TracksService";
 
 
 
 export function Dashboard() {
   const { user, loading } = useAuth();
-  const [modalOpen, setModalOpen] = useState(false);
-  const {tracks,addTrack,removeTrack}=useTracks();
+  const [addTrackModalOpen, setAddTrackModalOpen] = useState(false);
+  const [renameTrackModalOpen,setRenameTrackModalOpen]=useState(false);
+  const [trackToRename,setTrackToRename]=useState<{trackId:string,trackInitialName:string}|null>(null);
+  const [detailsTrackModalOpen,setDetailsTrackModalOpen]=useState(false);
+  const [detailedTrack,setDetailedTrack]=useState<TrackMetaWithRegions|null>(null);
+  const [copiedTrack,setCopiedTrack]=useState<TrackMetaWithRegions|null>(null);
+  const [copyTrackModalOpen,setCopyTrackModalOpen]=useState(false);
+  const {tracks,addTrack,removeTrack,updateTrack}=useTracks();
 
  const [tracksWithRegions, setTracksWithRegions] = useState<TrackMetaWithRegions[]>([]);
 
   useEffect(()=>{
-    console.log("✅ Dashboard effect triggered");
     console.log("🔍 tracks value in effect:", tracks, typeof tracks);
-console.log("🔍 Array.isArray(tracks):", Array.isArray(tracks));
+    console.log("🔍 Array.isArray(tracks):", Array.isArray(tracks));
     if(!Array.isArray(tracks)){
       return;
     }
@@ -37,6 +45,7 @@ console.log("🔍 Array.isArray(tracks):", Array.isArray(tracks));
     console.log(result);
     setTracksWithRegions(result);
   },[tracks]);
+
   const navigate = useNavigate(); // ✅ must be called here
     useEffect(()=>{
       console.log("Tracks inside  dashboard",tracks);
@@ -49,35 +58,112 @@ console.log("🔍 Array.isArray(tracks):", Array.isArray(tracks));
 
   if (loading) return <div>Loading...</div>;
 
-  const onRemoveTrack = async (trackId: number): Promise<RemoveTrackResult> => {
+  const onRemoveTrack = async (trackId: string): Promise<RemoveTrackResult> => {
     return await removeTrack({ trackId: trackId.toString() });
   };
 
+  const onDetailsTrackClick=(trackId:string)=>{
+    const track=tracks.find(x=>x.track_id===trackId);
+    if(!track){
+      return;
+    }
+    setDetailedTrack({...track,regions:[]});
+    setDetailsTrackModalOpen(true);
+  };
+  const onCloseDetailsTrack=()=>{
+    setDetailsTrackModalOpen(false);
+  }
+  const onCopyTrackClick=(trackId:string)=>{
+     const track=tracks.find(x=>x.track_id==trackId);
+     if(!track){
+      return;
+     }
+     setCopiedTrack({...track,regions:[]});
+     //notify user copy took place
+
+  };
+ // Optional dep
+  // const onPasteTrackClick=()=>{
+  //   const sourceTrack=tracks.find(x=>x.track_id===copiedTrack?.track_id);
+  //   if(!sourceTrack){
+  //     return undefined;
+  //   }
+  //   setCopyTrackModalOpen(true);
+  // };
+
+  const onSubmitCopyTrackModal=async(trackId:string,copyTrackName:string)=>{
+    const params:CopyTrackParams={copy_track_name:copyTrackName,track_id:trackId};
+    const result=await apiCopyTrack(params)
+    setCopyTrackModalOpen(false);
+    return result;
+  };
+  const onCloseCopyTrackModal=()=>{
+    setCopyTrackModalOpen(false);
+  };
+  const onRenameTrackClick=(trackId:string,currentName:string)=>{
+     setTrackToRename({trackId:trackId,trackInitialName:currentName});
+     setRenameTrackModalOpen(true);
+  };
+  const onSubmitRenameTrackModal=async(trackId:string,newTrackName:string)=>{
+    if(!trackToRename){
+      return;
+    }
+    const result=await updateTrack({track_id:trackId,name:newTrackName});
+    setRenameTrackModalOpen(false);
+    return result;
+  };
+
+  const onCloseRenameTrackModal=()=>{
+    setRenameTrackModalOpen(false);
+  }
   // 🧩 Add track
-  const onSubmit = async (data: AddTrackParams): Promise<AddTrackResult> => {
+  const onSubmitAddTrackModal = async (data: AddTrackParams): Promise<AddTrackResult> => {
     console.log("Submit inside dashboard");
     const result = await addTrack(data);
-    setModalOpen(false); // ✅ Close after submission
+    setAddTrackModalOpen(false); // ✅ Close after submission
     return result;
   };
   
-  const onClose = () => {
-    setModalOpen(false); // ✅ Close modal
+  const onCloseAddTrackModal = () => {
+    setAddTrackModalOpen(false); // ✅ Close modal
   };
  return (
     <SidebarProvider>
       <div className="flex">
         <AppSidebar
-          onAddTrackClick={() => setModalOpen(true)}
+          onAddTrackClick={() => setAddTrackModalOpen(true)}
           onRemoveTrack={onRemoveTrack}
+          onCopyTrack={onCopyTrackClick}
+          onDetailTrack={onDetailsTrackClick}
+          onRenameTrack={()=>onRenameTrackClick}
            tracks={tracksWithRegions}
         />
         <TrackCreateModal 
-          open={modalOpen} 
-          onClose={onClose} 
-          onSubmit={onSubmit} 
+          open={addTrackModalOpen} 
+          onClose={onCloseAddTrackModal} 
+          onSubmit={onSubmitAddTrackModal} 
         />
-
+        {trackToRename && <TrackRenameModal 
+          trackToRename={trackToRename}
+          onClose={()=>onCloseRenameTrackModal()}
+          open={renameTrackModalOpen}
+          onSubmit={onSubmitRenameTrackModal}
+        >
+        </TrackRenameModal>}
+        {detailedTrack &&<DetailsTrackModal
+            open={detailsTrackModalOpen}
+            track={{...detailedTrack,regions:[]}}
+            onClose={onCloseDetailsTrack}>
+          </DetailsTrackModal>}
+          {copiedTrack && <CopyTrackModal 
+              trackToCopy={{
+                trackId: copiedTrack.track_id,
+                sourceTrackNname: copiedTrack.track_info.name
+              }}
+              open={copyTrackModalOpen}
+              onSubmit={onSubmitCopyTrackModal}
+              onClose={onCloseCopyTrackModal}>
+          </CopyTrackModal>}
         <main className="flex-1">Main content here</main>
       </div>
     </SidebarProvider>

@@ -11,7 +11,7 @@ import {
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
+// import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
@@ -98,18 +98,32 @@ const data = {
   projects: [
   ],
 }
-export type AppSidebarProps = {
-  tracks: TrackMetaWithRegions[];                          // <- or with regions if needed
-  onAddTrackClick: () => void;
-  onRemoveTrack: (trackId: number) => void;
+export interface AppSidebarProps{
+  tracks: TrackMetaWithRegions[],                         // <- or with regions if needed
+  onAddTrackClick: () => void,
+  onDetailTrack:(trackId:string)=>void,
+  onRemoveTrack: (trackId: string) => void,
+  onRenameTrack:(trackId:string)=>void,
+  onCopyTrack:(trackId:string)=>void;
 };
-export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onRemoveTrack }:AppSidebarProps) {
+
+export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onDetailTrack, onCopyTrack,onRemoveTrack,onRenameTrack }:AppSidebarProps) {
 
   const addTrackClick=():void=>{
       onAddTrack();
   };
-  const removeTrack=(elem:number)=>{
-    onRemoveTrack(elem)
+  const detailsTrack=(elem:string)=>{
+      onDetailTrack(elem);
+  }
+  const removeTrack=(elem:string)=>{
+      onRemoveTrack(elem);
+  }
+  const renameTrack=(elem:string)=>{
+     onRenameTrack(elem);
+  }
+
+  const copyTrack=(elem:string)=>{
+    onCopyTrack(elem);
   }
   React.useEffect(()=>{
     console.log("Tracks from app-sidebar",tracks);
@@ -129,8 +143,8 @@ export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onRemoveTrack }:
           Add Track
         </Button>
         </div>
-        <NavMain items={data.navMain} tracks={tracks} />
-        <NavProjects tracks={tracks} onRemoveTrack={removeTrack} /> {/* ✅ Here */}
+        <NavMain onDetails={detailsTrack} onRemove={removeTrack} onRename={renameTrack} onCopy={copyTrack} tracks={tracks} />
+        {/* <NavProjects tracks={tracks} onRemoveTrack={removeTrack} /> ✅ Here */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

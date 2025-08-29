@@ -1,4 +1,4 @@
 export interface CopyTrackParams{
-    track_id:number,
+    track_id:string,
     copy_track_name:string
 }

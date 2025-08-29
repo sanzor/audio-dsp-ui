@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import { ChevronRight} from "lucide-react"
 
 import {
   Collapsible,
@@ -19,25 +19,44 @@ import {
 } from "@/components/ui/sidebar"
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
 import type { Region } from "@/Domain/Region"
+import { TrackContextMenu } from "./track-context-menu"
 
+export interface NavMainProps{
+   tracks:TrackMetaWithRegions[],
+   onDetails:(trackId:string)=>void,
+   onRename:(trackId:string)=>void,
+   onRemove:(trackId:string)=>void,
+   onCopy:(trackId:string)=>void
+}
 export function NavMain({
-  items,
-  tracks
-}: {
-  items: {
-    title: string
-    url: string
-    icon?: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
-  }[],
-  tracks:TrackMetaWithRegions[]
-}) {
+  tracks,
+  onDetails,
+  onRename,
+  onCopy,
+  onRemove
+
+}:NavMainProps) {
+  const handleDetails=(trackId:string)=>{
+    onDetails(trackId);
+  }
+  const handleRename=(trackId:string)=>{
+      onRename(trackId)
+    }
+  const handleRemove=(trackId:string)=>{
+    onRemove(trackId)
+  }
+  const handleCopy=(trackId:string)=>{
+    onCopy(trackId);
+  }
   function TrackItem({track}:{track:TrackMetaWithRegions}){
-         <Collapsible
+        return(
+          <TrackContextMenu
+          trackId={track.track_id}
+          onDetails={handleDetails}
+          onRename={handleRename}
+          onCopy={handleCopy}
+          onRemove={handleRemove}>
+          <Collapsible
             key={track.track_id}
             asChild
             defaultOpen={true}
@@ -46,8 +65,7 @@ export function NavMain({
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton tooltip={track.track_info.name}>
-                  {/* {item.icon && <item.icon />} */}
-                  <span>{track.track_info.name}</span>
+                  <span className="truncate">{track.track_info.name}</span>
                   <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                 </SidebarMenuButton>
               </CollapsibleTrigger>
@@ -61,7 +79,9 @@ export function NavMain({
               </CollapsibleContent>
             </SidebarMenuItem>
           </Collapsible>
-    return (<></>)
+          </TrackContextMenu>
+            );
+   
   };
   function RegionItem({region}:{region:Region}){
     return (<SidebarMenuSubItem key={region.region_id}>
@@ -76,37 +96,7 @@ export function NavMain({
     <SidebarGroup>
       <SidebarGroupLabel>Tracks</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible
-            key={item.title}
-            asChild
-            defaultOpen={item.isActive}
-            className="group/collapsible"
-          >
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild>
-                        <a href={subItem.url}>
-                          <span>{subItem.title}</span>
-                        </a>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        ))}
+        {tracks.map((item) => (<TrackItem key={item.track_id} track={item}></TrackItem>))}
       </SidebarMenu>
     </SidebarGroup>
   )

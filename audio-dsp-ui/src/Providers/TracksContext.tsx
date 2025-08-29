@@ -1,12 +1,14 @@
 // src/contexts/TrackContext.tsx
 import { createContext, useEffect, useState, useCallback, type ReactNode, useRef } from 'react'
 import type { TrackMeta } from '@/Domain/TrackMeta'
-import { apiAddTrack, apiGetTracks, apiRemoveTrack } from '@/Services/TracksService'
+import { apiAddTrack, apiGetTracks, apiRemoveTrack, apiUpdateTrack } from '@/Services/TracksService'
 import type { AddTrackParams } from '@/Dtos/Tracks/AddTrackParams'
 import type { AddTrackResult } from '@/Dtos/Tracks/AddTrackResult'
 import type { RemoveTrackParams } from '@/Dtos/Tracks/RemoveTrackParams'
 import type { RemoveTrackResult } from '@/Dtos/Tracks/RemoveTrackResult'
 import { useAuth } from '@/Auth/UseAuth'
+import type { UpdateTrackParams } from '@/Dtos/Tracks/UpdateTrackParams'
+import type { UpdateTrackResult } from '@/Dtos/Tracks/UpdateTrackResult'
 
 
 // --- Types
@@ -16,6 +18,7 @@ interface TrackContextType {
   error: string | null
   refresh: () => Promise<void>
   addTrack: (params: AddTrackParams) => Promise<AddTrackResult>
+  updateTrack:(params:UpdateTrackParams)=>Promise<UpdateTrackResult>
   removeTrack: (params: RemoveTrackParams) => Promise<RemoveTrackResult>
   listTracks:()=>Promise<TrackMeta[]>
 }
@@ -60,7 +63,11 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
     await refresh()
     return result
   }
-
+  const updateTrack=async(params:UpdateTrackParams):Promise<UpdateTrackResult>=>{
+    const result=await apiUpdateTrack(params);
+    await refresh();
+    return result;
+  }
   const removeTrack = async (params: RemoveTrackParams):Promise<RemoveTrackResult> => {
     const result=await apiRemoveTrack(params)
     await refresh();
@@ -71,7 +78,7 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
     return result;
   }
   return (
-    <TrackContext.Provider value={{ tracks, loading, error, refresh, addTrack, removeTrack, listTracks }}>
+    <TrackContext.Provider value={{ tracks, loading, error, refresh, addTrack,updateTrack, removeTrack, listTracks }}>
       {children}
     </TrackContext.Provider>
   )

@@ -1,4 +1,4 @@
 export interface UpdateTrackParams{
-    track_id:number,
+    track_id:string,
     name:string
 }

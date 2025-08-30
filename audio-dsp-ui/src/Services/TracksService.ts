@@ -91,7 +91,7 @@ export async function apiAddTrack(params: AddTrackParams): Promise<AddTrackResul
 }
 
 export async function apiRemoveTrack(params:RemoveTrackParams): Promise<RemoveTrackResult> {
-  const res = await fetch(`${BASE_URL}/tracks/get-meta?track_id=${params.trackId}`, {
+  const res = await fetch(`${BASE_URL}/tracks/remove?track_id=${params.trackId}`, {
     method: 'DELETE',
     credentials: 'include'
   });
@@ -101,6 +101,7 @@ export async function apiRemoveTrack(params:RemoveTrackParams): Promise<RemoveTr
 }
 
 export async function apiUpdateTrack(params: UpdateTrackParams): Promise<UpdateTrackResult> {
+  console.log("a");
   const res = await fetch(`${BASE_URL}/tracks/update-track-info`, {
     method: 'POST', // ✅ must be POST to send body
     credentials: 'include',
@@ -109,7 +110,7 @@ export async function apiUpdateTrack(params: UpdateTrackParams): Promise<UpdateT
     },
     body: JSON.stringify(params),
   });
-
+  console.log(res.status);
   if (!res.ok) {
     throw new Error(`Failed to update track: ${res.statusText}`);
   }

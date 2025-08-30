@@ -27,12 +27,14 @@ export interface NavMainProps{
    onRename:(trackId:string)=>void,
    onRemove:(trackId:string)=>void,
    onCopy:(trackId:string)=>void
+   onPaste:()=>void
 }
 export function NavMain({
   tracks,
   onDetails,
   onRename,
   onCopy,
+  onPaste,
   onRemove
 
 }:NavMainProps) {
@@ -40,6 +42,7 @@ export function NavMain({
     onDetails(trackId);
   }
   const handleRename=(trackId:string)=>{
+    console.log("rename clicked from nav main");
       onRename(trackId)
     }
   const handleRemove=(trackId:string)=>{
@@ -48,6 +51,10 @@ export function NavMain({
   const handleCopy=(trackId:string)=>{
     onCopy(trackId);
   }
+  const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    onPaste();
+  };
   function TrackItem({track}:{track:TrackMetaWithRegions}){
         return(
           <TrackContextMenu
@@ -93,7 +100,7 @@ export function NavMain({
                     </SidebarMenuSubItem>)
   }
   return (
-    <SidebarGroup>
+    <SidebarGroup onContextMenu={handleContextMenu}>
       <SidebarGroupLabel>Tracks</SidebarGroupLabel>
       <SidebarMenu>
         {tracks.map((item) => (<TrackItem key={item.track_id} track={item}></TrackItem>))}

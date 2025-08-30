@@ -23,6 +23,7 @@ export function TrackRenameModal({
   const [trackName, setName] = useState(initialName?.trackInitialName);
 
   useEffect(() => {
+    console.log("inside rename modal");
     setName(trackName); // Reset when modal opens
   }, [trackName, open]);
 

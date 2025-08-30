@@ -26,6 +26,7 @@ export function Dashboard() {
   const [detailedTrack,setDetailedTrack]=useState<TrackMetaWithRegions|null>(null);
   const [copiedTrack,setCopiedTrack]=useState<TrackMetaWithRegions|null>(null);
   const [copyTrackModalOpen,setCopyTrackModalOpen]=useState(false);
+
   const {tracks,addTrack,removeTrack,updateTrack}=useTracks();
 
  const [tracksWithRegions, setTracksWithRegions] = useState<TrackMetaWithRegions[]>([]);
@@ -78,18 +79,20 @@ export function Dashboard() {
      if(!track){
       return;
      }
+     console.log("Copied track");
      setCopiedTrack({...track,regions:[]});
      //notify user copy took place
 
   };
  // Optional dep
-  // const onPasteTrackClick=()=>{
-  //   const sourceTrack=tracks.find(x=>x.track_id===copiedTrack?.track_id);
-  //   if(!sourceTrack){
-  //     return undefined;
-  //   }
-  //   setCopyTrackModalOpen(true);
-  // };
+  const onPasteTrackClick=()=>{
+    
+    if(!copiedTrack){
+      return undefined;
+    }
+    setCopyTrackModalOpen(true);
+  };
+
 
   const onSubmitCopyTrackModal=async(trackId:string,copyTrackName:string)=>{
     const params:CopyTrackParams={copy_track_name:copyTrackName,track_id:trackId};
@@ -100,15 +103,21 @@ export function Dashboard() {
   const onCloseCopyTrackModal=()=>{
     setCopyTrackModalOpen(false);
   };
-  const onRenameTrackClick=(trackId:string,currentName:string)=>{
-     setTrackToRename({trackId:trackId,trackInitialName:currentName});
+  const onRenameTrackClick=(trackId:string)=>{
+     const targetTrack=tracks.find(x=>x.track_id===trackId);
+     if(!targetTrack){
+        return;
+     }
+     console.log("click rename");
+     setTrackToRename({trackId:trackId,trackInitialName:targetTrack.track_info.name});
      setRenameTrackModalOpen(true);
   };
   const onSubmitRenameTrackModal=async(trackId:string,newTrackName:string)=>{
     if(!trackToRename){
       return;
     }
-    const result=await updateTrack({track_id:trackId,name:newTrackName});
+    
+    const result=await updateTrack({track_id:trackId,track_name:newTrackName});
     setRenameTrackModalOpen(false);
     return result;
   };
@@ -134,8 +143,9 @@ export function Dashboard() {
           onAddTrackClick={() => setAddTrackModalOpen(true)}
           onRemoveTrack={onRemoveTrack}
           onCopyTrack={onCopyTrackClick}
+          onPasteTrack={onPasteTrackClick}
           onDetailTrack={onDetailsTrackClick}
-          onRenameTrack={()=>onRenameTrackClick}
+          onRenameTrack={onRenameTrackClick}
            tracks={tracksWithRegions}
         />
         <TrackCreateModal 

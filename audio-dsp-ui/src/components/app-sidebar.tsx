@@ -105,9 +105,10 @@ export interface AppSidebarProps{
   onRemoveTrack: (trackId: string) => void,
   onRenameTrack:(trackId:string)=>void,
   onCopyTrack:(trackId:string)=>void;
+  onPasteTrack:()=>void
 };
 
-export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onDetailTrack, onCopyTrack,onRemoveTrack,onRenameTrack }:AppSidebarProps) {
+export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onDetailTrack, onCopyTrack,onRemoveTrack,onRenameTrack,onPasteTrack }:AppSidebarProps) {
 
   const addTrackClick=():void=>{
       onAddTrack();
@@ -124,6 +125,9 @@ export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onDetailTrack, o
 
   const copyTrack=(elem:string)=>{
     onCopyTrack(elem);
+  }
+  const pasteTrack=()=>{
+    onPasteTrack();
   }
   React.useEffect(()=>{
     console.log("Tracks from app-sidebar",tracks);
@@ -143,7 +147,7 @@ export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onDetailTrack, o
           Add Track
         </Button>
         </div>
-        <NavMain onDetails={detailsTrack} onRemove={removeTrack} onRename={renameTrack} onCopy={copyTrack} tracks={tracks} />
+        <NavMain onPaste={pasteTrack} onDetails={detailsTrack} onRemove={removeTrack} onRename={renameTrack} onCopy={copyTrack} tracks={tracks} />
         {/* <NavProjects tracks={tracks} onRemoveTrack={removeTrack} /> ✅ Here */}
       </SidebarContent>
       <SidebarFooter>

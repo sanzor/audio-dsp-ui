@@ -64,7 +64,9 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
     return result
   }
   const updateTrack=async(params:UpdateTrackParams):Promise<UpdateTrackResult>=>{
+    console.log("inside update track before api request");
     const result=await apiUpdateTrack(params);
+    console.log("inside update track - api");
     await refresh();
     return result;
   }

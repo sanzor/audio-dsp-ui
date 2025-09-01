@@ -14,6 +14,7 @@ import { DetailsTrackModal } from "./details-track-modal";
 import { CopyTrackModal } from "./copy-track-modal";
 import type { CopyTrackParams } from "@/Dtos/Tracks/CopyTrackParams";
 import { apiCopyTrack } from "@/Services/TracksService";
+import { WaveformPlayer } from "./waveform-player";
 
 
 
@@ -27,6 +28,11 @@ export function Dashboard() {
   const [copiedTrack,setCopiedTrack]=useState<TrackMetaWithRegions|null>(null);
   const [copyTrackModalOpen,setCopyTrackModalOpen]=useState(false);
 
+  const [selectedTrack,setSelectedTrack]=useState<TrackMetaWithRegions|null>(null);
+  const [audioCache,setAudioCache]=useState<Map<string,Blob>>(new Map());
+  const [audioBlob,setAudioBlob]=useState<Blob|null>(null);
+
+  const [waveformPlayerOpen,setWaveformPlayerOpen]=useState(false);
   const {tracks,addTrack,removeTrack,updateTrack}=useTracks();
 
  const [tracksWithRegions, setTracksWithRegions] = useState<TrackMetaWithRegions[]>([]);
@@ -59,6 +65,19 @@ export function Dashboard() {
 
   if (loading) return <div>Loading...</div>;
 
+  const onSelectTrack=(trackId:string)=>{
+      const track=tracks.find(x=>x.track_id===trackId);
+      if(!track){
+        return;
+      }
+      setSelectedTrack({...track,regions:[]});
+      if(audioCache.has(trackId)){
+        setAudioBlob(audioCache.get(trackId));
+      }else{
+        
+      }
+      setWaveformPlayerOpen(true);
+  }
   const onRemoveTrack = async (trackId: string): Promise<RemoveTrackResult> => {
     return await removeTrack({ trackId: trackId.toString() });
   };
@@ -86,7 +105,7 @@ export function Dashboard() {
   };
  // Optional dep
   const onPasteTrackClick=()=>{
-    
+    console.log("inside paste");
     if(!copiedTrack){
       return undefined;
     }
@@ -140,6 +159,7 @@ export function Dashboard() {
     <SidebarProvider>
       <div className="flex">
         <AppSidebar
+          onSelect={onSelectTrack}
           onAddTrackClick={() => setAddTrackModalOpen(true)}
           onRemoveTrack={onRemoveTrack}
           onCopyTrack={onCopyTrackClick}
@@ -174,6 +194,7 @@ export function Dashboard() {
               onSubmit={onSubmitCopyTrackModal}
               onClose={onCloseCopyTrackModal}>
           </CopyTrackModal>}
+          {waveformPlayerOpen &&  selectedTrack <WaveformPlayer></WaveformPlayer>}
         <main className="flex-1">Main content here</main>
       </div>
     </SidebarProvider>

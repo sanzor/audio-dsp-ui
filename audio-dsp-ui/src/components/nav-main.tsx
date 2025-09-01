@@ -23,6 +23,7 @@ import { TrackContextMenu } from "./track-context-menu"
 
 export interface NavMainProps{
    tracks:TrackMetaWithRegions[],
+   onSelect:(trackId:string)=>void,
    onDetails:(trackId:string)=>void,
    onRename:(trackId:string)=>void,
    onRemove:(trackId:string)=>void,
@@ -35,7 +36,8 @@ export function NavMain({
   onRename,
   onCopy,
   onPaste,
-  onRemove
+  onRemove,
+  onSelect
 
 }:NavMainProps) {
   const handleDetails=(trackId:string)=>{
@@ -57,7 +59,9 @@ export function NavMain({
   };
   function TrackItem({track}:{track:TrackMetaWithRegions}){
         return(
+         <div className="track-item" onClick={()=>onSelect(track.track_id)}>
           <TrackContextMenu
+        
           trackId={track.track_id}
           onDetails={handleDetails}
           onRename={handleRename}
@@ -87,6 +91,7 @@ export function NavMain({
             </SidebarMenuItem>
           </Collapsible>
           </TrackContextMenu>
+          </div>
             );
    
   };
@@ -103,7 +108,7 @@ export function NavMain({
     <SidebarGroup onContextMenu={handleContextMenu}>
       <SidebarGroupLabel>Tracks</SidebarGroupLabel>
       <SidebarMenu>
-        {tracks.map((item) => (<TrackItem key={item.track_id} track={item}></TrackItem>))}
+        {tracks.map((item) => (<TrackItem  key={item.track_id} track={item}></TrackItem>))}
       </SidebarMenu>
     </SidebarGroup>
   )

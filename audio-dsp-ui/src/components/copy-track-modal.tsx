@@ -37,7 +37,7 @@ export function CopyTrackModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Rename Track</DialogTitle>
+          <DialogTitle>Track to copy</DialogTitle>
         </DialogHeader>
         <Input
           value={copyTrackName}

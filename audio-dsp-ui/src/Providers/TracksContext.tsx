@@ -79,6 +79,10 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
     const result=await apiGetTracks();
     return result;
   }
+
+  const getTrackBlob=async(trackId:string):Promise<Track>{
+    
+  }
   return (
     <TrackContext.Provider value={{ tracks, loading, error, refresh, addTrack,updateTrack, removeTrack, listTracks }}>
       {children}

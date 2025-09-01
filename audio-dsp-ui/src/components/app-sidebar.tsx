@@ -101,6 +101,7 @@ const data = {
 export interface AppSidebarProps{
   tracks: TrackMetaWithRegions[],                         // <- or with regions if needed
   onAddTrackClick: () => void,
+  onSelect:(trackId:string)=>void,
   onDetailTrack:(trackId:string)=>void,
   onRemoveTrack: (trackId: string) => void,
   onRenameTrack:(trackId:string)=>void,
@@ -108,8 +109,10 @@ export interface AppSidebarProps{
   onPasteTrack:()=>void
 };
 
-export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onDetailTrack, onCopyTrack,onRemoveTrack,onRenameTrack,onPasteTrack }:AppSidebarProps) {
-
+export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onDetailTrack, onCopyTrack,onRemoveTrack,onRenameTrack,onPasteTrack,onSelect }:AppSidebarProps) {
+  const selectTrack=(trackId:string)=>{
+      onSelect(trackId);
+  }
   const addTrackClick=():void=>{
       onAddTrack();
   };
@@ -147,7 +150,7 @@ export function AppSidebar({ tracks,onAddTrackClick: onAddTrack,onDetailTrack, o
           Add Track
         </Button>
         </div>
-        <NavMain onPaste={pasteTrack} onDetails={detailsTrack} onRemove={removeTrack} onRename={renameTrack} onCopy={copyTrack} tracks={tracks} />
+        <NavMain onSelect={selectTrack} onPaste={pasteTrack} onDetails={detailsTrack} onRemove={removeTrack} onRename={renameTrack} onCopy={copyTrack} tracks={tracks} />
         {/* <NavProjects tracks={tracks} onRemoveTrack={removeTrack} /> ✅ Here */}
       </SidebarContent>
       <SidebarFooter>

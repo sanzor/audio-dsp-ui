@@ -3,5 +3,5 @@ export interface WaveformPlayerProps{
 }
 
 export function WaveformPlayer({trackId}:WaveformPlayerProps){
-
+    return (<>{trackId}</>)
 }

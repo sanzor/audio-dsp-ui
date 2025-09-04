@@ -194,7 +194,7 @@ export function Dashboard() {
               onSubmit={onSubmitCopyTrackModal}
               onClose={onCloseCopyTrackModal}>
           </CopyTrackModal>}
-          {waveformPlayerOpen &&  selectedTrack <WaveformPlayer></WaveformPlayer>}
+          {waveformPlayerOpen &&  selectedTrack && <WaveformPlayer></WaveformPlayer>}
         <main className="flex-1">Main content here</main>
       </div>
     </SidebarProvider>

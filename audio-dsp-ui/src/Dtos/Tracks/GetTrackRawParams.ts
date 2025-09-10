@@ -1,3 +1,3 @@
 export interface GetTrackRawParams{
-    track_id:number
+    track_id:string
 }

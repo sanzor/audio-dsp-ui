@@ -60,7 +60,7 @@ export async function apiGetTrackRaw(params:GetTrackRawParams): Promise<GetTrack
   });
 
   if (!res.ok) throw new Error('Refresh token failed');
-  return await res.json();
+  return {blob: await res.blob(),track_id:params.track_id};
 }
 
 export async function apiAddTrack(params: AddTrackParams): Promise<AddTrackResult> {

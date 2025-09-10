@@ -1,3 +1,4 @@
 export interface GetTrackRawResult{
-    track_id:number
+    track_id:string,
+    blob:Blob
 }

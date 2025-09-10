@@ -10,6 +10,7 @@ interface SelectedTrackContextType{
 interface SelectedTrackProviderProps {
   children: ReactNode
 }
+// eslint-disable-next-line react-refresh/only-export-components
 export const SelectedTrackContext=createContext<SelectedTrackContextType|null>(null);
 
 export const SelectedTrackContextProvider=({children}:SelectedTrackProviderProps)=>{

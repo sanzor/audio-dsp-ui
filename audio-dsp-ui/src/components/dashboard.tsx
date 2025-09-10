@@ -13,8 +13,9 @@ import { TrackRenameModal } from "./rename-track-modal";
 import { DetailsTrackModal } from "./details-track-modal";
 import { CopyTrackModal } from "./copy-track-modal";
 import type { CopyTrackParams } from "@/Dtos/Tracks/CopyTrackParams";
-import { apiCopyTrack } from "@/Services/TracksService";
+import { apiCopyTrack, apiGetTrackRaw } from "@/Services/TracksService";
 import { WaveformPlayer } from "./waveform-player";
+import { useAudioPlaybackCache } from "@/Providers/UsePlaybackCache";
 
 
 
@@ -29,13 +30,23 @@ export function Dashboard() {
   const [copyTrackModalOpen,setCopyTrackModalOpen]=useState(false);
 
   const [selectedTrack,setSelectedTrack]=useState<TrackMetaWithRegions|null>(null);
-  const [audioCache,setAudioCache]=useState<Map<string,Blob>>(new Map());
-  const [audioBlob,setAudioBlob]=useState<Blob|null>(null);
+  const { setBlob, getBlob } = useAudioPlaybackCache();
+
+
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
   const [waveformPlayerOpen,setWaveformPlayerOpen]=useState(false);
   const {tracks,addTrack,removeTrack,updateTrack}=useTracks();
 
  const [tracksWithRegions, setTracksWithRegions] = useState<TrackMetaWithRegions[]>([]);
+
+  useEffect(() => {
+      return () => {
+      if (objectUrl) {
+       URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [objectUrl]);
 
   useEffect(()=>{
     console.log("🔍 tracks value in effect:", tracks, typeof tracks);
@@ -57,6 +68,8 @@ export function Dashboard() {
     useEffect(()=>{
       console.log("Tracks inside  dashboard",tracks);
     },[tracks]);
+
+
   useEffect(() => {
     if (!loading && !user) {
       navigate("/login");
@@ -65,19 +78,29 @@ export function Dashboard() {
 
   if (loading) return <div>Loading...</div>;
 
-  const onSelectTrack=(trackId:string)=>{
+  const onSelectTrack=async(trackId:string)=>{
       const track=tracks.find(x=>x.track_id===trackId);
       if(!track){
         return;
       }
       setSelectedTrack({...track,regions:[]});
-      if(audioCache.has(trackId)){
-        setAudioBlob(audioCache.get(trackId));
-      }else{
-        
+      let blob = getBlob(trackId);
+      if (!blob) {
+        try {
+          const response = await apiGetTrackRaw({ track_id: trackId });
+          blob = response.blob;
+          setBlob(trackId, blob);
+        } catch (e) {
+            console.error("Failed to fetch audio blob", e);
+            return;
+        }
       }
+      const url = URL.createObjectURL(blob);
+      setObjectUrl(url);
       setWaveformPlayerOpen(true);
-  }
+  };
+
+  
   const onRemoveTrack = async (trackId: string): Promise<RemoveTrackResult> => {
     return await removeTrack({ trackId: trackId.toString() });
   };
@@ -194,7 +217,9 @@ export function Dashboard() {
               onSubmit={onSubmitCopyTrackModal}
               onClose={onCloseCopyTrackModal}>
           </CopyTrackModal>}
-          {waveformPlayerOpen &&  selectedTrack && <WaveformPlayer></WaveformPlayer>}
+          {waveformPlayerOpen && selectedTrack && objectUrl && (
+            <WaveformPlayer trackId={selectedTrack.track_id} url={objectUrl} />
+          )}
         <main className="flex-1">Main content here</main>
       </div>
     </SidebarProvider>

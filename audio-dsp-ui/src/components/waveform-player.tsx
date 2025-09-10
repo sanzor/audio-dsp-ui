@@ -1,7 +1,8 @@
 export interface WaveformPlayerProps{
-    trackId:string
+    trackId:string,
+    url:string
 }
 
-export function WaveformPlayer({trackId}:WaveformPlayerProps){
+export function WaveformPlayer({trackId,url}:WaveformPlayerProps){
     return (<>{trackId}</>)
 }

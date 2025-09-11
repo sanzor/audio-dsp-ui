@@ -218,7 +218,7 @@ export function Dashboard() {
               onClose={onCloseCopyTrackModal}>
           </CopyTrackModal>}
           {waveformPlayerOpen && selectedTrack && objectUrl && (
-            <WaveformPlayer trackId={selectedTrack.track_id} url={objectUrl} />
+            <WaveformPlayer track={selectedTrack} url={objectUrl} />
           )}
         <main className="flex-1">Main content here</main>
       </div>

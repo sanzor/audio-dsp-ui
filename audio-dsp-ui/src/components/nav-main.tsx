@@ -18,7 +18,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
-import type { Region } from "@/Domain/Region"
+import type { TrackRegion } from "@/Domain/TrackRegion"
 import { TrackContextMenu } from "./track-context-menu"
 
 export interface NavMainProps{
@@ -95,7 +95,7 @@ export function NavMain({
             );
    
   };
-  function RegionItem({region}:{region:Region}){
+  function RegionItem({region}:{region:TrackRegion}){
     return (<SidebarMenuSubItem key={region.region_id}>
                       <SidebarMenuSubButton asChild>
                         

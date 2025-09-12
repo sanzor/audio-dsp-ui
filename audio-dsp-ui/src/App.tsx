@@ -45,6 +45,7 @@ function AppContent() {
   return (
     <>
     <AuthListener/>
+   
     <Routes>
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route 

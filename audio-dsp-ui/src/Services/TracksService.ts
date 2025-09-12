@@ -53,14 +53,48 @@ export async function apiGetTrackInfo(params:GetTrackParams): Promise<GetTrackRe
   return await res.json();
 }
 
-export async function apiGetTrackRaw(params:GetTrackRawParams): Promise<GetTrackRawResult> {
-  const res = await fetch(`${BASE_URL}/tracks/get-meta?track_id=${params.track_id}`, {
+export async function apiGetTrackRaw(params: GetTrackRawParams): Promise<GetTrackRawResult> {
+  const res = await fetch(`${BASE_URL}/tracks/get-stored-track?track_id=${params.track_id}`, {
     method: 'GET',
     credentials: 'include'
   });
 
-  if (!res.ok) throw new Error('Refresh token failed');
-  return {blob: await res.blob(),track_id:params.track_id};
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('API Error:', {
+      status: res.status,
+      statusText: res.statusText,
+      body: errorText
+    });
+    throw new Error(`Failed to fetch track: ${res.status} ${res.statusText}`);
+  }
+
+  const blob = await res.blob();
+  
+  // Debug the blob we received
+  console.log('Received blob:', {
+    size: blob.size,
+    type: blob.type,
+    hasContent: blob.size > 0
+  });
+
+  // Verify it's actually audio data
+  if (blob.size === 0) {
+    throw new Error('Received empty audio data');
+  }
+
+  // If the blob doesn't have the correct MIME type, fix it
+  let audioBlob = blob;
+  if (!blob.type || !blob.type.startsWith('audio/')) {
+    console.log('Fixing blob MIME type from', blob.type, 'to audio/wav');
+    audioBlob = new Blob([blob], { type: 'audio/wav' });
+  }
+  console.log("🧪 Blob type:", blob.type); // should be 'audio/mpeg' or 'audio/wav'
+  console.log("🧪 Blob size:", blob.size);
+  return {
+    blob: audioBlob,
+    track_id: params.track_id
+  };
 }
 
 export async function apiAddTrack(params: AddTrackParams): Promise<AddTrackResult> {

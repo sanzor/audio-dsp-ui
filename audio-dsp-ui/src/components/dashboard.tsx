@@ -35,12 +35,14 @@ export function Dashboard() {
 
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [waveformPlayerOpen,setWaveformPlayerOpen]=useState(false);
   const {tracks,addTrack,removeTrack,updateTrack}=useTracks();
 
  const [tracksWithRegions, setTracksWithRegions] = useState<TrackMetaWithRegions[]>([]);
 
   useEffect(() => {
+    console.log("url object");
       return () => {
       if (objectUrl) {
        URL.revokeObjectURL(objectUrl);
@@ -85,6 +87,7 @@ export function Dashboard() {
       }
       setSelectedTrack({...track,regions:[]});
       let blob = getBlob(trackId);
+      
       if (!blob) {
         try {
           const response = await apiGetTrackRaw({ track_id: trackId });
@@ -95,6 +98,10 @@ export function Dashboard() {
             return;
         }
       }
+      console.log("🧪 Blob debug:", {
+  type: blob.type,
+  size: blob.size,
+});
       const url = URL.createObjectURL(blob);
       setObjectUrl(url);
       setWaveformPlayerOpen(true);
@@ -181,16 +188,44 @@ export function Dashboard() {
  return (
     <SidebarProvider>
       <div className="flex">
-        <AppSidebar
-          onSelect={onSelectTrack}
-          onAddTrackClick={() => setAddTrackModalOpen(true)}
-          onRemoveTrack={onRemoveTrack}
-          onCopyTrack={onCopyTrackClick}
-          onPasteTrack={onPasteTrackClick}
-          onDetailTrack={onDetailsTrackClick}
-          onRenameTrack={onRenameTrackClick}
-           tracks={tracksWithRegions}
-        />
+      <AppSidebar
+        onSelect={onSelectTrack}
+        onAddTrackClick={() => setAddTrackModalOpen(true)}
+        onRemoveTrack={onRemoveTrack}
+        onCopyTrack={onCopyTrackClick}
+        onPasteTrack={onPasteTrackClick}
+        onDetailTrack={onDetailsTrackClick}
+        onRenameTrack={onRenameTrackClick}
+        tracks={tracksWithRegions}
+      />
+
+       {/* Sidebar (Track Management) */}
+
+
+    {/* Transform Store */}
+    <div className="grid grid-cols-[1fr_3fr] grid-rows-[1fr_auto] w-full h-screen">
+    {/* Transform Store (left column, top row) */}
+      <div className="row-start-1 col-start-1 border-r bg-gray-50 p-4">
+        <div className="font-semibold text-sm text-gray-700">Transform Store</div>
+         {/* content */}
+      </div>
+
+      {/* Canvas (right column, top row) */}
+      <div className="row-start-1 col-start-2 p-4 overflow-auto bg-white">
+        <main>Main content here</main>
+      </div>
+
+      {/* Waveform (bottom row, spans both columns) */}
+      <div className="row-start-2 col-span-2 border-t p-4 bg-white shadow-inner">
+      {selectedTrack && objectUrl && (
+        <WaveformPlayer track={selectedTrack} url={objectUrl} />
+      )}
+  </div>
+</div>
+
+
+
+
         <TrackCreateModal 
           open={addTrackModalOpen} 
           onClose={onCloseAddTrackModal} 
@@ -217,10 +252,9 @@ export function Dashboard() {
               onSubmit={onSubmitCopyTrackModal}
               onClose={onCloseCopyTrackModal}>
           </CopyTrackModal>}
-          {waveformPlayerOpen && selectedTrack && objectUrl && (
-            <WaveformPlayer track={selectedTrack} url={objectUrl} />
-          )}
-        <main className="flex-1">Main content here</main>
+          
+
+
       </div>
     </SidebarProvider>
   );

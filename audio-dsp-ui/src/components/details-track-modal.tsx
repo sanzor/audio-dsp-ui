@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "./ui/table";
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
-import type { Region } from "@/Domain/Region";
+import type { TrackRegion } from "@/Domain/TrackRegion";
 
 export interface DetailsTrackModalProps {
   open: boolean;
@@ -61,7 +61,7 @@ export function DetailsTrackModal({ track, open, onClose }: DetailsTrackModalPro
 }
 
 // 🔹 Extracted for cleanliness
-function RegionTable({ regions }: { regions: Region[] }) {
+function RegionTable({ regions }: { regions: TrackRegion[] }) {
   if (regions.length === 0) return <p className="text-muted-foreground">No regions available.</p>;
 
   return (

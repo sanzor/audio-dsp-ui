@@ -4,6 +4,7 @@ import WaveSurfer from "wavesurfer.js"
 import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.esm.js'
 import Minimap from 'wavesurfer.js/dist/plugins/minimap.esm.js'
 import type { TrackRegion } from "@/Domain/TrackRegion";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "./ui/context-menu";
 export interface WaveformPlayerProps{
     onDetails:(regionId:string)=>void,
     onDeleteRegion:(regionId:string)=>void,
@@ -23,7 +24,7 @@ type ContextMenuContext =
   | { type: 'waveform'; time: number }
   | null;
 
-export function WaveformPlayer({track,url,onDetails,onEditRegion,onDeleteRegion}:WaveformPlayerProps){
+export function WaveformPlayer({track,url,onDetails,onEditRegion,onDeleteRegion,onCreateRegionClick,onCreateRegionDrag}:WaveformPlayerProps){
     const waveRef = useRef<WaveSurfer | null>(null);
     const waveformRef = useRef<HTMLDivElement | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -37,39 +38,44 @@ export function WaveformPlayer({track,url,onDetails,onEditRegion,onDeleteRegion}
     const [contextMenu, setContextMenu] = useState<ContextMenuContext>(null);
     const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
 
-    const onContextMenu=(e:MouseEvent)=>{
+
+    useEffect(() => {
+        const waveformElement = waveformRef.current; // ✅ Local copy of ref
+
+        if (!waveformElement || !waveRef) return;
+
+        const onContextMenu = (e: MouseEvent) => {
             e.preventDefault();
-            const bounding=waveformRef.current!.getBoundingClientRect();
-            const x=e.clientX-bounding.left;
-            const width=waveformRef.current!.offsetWidth;
-            const time=waveRef.current!.getDuration()*(x/width);
-            // const time=waveObject?.getDuration()*(x/width);
+            const bounding = waveformElement.getBoundingClientRect();
+            const x = e.clientX - bounding.left;
+            const width = waveformElement.offsetWidth;
+            const time = waveRef.current!.getDuration() * (x / width);
+
             setContextMenu({ type: 'waveform', time });
             setContextMenuPosition({ x: e.clientX, y: e.clientY });
-    };
-    useEffect(()=>{ 
-        if (!waveformRef.current || !waveRef) return;
-       
-        waveformRef.current.addEventListener('contextmenu',onContextMenu);
+        };
 
-        console.log("inside effect", {waveformRef: waveformRef.current, url, track});
-        if(!track){
-            console.log("no track");
-            return;
+        waveformElement.addEventListener('contextmenu', onContextMenu);
+
+        console.log("inside effect", { waveformElement, url, track });
+
+        if (!track || !url) {
+            setError("Missing track or URL");
+         return;
         }
-        if(!waveformRef.current){
-          console.log("No waveform ref");
-          return;
-        }
-        if(!url) {
-            console.log("No URL provided");
-            setError("No audio URL provided");
-            return;
-        }
+
         setIsLoading(true);
         setError(null);
-        const { wave:waveform, regions } = createWaveFormPlayer(url, track, waveformRef.current,setContextMenu,setContextMenuPosition);
-        waveRef.current=waveform;
+
+        const { wave: waveform, regions } = createWaveFormPlayer(
+            url,
+             track,
+            waveformElement,
+            setContextMenu,
+            setContextMenuPosition
+        );
+
+        waveRef.current = waveform;
         setRegionsPlugin(regions);
 
         waveform.once('ready', () => {
@@ -83,13 +89,13 @@ export function WaveformPlayer({track,url,onDetails,onEditRegion,onDeleteRegion}
             setIsLoading(false);
         });
 
-       return ()=>{
-            waveformRef.current?.removeEventListener('contextmenu', onContextMenu);
+        return () => {
+            waveformElement.removeEventListener('contextmenu', onContextMenu);
             console.log("Destroying waveform");
             waveform.destroy();
-            waveRef.current=null;
-       };
-    },[url,track]);
+            waveRef.current = null;
+        };
+    }, [url, track]);
 
     useEffect(()=>{
         if(!regionsPlugin||!track)return;
@@ -134,18 +140,55 @@ export function WaveformPlayer({track,url,onDetails,onEditRegion,onDeleteRegion}
             </div>
         );
     }
-    return ( <div className="w-full h-full min-h-[200px] bg-white border rounded-lg shadow-lg">
-            {isLoading && (
-                <div className="flex items-center justify-center h-32">
-                    <div className="text-gray-500">Loading waveform...</div>
-                </div>
-            )}
-            <div 
-                ref={waveformRef} 
-                className="w-full h-full"
-                style={{ minHeight: '150px' }}
-            />
-        </div>)
+    return (
+  <div className="w-full h-full min-h-[200px] bg-white border rounded-lg shadow-lg">
+    {isLoading && (
+      <div className="flex items-center justify-center h-32">
+        <div className="text-gray-500">Loading waveform...</div>
+      </div>
+    )}
+
+    <ContextMenu>
+  <ContextMenuTrigger asChild>
+    <div
+      ref={waveformRef}
+      className="w-full h-full"
+      style={{ minHeight: '150px' }}
+    />
+  </ContextMenuTrigger>
+
+    {contextMenu && contextMenuPosition && (
+    <ContextMenuContent
+      className="w-48"
+      style={{
+        position: 'fixed',
+        left: contextMenuPosition.x,
+        top: contextMenuPosition.y,
+      }}
+    >
+      {contextMenu.type === 'region' ? (
+        <>
+          <ContextMenuItem onClick={() => onEditRegion(contextMenu.regionId)}>Edit</ContextMenuItem>
+          <ContextMenuItem onClick={() => onDetails(contextMenu.regionId)}>Details</ContextMenuItem>
+          <ContextMenuItem onClick={() => onDeleteRegion(contextMenu.regionId)}>Delete</ContextMenuItem>
+        </>
+      ) : (
+        <>
+          <ContextMenuItem onClick={() => onCreateRegionClick(contextMenu.time)}>Create Region</ContextMenuItem>
+          <ContextMenuItem
+            onClick={() =>
+              onCreateRegionDrag(Math.max(0, contextMenu.time - 1), contextMenu.time + 1)
+            }
+          >
+            Create Region (±1s)
+          </ContextMenuItem>
+        </>
+      )}
+    </ContextMenuContent>
+    )}
+    </ContextMenu>
+  </div>
+);
 }
 
 

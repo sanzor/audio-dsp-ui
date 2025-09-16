@@ -6,7 +6,7 @@ import Minimap from 'wavesurfer.js/dist/plugins/minimap.esm.js'
 import type { TrackRegion } from "@/Domain/TrackRegion";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "./ui/context-menu";
 export interface WaveformPlayerProps{
-    onDetails:(regionId:string)=>void,
+    onRegionDetails:(regionId:string)=>void,
     onDeleteRegion:(regionId:string)=>void,
     onEditRegion:(regionId:string)=>void,
 
@@ -24,7 +24,7 @@ type ContextMenuContext =
   | { type: 'waveform'; time: number }
   | null;
 
-export function WaveformPlayer({track,url,onDetails,onEditRegion,onDeleteRegion,onCreateRegionClick,onCreateRegionDrag}:WaveformPlayerProps){
+export function WaveformPlayer({track,url,onRegionDetails: onDetails,onEditRegion,onDeleteRegion,onCreateRegionClick,onCreateRegionDrag}:WaveformPlayerProps){
     const waveRef = useRef<WaveSurfer | null>(null);
     const waveformRef = useRef<HTMLDivElement | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

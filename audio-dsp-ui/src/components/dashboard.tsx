@@ -21,6 +21,7 @@ import { useAudioPlaybackCache } from "@/Providers/UsePlaybackCache";
 
 export function Dashboard() {
   const { user, loading } = useAuth();
+
   const [addTrackModalOpen, setAddTrackModalOpen] = useState(false);
   const [renameTrackModalOpen,setRenameTrackModalOpen]=useState(false);
   const [trackToRename,setTrackToRename]=useState<{trackId:string,trackInitialName:string}|null>(null);
@@ -185,6 +186,25 @@ export function Dashboard() {
   const onCloseAddTrackModal = () => {
     setAddTrackModalOpen(false); // ✅ Close modal
   };
+  //waveform methods
+  const onCreateRegionClick=async (time:number)=>{
+
+  };
+
+  const onCreateRegionDrag=async (start:number,end:number)=>{
+
+  };
+  const onRegionDetails=(regionId:string)=>{
+
+  };
+
+  const onEditRegion=async (regionId:string)=>{
+
+  };
+  const onDeleteRegion=async(regionId:string)=>{
+
+  }
+
  return (
     <SidebarProvider>
       <div className="flex">
@@ -218,7 +238,14 @@ export function Dashboard() {
       {/* Waveform (bottom row, spans both columns) */}
       <div className="row-start-2 col-span-2 border-t p-4 bg-white shadow-inner">
       {selectedTrack && objectUrl && (
-        <WaveformPlayer track={selectedTrack} url={objectUrl} />
+        <WaveformPlayer
+         track={selectedTrack} 
+         url={objectUrl} 
+         onCreateRegionClick={onCreateRegionClick}
+         onCreateRegionDrag={onCreateRegionDrag}
+         onRegionDetails={onRegionDetails}
+         onEditRegion={onEditRegion}
+         onDeleteRegion={onDeleteRegion}/>
       )}
   </div>
 </div>

@@ -4,5 +4,4 @@ export interface EditRegionParams{
     start:number,
     end:number,
     name:string
-
 }

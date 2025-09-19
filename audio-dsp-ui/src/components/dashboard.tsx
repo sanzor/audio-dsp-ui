@@ -16,6 +16,8 @@ import type { CopyTrackParams } from "@/Dtos/Tracks/CopyTrackParams";
 import { apiCopyTrack, apiGetTrackRaw } from "@/Services/TracksService";
 import { WaveformPlayer } from "./waveform-player";
 import { useAudioPlaybackCache } from "@/Providers/UsePlaybackCache";
+import { CreateRegionSetModal } from "./create-region-set-modal";
+import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
 
 
 
@@ -23,6 +25,7 @@ export function Dashboard() {
   const { user, loading } = useAuth();
 
   const [addTrackModalOpen, setAddTrackModalOpen] = useState(false);
+  const [createRegionSetModalOpen, setCreateRegionSetModalOpen] = useState(false);
   const [renameTrackModalOpen,setRenameTrackModalOpen]=useState(false);
   const [trackToRename,setTrackToRename]=useState<{trackId:string,trackInitialName:string}|null>(null);
   const [detailsTrackModalOpen,setDetailsTrackModalOpen]=useState(false);
@@ -186,6 +189,22 @@ export function Dashboard() {
   const onCloseAddTrackModal = () => {
     setAddTrackModalOpen(false); // ✅ Close modal
   };
+
+  const onCreateRegionSetClick=(trackId:string)=>{
+
+  }
+
+  const onSubmitCreateRegionSetModal=async(createRegionSetParams:CreateRegionSetParams)=>{
+    
+    
+    const result=await updateTrack({track_id:trackId,track_name:newTrackName});
+    setRenameTrackModalOpen(false);
+    return result;
+  };
+
+  const onCloseCreateRegionSetModal=()=>{
+    setCreateRegionSetModalOpen(false);
+  }
   //waveform methods
   const onCreateRegionClick=async (time:number)=>{
 
@@ -211,6 +230,7 @@ export function Dashboard() {
       <AppSidebar
         onSelect={onSelectTrack}
         onAddTrackClick={() => setAddTrackModalOpen(true)}
+        onCreateRegionSet={onCreateRegionSetClick}
         onRemoveTrack={onRemoveTrack}
         onCopyTrack={onCopyTrackClick}
         onPasteTrack={onPasteTrackClick}
@@ -265,6 +285,15 @@ export function Dashboard() {
           onSubmit={onSubmitRenameTrackModal}
         >
         </TrackRenameModal>}
+
+        { <CreateRegionSetModal
+           trackMeta={}
+           open={createRegionSetModalOpen}
+           onClose={onCloseCreateRegionSetModal}
+           onSubmit={onSubmitCreateRegionSetModal}>
+          
+
+        </CreateRegionSetModal>}
         {detailedTrack &&<DetailsTrackModal
             open={detailsTrackModalOpen}
             track={{...detailedTrack,regions:[]}}

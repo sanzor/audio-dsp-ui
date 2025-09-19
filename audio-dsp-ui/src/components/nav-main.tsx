@@ -24,6 +24,7 @@ import { TrackContextMenu } from "./track-context-menu"
 export interface NavMainProps{
    tracks:TrackMetaWithRegions[],
    onSelect:(trackId:string)=>void,
+   onCreateRegionSet:(trackId:string)=>void,
    onDetails:(trackId:string)=>void,
    onRename:(trackId:string)=>void,
    onRemove:(trackId:string)=>void,
@@ -32,6 +33,7 @@ export interface NavMainProps{
 }
 export function NavMain({
   tracks,
+  onCreateRegionSet,
   onDetails,
   onRename,
   onCopy,
@@ -57,12 +59,16 @@ export function NavMain({
     e.preventDefault();
     onPaste();
   };
+  const handleCreateRegionSet=(trackId:string)=>{
+    onCreateRegionSet(trackId);
+  }
   function TrackItem({track}:{track:TrackMetaWithRegions}){
         return(
          <div className="track-item" onClick={()=>onSelect(track.track_id)}>
           <TrackContextMenu
-        
+
           trackId={track.track_id}
+          onCreateRegionSet={handleCreateRegionSet}
           onDetails={handleDetails}
           onRename={handleRename}
           onCopy={handleCopy}

@@ -1,0 +1,121 @@
+"filename", "language", "JSON", "HTML", "TypeScript", "JavaScript", "Markdown", "JSON with Comments", "XML", "TypeScript JSX", "PostCSS", "YAML", "comment", "blank", "total"
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/README.md", "Markdown", 0, 0, 0, 0, 58, 0, 0, 0, 0, 0, 0, 12, 70
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/components.json", "JSON", 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/eslint.config.js", "JavaScript", 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 2, 24
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/index.html", "HTML", 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 15
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/package.json", "JSON", 54, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 55
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/pnpm-lock.yaml", "YAML", 0, 0, 0, 0, 0, 0, 0, 0, 0, 2919, 0, 692, 3611
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/public/vite.svg", "XML", 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Adapters/CommandAdapter.ts", "TypeScript", 0, 0, 76, 0, 0, 0, 0, 0, 0, 0, 0, 18, 94
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/App.css", "PostCSS", 0, 0, 0, 0, 0, 0, 0, 0, 37, 0, 0, 6, 43
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/App.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 55, 0, 0, 10, 16, 81
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Audio/CanonicalAudio.ts", "TypeScript", 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Audio/Utils.ts", "TypeScript", 0, 0, 75, 0, 0, 0, 0, 0, 0, 0, 3, 15, 93
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Auth/AuthCallback.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 4, 20
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Auth/AuthContext.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 80, 0, 0, 12, 14, 106
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Auth/AuthListener.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 5, 7, 30
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Auth/AuthTypes.ts", "TypeScript", 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 1, 18
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Auth/UseAuth.ts", "TypeScript", 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 4, 13
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Auth/UseAuthAutoRefreshOptions.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 67, 0, 0, 23, 7, 97
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Constants.ts", "TypeScript", 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 9, 19
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Domain/ABuffer.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Domain/Commands/Command.ts", "TypeScript", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Domain/Commands/PauseCommand.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Domain/Commands/PlayCommand.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Domain/Commands/SeekCommand.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Domain/Commands/StopCommand.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Domain/TrackInfo.ts", "TypeScript", 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Domain/TrackMeta.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Domain/TrackMetaWithRegions.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 3, 8
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Domain/TrackRegion.ts", "TypeScript", 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Domain/User.ts", "TypeScript", 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Regions/CreateRegionParams.ts", "TypeScript", 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Regions/CreateRegionResult.ts", "TypeScript", 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Regions/EditRegionParams.ts", "TypeScript", 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Regions/EditRegionResult.ts", "TypeScript", 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Regions/RemoveRegionParams.ts", "TypeScript", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Regions/RemoveRegionResult.ts", "TypeScript", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/SocketCommandResults/BaseCommandResultDto.ts", "TypeScript", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/SocketCommandResults/PauseCommandResultDto copy.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 4, 9
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/SocketCommandResults/PlayCommandResultDto copy.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 4, 9
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/SocketCommandResults/SeekCommandResultDto.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 4, 9
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/SocketCommandResults/StopCommandResultDto.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 4, 9
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/SocketCommands/BaseCommandDto.ts", "TypeScript", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/SocketCommands/PauseCommandDto.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/SocketCommands/PlayCommandDto.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/SocketCommands/SeekCommandDto.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/SocketCommands/StopCommandDto.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/AddTrackParams.ts", "TypeScript", 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/AddTrackResult.ts", "TypeScript", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/CopyTrackParams.ts", "TypeScript", 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/CopyTrackResult.ts", "TypeScript", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/GetTrackParams.ts", "TypeScript", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/GetTrackRawParams.ts", "TypeScript", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/GetTrackRawResult.ts", "TypeScript", 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/GetTrackResult.ts", "TypeScript", 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/RawTrack.ts", "TypeScript", 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 1, 7
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/RemoveTrackParams.ts", "TypeScript", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/RemoveTrackResult.ts", "TypeScript", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/UpdateTrackParams.ts", "TypeScript", 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Dtos/Tracks/UpdateTrackResult.ts", "TypeScript", 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/EventBus.ts", "TypeScript", 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 7, 35
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Events.ts", "TypeScript", 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 1, 6, 25
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Providers/AudioPlaybackCacheContext.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 28, 0, 0, 1, 7, 36
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Providers/EventBusContext.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 5, 4, 28
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Providers/SelectedTrackContext.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 29, 0, 0, 1, 7, 37
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Providers/TracksContext.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 75, 0, 0, 10, 9, 94
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Providers/UsePlaybackCache.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 1, 10
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Providers/UseSelectedTrack.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 2, 11
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Providers/UseTracks.ts", "TypeScript", 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 3, 10
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Services/AuthService.ts", "TypeScript", 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 19, 13, 72
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Services/RegionsService.ts", "TypeScript", 0, 0, 58, 0, 0, 0, 0, 0, 0, 0, 0, 9, 67
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Services/TracksService.ts", "TypeScript", 0, 0, 132, 0, 0, 0, 0, 0, 0, 0, 9, 29, 170
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Utils/AudioUtils.ts", "TypeScript", 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Websocket/MessageService.ts", "TypeScript", 0, 0, 47, 0, 0, 0, 0, 0, 0, 0, 5, 22, 74
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Websocket/Websocket.ts", "TypeScript", 0, 0, 34, 0, 0, 0, 0, 0, 0, 0, 17, 6, 57
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/Websocket/WebsocketController.ts", "TypeScript", 0, 0, 125, 0, 0, 0, 0, 0, 0, 0, 0, 26, 151
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/assets/react.svg", "XML", 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/app-sidebar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 3, 11, 164
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/copy-track-modal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 47, 0, 0, 0, 9, 56
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/create-track-modal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 170, 0, 0, 7, 26, 203
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/dashboard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 231, 0, 0, 11, 46, 288
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/details-track-modal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 78, 0, 0, 1, 10, 89
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/login-form.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 60, 0, 0, 0, 3, 63
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/nav-main.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 107, 0, 0, 0, 9, 116
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/nav-projects.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 0, 6, 60
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/nav-user.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 110, 0, 0, 0, 5, 115
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/rename-track-modal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 48, 0, 0, 0, 9, 57
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/team-switcher.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 85, 0, 0, 0, 5, 90
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/track-context-menu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 29, 0, 0, 0, 2, 31
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/avatar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 47, 0, 0, 0, 7, 54
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/breadcrumb.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 99, 0, 0, 0, 11, 110
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/button.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 1, 6, 61
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/card.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 83, 0, 0, 0, 10, 93
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/collapsible.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 28, 0, 0, 0, 6, 34
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/context-menu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 233, 0, 0, 0, 18, 251
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/dialog.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 129, 0, 0, 0, 13, 142
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/dropdown-menu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 238, 0, 0, 0, 18, 256
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/input.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 4, 22
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/label.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 4, 23
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/separator.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 4, 27
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/sheet.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 126, 0, 0, 0, 14, 140
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/sidebar-context-props.ts", "TypeScript", 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 1, 10
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/sidebar-context.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 1, 3, 16
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/sidebar-provider.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 94, 0, 0, 7, 11, 112
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/sidebar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 553, 0, 0, 5, 42, 600
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/skeleton.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 3, 14
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/table.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 104, 0, 0, 0, 11, 115
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/tooltip.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 53, 0, 0, 0, 7, 60
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/ui/use-sidebar.ts", "TypeScript", 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 7, 20
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/wave-region-context-menu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 2, 25
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/components/waveform-player.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 233, 0, 0, 6, 40, 279
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/hooks/use-mobile.ts", "TypeScript", 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 5, 20
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/index.css", "PostCSS", 0, 0, 0, 0, 0, 0, 0, 0, 173, 0, 0, 12, 185
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/lib/utils.ts", "TypeScript", 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/main.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 4, 22
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/src/vite-env.d.ts", "TypeScript", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/tsconfig.app.json", "JSON", 29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 34
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/tsconfig.json", "JSON with Comments", 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 1, 17
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/tsconfig.node.json", "JSON", 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 26
+"/home/sanzor/audio-dsp-ui/audio-dsp-ui/vite.config.ts", "TypeScript", 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 1, 2, 18
+"Total", "-", 125, 14, 925, 22, 58, 16, 2, 3772, 210, 2919, 169, 1410, 9642

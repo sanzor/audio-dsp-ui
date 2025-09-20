@@ -10,23 +10,24 @@ import {
 } from "./ui/dialog"
 
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams"
-import type { TrackMeta } from "@/Domain/TrackMeta"
 import { useState } from "react"
 
 interface CreateRegionSetModalProps {
-  trackMeta:TrackMeta,
+  trackId:string,
+  name:string,
   open: boolean
   onClose: () => void
   onSubmit: (track: CreateRegionSetParams) => void
 }
 
 export function CreateRegionSetModal({
-  trackMeta,
+  trackId,
+  name,
   open,
   onClose,
   onSubmit,
 }: CreateRegionSetModalProps) {
-  const [regionSetName, setRegionSetName] = useState(trackMeta.track_info.name);
+  const [regionSetName, setRegionSetName] = useState(name);
 
 
   const handleSubmit = () => {
@@ -35,7 +36,7 @@ export function CreateRegionSetModal({
 
     const createRegionSetParams: CreateRegionSetParams = {
         name:regionSetName,
-        track_id:trackMeta.track_id
+        track_id:trackId
     };
     console.log("Submitting form");
     console.log(JSON.stringify(createRegionSetParams));

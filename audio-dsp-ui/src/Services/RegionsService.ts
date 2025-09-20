@@ -4,6 +4,7 @@ import type { CreateRegionResult } from "@/Dtos/Regions/CreateRegionResult";
 import type { EditRegionParams } from "@/Dtos/Regions/EditRegionParams";
 import type { EditRegionResult } from "@/Dtos/Regions/EditRegionResult";
 import type { RemoveRegionParams } from "@/Dtos/Regions/RemoveRegionParams";
+import type { RemoveRegionResult } from "@/Dtos/Regions/RemoveRegionResult";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -13,7 +14,7 @@ export async function apiGetRegions(trackId:string):Promise<TrackRegion[]>{
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Failed to fetch session');
+  if (!res.ok) throw new Error('Failed to fetch region');
 
   const json = await res.json(); // ✅ await here
   console.log(json);
@@ -50,16 +51,17 @@ export async function apiEditRegion(params: EditRegionParams): Promise<EditRegio
   });
   console.log(res.status);
   if (!res.ok) {
-    throw new Error(`Failed to update track: ${res.statusText}`);
+    throw new Error(`Failed to update region: ${res.statusText}`);
   }
   return await res.json();
 }
 
-export async function apiRemoveRegion(params: RemoveRegionParams): Promise<void> {
+export async function apiRemoveRegion(params: RemoveRegionParams): Promise<RemoveRegionResult> {
   const res = await fetch(`${BASE_URL}/regions/remove?track_id=${params.region_id}`, {
     method: 'DELETE',
     credentials: 'include'
   });
 
-  if (!res.ok) throw new Error('Refresh token failed');
+  if (!res.ok) throw new Error('Failed to remove region');
+  return await res.json();
 }

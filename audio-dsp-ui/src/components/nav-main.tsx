@@ -62,7 +62,11 @@ export function NavMain({
   const handleCreateRegionSet=(trackId:string)=>{
     onCreateRegionSet(trackId);
   }
-  function TrackItem({track}:{track:TrackMetaWithRegions}){
+  function TrackItem({track,onSelect,onRightClick}
+    :{
+      track: TrackMetaWithRegions,
+      onSelect: (id: string) => void,
+      onRightClick: (ctx: RightClickContext) => void,}){
         return(
          <div className="track-item" onClick={()=>onSelect(track.track_id)}>
           <TrackContextMenu
@@ -110,12 +114,19 @@ export function NavMain({
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>)
   }
-  return (
-    <SidebarGroup onContextMenu={handleContextMenu}>
+    return (
+    <SidebarGroup>
       <SidebarGroupLabel>Tracks</SidebarGroupLabel>
       <SidebarMenu>
-        {tracks.map((item) => (<TrackItem  key={item.track_id} track={item}></TrackItem>))}
+        {tracks.map((item) => (
+          <TrackItem
+            key={item.track_id}
+            track={item}
+            onSelect={onSelect}
+            onRightClick={onRightClick}
+          />
+        ))}
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }

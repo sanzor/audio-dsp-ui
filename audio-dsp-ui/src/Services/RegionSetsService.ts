@@ -7,13 +7,12 @@ import type { EditRegionSetResult } from "@/Dtos/RegionSets/EditRegionSetResult"
 import type { GetRegionSetsForTrackResult } from "@/Dtos/RegionSets/GetRegionSetsForTrackResult";
 import type { GetRegionSetsResult } from "@/Dtos/RegionSets/GetRegionSetsResult";
 import type { RemoveRegionSetParams } from "@/Dtos/RegionSets/RemoveRegionSetParams";
-import type { RemoveRegionSetResult } from "@/Dtos/RegionSets/RemoveRegionSetResult";
 
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export async function apiGetRegionSet(regionSetId:string):Promise<TrackRegionSet>{
-    const res = await fetch(`${BASE_URL}/regions/get-region-set?region_set_id=${regionSetId}`, {
+    const res = await fetch(`${BASE_URL}/region-sets/get-region-set?region_set_id=${regionSetId}`, {
     method: 'GET',
     credentials: 'include',
   });
@@ -25,8 +24,8 @@ export async function apiGetRegionSet(regionSetId:string):Promise<TrackRegionSet
   return json.tracks;
 }
 
-export async function apiGetRegionSetsForTrack():Promise<GetRegionSetsForTrackResult>{
-    const res = await fetch(`${BASE_URL}/regions/get-region-sets`, {
+export async function apiGetRegionSetsForTrack(trackId:string):Promise<GetRegionSetsForTrackResult>{
+    const res = await fetch(`${BASE_URL}/region-sets/get-all-for-track?track_id=${trackId}`, {
     method: 'GET',
     credentials: 'include',
   });
@@ -39,7 +38,7 @@ export async function apiGetRegionSetsForTrack():Promise<GetRegionSetsForTrackRe
 }
 
 export async function apiGetAllRegionSets():Promise<GetRegionSetsResult>{
-    const res = await fetch(`${BASE_URL}/regions/get-region-sets`, {
+    const res = await fetch(`${BASE_URL}/region-sets/get-region-sets`, {
     method: 'GET',
     credentials: 'include',
   });

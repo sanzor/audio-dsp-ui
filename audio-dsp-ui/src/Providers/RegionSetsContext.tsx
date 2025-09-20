@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // src/contexts/TrackContext.tsx
 import { createContext, useEffect, useState, useCallback, type ReactNode, useRef } from 'react'
-import type { TrackMeta } from '@/Domain/TrackMeta'
 import { useAuth } from '@/Auth/UseAuth'
 import type { TrackRegionSet } from '@/Domain/TrackRegionSet'
 import type { CreateRegionSetParams } from '@/Dtos/RegionSets/CreateRegionSetParams'
@@ -9,8 +9,10 @@ import type { EditRegionSetParams as UpdateRegionSetParams } from '@/Dtos/Region
 import type { EditRegionSetResult } from '@/Dtos/RegionSets/EditRegionSetResult'
 import type { RemoveRegionSetParams } from '@/Dtos/RegionSets/RemoveRegionSetParams'
 import { apiCreateRegionSet, apiGetAllRegionSets, apiGetRegionSetsForTrack, apiRemoveRegionSet, apiUpdateRegionSet } from '@/Services/RegionSetsService'
-import type { GetRegionSetsForTrackResult } from '@/Dtos/RegionSets/GetRegionSetsForTrackResult'
-import type { GetRegionSetsResult } from '@/Dtos/RegionSets/GetRegionSetsResult'
+import type { CreateRegionParams } from '@/Dtos/Regions/CreateRegionParams'
+import type { EditRegionParams } from '@/Dtos/Regions/EditRegionParams'
+import type { RemoveRegionParams } from '@/Dtos/Regions/RemoveRegionParams'
+import { apiAddRegion, apiEditRegion, apiRemoveRegion } from '@/Services/RegionsService'
 
 
 // --- Types
@@ -23,8 +25,9 @@ interface RegionSetContextType {
   updateRegionSet:(params:UpdateRegionSetParams)=>Promise<EditRegionSetResult>
   removeRegionSet: (params: RemoveRegionSetParams) => Promise<void>
 
-  getRegionSetsFor:(trackId:string)=>Promise<TrackMeta[]>
-  getRegionSet:(regionSetId:string)=>TrackRegionSet|null;
+  createRegion(params: CreateRegionParams): Promise<TrackRegionSet>
+  updateRegion(params: EditRegionParams): Promise<TrackRegionSet>
+  removeRegion(params: RemoveRegionParams): Promise<TrackRegionSet>
 }
 interface TracksProviderProps {
   children: ReactNode
@@ -40,6 +43,7 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const hasRefreshed = useRef(false);
+
   const refresh = useCallback(async () => {
   setLoading(true);
   setError(null);
@@ -61,17 +65,92 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
   hasRefreshed.current = true;
   refresh();
 }, [authLoading, user, refresh]);
+
+  const createRegion = async (params: CreateRegionParams): Promise<TrackRegionSet> => {
+    const { region_set: updated } = await apiAddRegion(params); // already has the new region
+
+    setTrackRegionSetsMap(prev => {
+    const m = new Map(prev);
+    const sets = m.get(updated.track_id) ?? [];
+
+    const nextSets = sets.map(s =>
+      s.region_set_id === updated.region_set_id ? updated : s
+    );
+
+    // if the array was empty (not loaded yet), insert it
+    if (sets.length === 0) {
+      m.set(updated.track_id, [updated]);
+    } else {
+      m.set(updated.track_id, nextSets);
+    }
+    return m;
+  });
+
+  return updated;
+};
+
+  const updateRegion = async (params: EditRegionParams): Promise<TrackRegionSet> => {
+  const { region_set: updated } = await apiEditRegion(params);
+
+  setTrackRegionSetsMap(prev => {
+    const m = new Map(prev);
+    const sets = m.get(updated.track_id) ?? [];
+
+    // Find the exact RegionSet
+    const idx = sets.findIndex(s => s.region_set_id === updated.region_set_id);
+    if (idx === -1) return prev; // RegionSet not in state yet
+
+    // Replace the whole RegionSet with the updated one from API
+    const nextSets = [...sets];
+    nextSets[idx] = updated;
+
+    m.set(updated.track_id, nextSets);
+    return m;
+  });
+
+  return updated;
+};
+
+  const removeRegion = async (params: RemoveRegionParams): Promise<TrackRegionSet> => {
+  const { set: updated } = await apiRemoveRegion(params);
+
+  setTrackRegionSetsMap(prev => {
+    const m = new Map(prev);
+    const sets = m.get(updated.track_id) ?? [];
+
+    const idx = sets.findIndex(s => s.region_set_id === updated.region_set_id);
+    if (idx === -1) return prev;
+
+    const nextSets = [...sets];
+    nextSets[idx] = updated; // updated set has one less region
+
+    m.set(updated.track_id, nextSets);
+    return m;
+  });
+
+  return updated;
+};
   const createRegionSet = async (params: CreateRegionSetParams):Promise<CreateRegionSetResult>=> {
     console.log("inside add region set - context");
     const result=await apiCreateRegionSet(params)
-    await refresh()
+    const updated=await apiGetRegionSetsForTrack(params.track_id);
+    setTrackRegionSetsMap(prev=>{
+        const newMap=new Map(prev);
+        newMap.set(params.track_id,updated.sets);
+        return newMap
+    });
     return result
   }
   const updateRegionSet=async(params:UpdateRegionSetParams):Promise<EditRegionSetResult>=>{
     console.log("inside update region set before api request");
     const result=await apiUpdateRegionSet(params);
-    console.log("inside update region set - api");
-    await refresh();
+    setTrackRegionSetsMap(prev=>{
+        const newMap=new Map(prev);
+        const sets=newMap.get(params.trackId)??[];
+        const updatedSets=sets.map(s=>s.region_set_id===params.region_set_id?{...s,...result.region_set}:s);
+        newMap.set(params.trackId,updatedSets);
+        return newMap
+    });
     return result;
   }
   const removeRegionSet = async (params: RemoveRegionSetParams):Promise<void> => {
@@ -80,20 +159,19 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
     return result;
   }
 
-  const listRegionSets=async():Promise<GetRegionSetsResult>=>{
-    const result=await apiGetAllRegionSets();
-    return result;
-  }
-  const listRegionSetsForTrack=async():Promise<GetRegionSetsForTrackResult>=>{
-    const result=await apiGetRegionSetsForTrack();
-    return result;
-  }
-
-  // const getTrackBlob=async(trackId:string):Promise<Track>{
-    
-  // }
   return (
-    <TrackContext.Provider value={{ trackRegionSetsMap, loading, error, refresh, createRegionSet,updateRegionSet, removeRegionSet, list }}>
+    <TrackContext.Provider value={{ 
+        trackRegionSetsMap,
+         loading,
+          error,
+           refresh, 
+           createRegionSet,
+           updateRegionSet, 
+           removeRegionSet,
+           removeRegion,
+           createRegion,
+           updateRegion
+           }}>
       {children}
     </TrackContext.Provider>
   )

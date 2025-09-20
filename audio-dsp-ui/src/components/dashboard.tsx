@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useAuth } from "@/Auth/UseAuth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +22,15 @@ import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetPar
 
 
 
+
 export function Dashboard() {
+
+  type RightClickContext =
+  | { type: 'track'; trackId: string }
+  | { type: 'regionSet'; trackId: string; regionSetId: string }
+  | { type: 'region'; trackId: string; regionSetId: string; regionId: string }
+  | null;
+  const [rightClickContext, setRightClickContext] = useState<RightClickContext>(null);
   const { user, loading } = useAuth();
 
   const [addTrackModalOpen, setAddTrackModalOpen] = useState(false);
@@ -42,6 +51,7 @@ export function Dashboard() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [waveformPlayerOpen,setWaveformPlayerOpen]=useState(false);
   const {tracks,addTrack,removeTrack,updateTrack}=useTracks();
+  const {}
 
  const [tracksWithRegions, setTracksWithRegions] = useState<TrackMetaWithRegions[]>([]);
 
@@ -191,13 +201,12 @@ export function Dashboard() {
   };
 
   const onCreateRegionSetClick=(trackId:string)=>{
-
+    setCreateRegionSetModalOpen(true);
   }
 
   const onSubmitCreateRegionSetModal=async(createRegionSetParams:CreateRegionSetParams)=>{
     
-    
-    const result=await updateTrack({track_id:trackId,track_name:newTrackName});
+    const result=await ({track_id:createRegionSetParams.track_id,track_name:createRegionSetParams.name!});
     setRenameTrackModalOpen(false);
     return result;
   };
@@ -214,7 +223,7 @@ export function Dashboard() {
 
   };
   const onRegionDetails=(regionId:string)=>{
-
+    return null;
   };
 
   const onEditRegion=async (regionId:string)=>{
@@ -287,7 +296,7 @@ export function Dashboard() {
         </TrackRenameModal>}
 
         { <CreateRegionSetModal
-           trackMeta={}
+           trackId={sele}
            open={createRegionSetModalOpen}
            onClose={onCloseCreateRegionSetModal}
            onSubmit={onSubmitCreateRegionSetModal}>

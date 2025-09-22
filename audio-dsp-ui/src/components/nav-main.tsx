@@ -66,7 +66,7 @@ export function NavMain({
     :{
       track: TrackMetaWithRegions,
       onSelect: (id: string) => void,
-      onRightClick: (ctx: RightClickContext) => void,}){
+      onRightClick: (ctx: RightClickContext) => void}){
         return(
          <div className="track-item" onClick={()=>onSelect(track.track_id)}>
           <TrackContextMenu

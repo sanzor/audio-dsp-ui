@@ -1,9 +1,9 @@
 import { useContext } from "react";
-import { SelectedTrackContext } from "./SelectedTrackContext";
 
+import {Reg} from './RegionSetsContext'
 
 export const useSelectedTrack = () => {
-  const ctx = useContext(SelectedTrackContext);
+  const ctx = useContext(RegionSetsContext);
   if (!ctx) {
     throw new Error("useSelectedTrack must be used within SelectedTrackProvider");
   }

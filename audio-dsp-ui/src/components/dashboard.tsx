@@ -21,15 +21,15 @@ import { CreateRegionSetModal } from "./create-region-set-modal";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
 
 
-
-
-export function Dashboard() {
-
-  type RightClickContext =
+ export type RightClickContext =
   | { type: 'track'; trackId: string }
   | { type: 'regionSet'; trackId: string; regionSetId: string }
   | { type: 'region'; trackId: string; regionSetId: string; regionId: string }
   | null;
+
+export function Dashboard() {
+
+ 
   const [rightClickContext, setRightClickContext] = useState<RightClickContext>(null);
   const { user, loading } = useAuth();
 
@@ -208,11 +208,13 @@ export function Dashboard() {
     
     const result=await ({track_id:createRegionSetParams.track_id,track_name:createRegionSetParams.name!});
     setRenameTrackModalOpen(false);
+    setRightClickContext(null);
     return result;
   };
 
   const onCloseCreateRegionSetModal=()=>{
     setCreateRegionSetModalOpen(false);
+    setRightClickContext(null);
   }
   //waveform methods
   const onCreateRegionClick=async (time:number)=>{
@@ -246,6 +248,8 @@ export function Dashboard() {
         onDetailTrack={onDetailsTrackClick}
         onRenameTrack={onRenameTrackClick}
         tracks={tracksWithRegions}
+
+        onRightClick={setRightClickContext}
       />
 
        {/* Sidebar (Track Management) */}
@@ -279,9 +283,6 @@ export function Dashboard() {
   </div>
 </div>
 
-
-
-
         <TrackCreateModal 
           open={addTrackModalOpen} 
           onClose={onCloseAddTrackModal} 
@@ -295,14 +296,13 @@ export function Dashboard() {
         >
         </TrackRenameModal>}
 
-        { <CreateRegionSetModal
-           trackId={sele}
+        { rightClickContext?.type=="track" && <CreateRegionSetModal
+           trackId={rightClickContext?.trackId}
            open={createRegionSetModalOpen}
            onClose={onCloseCreateRegionSetModal}
            onSubmit={onSubmitCreateRegionSetModal}>
-          
-
         </CreateRegionSetModal>}
+
         {detailedTrack &&<DetailsTrackModal
             open={detailsTrackModalOpen}
             track={{...detailedTrack,regions:[]}}

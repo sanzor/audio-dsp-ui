@@ -14,7 +14,6 @@ import { useState } from "react"
 
 interface CreateRegionSetModalProps {
   trackId:string,
-  name:string,
   open: boolean
   onClose: () => void
   onSubmit: (track: CreateRegionSetParams) => void
@@ -22,12 +21,11 @@ interface CreateRegionSetModalProps {
 
 export function CreateRegionSetModal({
   trackId,
-  name,
   open,
   onClose,
   onSubmit,
 }: CreateRegionSetModalProps) {
-  const [regionSetName, setRegionSetName] = useState(name);
+  const [regionSetName, setRegionSetName] = useState("");
 
 
   const handleSubmit = () => {

@@ -29,15 +29,15 @@ interface RegionSetContextType {
   updateRegion(params: EditRegionParams): Promise<TrackRegionSet>
   removeRegion(params: RemoveRegionParams): Promise<TrackRegionSet>
 }
-interface TracksProviderProps {
+interface RegionSetsProviderProps {
   children: ReactNode
 }
 // --- Context
 // eslint-disable-next-line react-refresh/only-export-components
-export const TrackContext = createContext<RegionSetContextType | null>(null)
+export const RegionSetsContext = createContext<RegionSetContextType | null>(null)
 
 // --- Provider
-export const TracksProvider = ({ children }: TracksProviderProps) => {
+export const RegionSetsProvider = ({ children }: RegionSetsProviderProps) => {
   const { user, loading: authLoading } = useAuth(); // ✅ correctly rename this
   const [trackRegionSetsMap, setTrackRegionSetsMap] = useState<Map<string,TrackRegionSet[]>>(new Map());
   const [loading, setLoading] = useState<boolean>(true);

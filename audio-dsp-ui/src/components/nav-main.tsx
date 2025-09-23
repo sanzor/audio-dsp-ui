@@ -19,64 +19,39 @@ import {
 } from "@/components/ui/sidebar"
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
 import type { TrackRegion } from "@/Domain/TrackRegion"
-import { TrackContextMenu } from "./track-context-menu"
+
+import type { RightClickContext } from "./dashboard"
 
 export interface NavMainProps{
    tracks:TrackMetaWithRegions[],
    onSelect:(trackId:string)=>void,
-   onCreateRegionSet:(trackId:string)=>void,
-   onDetails:(trackId:string)=>void,
-   onRename:(trackId:string)=>void,
-   onRemove:(trackId:string)=>void,
-   onCopy:(trackId:string)=>void
-   onPaste:()=>void
+   onRightClick: (ctx: RightClickContext) => void
 }
 export function NavMain({
   tracks,
-  onCreateRegionSet,
-  onDetails,
-  onRename,
-  onCopy,
-  onPaste,
-  onRemove,
-  onSelect
+  onSelect,
+  onRightClick
 
 }:NavMainProps) {
-  const handleDetails=(trackId:string)=>{
-    onDetails(trackId);
-  }
-  const handleRename=(trackId:string)=>{
-    console.log("rename clicked from nav main");
-      onRename(trackId)
-    }
-  const handleRemove=(trackId:string)=>{
-    onRemove(trackId)
-  }
-  const handleCopy=(trackId:string)=>{
-    onCopy(trackId);
-  }
-  const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    onPaste();
-  };
-  const handleCreateRegionSet=(trackId:string)=>{
-    onCreateRegionSet(trackId);
-  }
+
   function TrackItem({track,onSelect,onRightClick}
     :{
       track: TrackMetaWithRegions,
       onSelect: (id: string) => void,
       onRightClick: (ctx: RightClickContext) => void}){
         return(
-         <div className="track-item" onClick={()=>onSelect(track.track_id)}>
-          <TrackContextMenu
+         <div className="track-item" 
+          onClick={()=>onSelect(track.track_id)}
+          onContextMenu={(e)=>{
+            e.preventDefault();
+            onRightClick({
+              type:"track",
+              trackId:track.track_id,
+              y:e.clientY,
+              x:e.clientX
+            });
+          }}>
 
-          trackId={track.track_id}
-          onCreateRegionSet={handleCreateRegionSet}
-          onDetails={handleDetails}
-          onRename={handleRename}
-          onCopy={handleCopy}
-          onRemove={handleRemove}>
           <Collapsible
             key={track.track_id}
             asChild
@@ -93,26 +68,40 @@ export function NavMain({
               <CollapsibleContent>
                 <SidebarMenuSub>
                   {track.regions.map((region) => 
-                    <RegionItem region={region}>
+                    <RegionItem 
+                        trackId={track.track_id} 
+                        onRightClick={onRightClick}
+                        region={region}>
                     </RegionItem>)
                   }
                 </SidebarMenuSub>
               </CollapsibleContent>
             </SidebarMenuItem>
           </Collapsible>
-          </TrackContextMenu>
+          {/* </TrackContextMenu> */}
           </div>
             );
    
   };
-  function RegionItem({region}:{region:TrackRegion}){
-    return (<SidebarMenuSubItem key={region.region_id}>
-                      <SidebarMenuSubButton asChild>
-                        
-                          <span>{region.name}</span>
+  function RegionItem({region,trackId,onRightClick}:{region:TrackRegion,trackId:string,onRightClick:(ctx:RightClickContext)=>void}){
+    return (<SidebarMenuSubItem key={region.region_id}
+            onContextMenu={(e)=>{
+              e.preventDefault();
+              onRightClick({
+                type:"region",
+                trackId,
+                regionSetId:region.region_set_id,
+                regionId:region.region_id,
+                x:e.clientX,
+                y:e.clientY
+              })
+            }}>
+                <SidebarMenuSubButton asChild>
+                          
+                    <span>{region.name}</span>
 
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>)
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>)
   }
     return (
     <SidebarGroup>

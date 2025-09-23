@@ -1,8 +1,10 @@
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "./ui/context-menu"
 
 interface TrackContextMenuProps{
-  children: React.ReactNode
-  trackId: string
+  x: number;
+  y: number;
+  trackId: string;
+  onClose:()=>void;
   onCreateRegionSet:(id:string)=>void
   onRemove: (id: string) => void
   onRename: (id: string) => void
@@ -11,23 +13,28 @@ interface TrackContextMenuProps{
 }
 
 export function TrackContextMenu({
+  x,
+  y,
   trackId,
+  onClose,
   onCreateRegionSet,
   onDetails,
   onRemove,
   onRename,
   onCopy,
-  children,
 }: TrackContextMenuProps) {
   return (
     <ContextMenu>
-      <ContextMenuTrigger>{children}</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem onClick={() => onCreateRegionSet(trackId)}>Create Region Set</ContextMenuItem>
-        <ContextMenuItem onClick={() => onDetails(trackId)}>Details</ContextMenuItem>
-        <ContextMenuItem onClick={() => onRename(trackId)}>Rename</ContextMenuItem>
-        <ContextMenuItem onClick={() => onCopy(trackId)}>Copy</ContextMenuItem>
-        <ContextMenuItem onClick={() => onRemove(trackId)}>Delete</ContextMenuItem>
+      <ContextMenuTrigger></ContextMenuTrigger>
+       <ContextMenuContent
+          style={{ position: "absolute", top: y, left: x, zIndex: 1000 }}
+          onClick={onClose}
+        >   
+        <ContextMenuItem onClick={() => {onCreateRegionSet(trackId); onClose()}}>Create Region Set</ContextMenuItem>
+        <ContextMenuItem onClick={() => {onDetails(trackId);onClose()}}>Details</ContextMenuItem>
+        <ContextMenuItem onClick={() => {onRename(trackId);onClose();}}>Rename</ContextMenuItem>
+        <ContextMenuItem onClick={() => {onCopy(trackId);onClose();}}>Copy</ContextMenuItem>
+        <ContextMenuItem onClick={() => {onRemove(trackId);onClose();}}>Delete</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sidebar"
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
 import { Button } from "./ui/button"
+import type { RightClickContext } from "./dashboard"
 
 
 // This is sample data.
@@ -101,6 +102,7 @@ const data = {
 export interface AppSidebarProps{
   tracks: TrackMetaWithRegions[],                         // <- or with regions if needed
   onAddTrackClick: () => void,
+  onRightClick:(context:RightClickContext)=>void,
   onSelect:(trackId:string)=>void,
   onCreateRegionSet:(trackId:string)=>void
   onDetailTrack:(trackId:string)=>void,
@@ -111,6 +113,7 @@ export interface AppSidebarProps{
 };
 
 export function AppSidebar({ tracks,
+  onRightClick,
   onAddTrackClick: onAddTrack,
   onCreateRegionSet,
   onDetailTrack, 
@@ -146,6 +149,9 @@ export function AppSidebar({ tracks,
   const pasteTrack=()=>{
     onPasteTrack();
   }
+  const rightClick=(context:RightClickContext)=>{
+    onRightClick(context);
+  }
   React.useEffect(()=>{
     console.log("Tracks from app-sidebar",tracks);
   },[tracks])
@@ -165,6 +171,7 @@ export function AppSidebar({ tracks,
         </Button>
         </div>
         <NavMain 
+        onRightClick={rightClick}
         onSelect={selectTrack} 
         onPaste={pasteTrack} 
         onCreateRegionSet={createRegionSet} 

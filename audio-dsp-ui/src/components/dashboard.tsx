@@ -19,13 +19,25 @@ import { WaveformPlayer } from "./waveform-player";
 import { useAudioPlaybackCache } from "@/Providers/UsePlaybackCache";
 import { CreateRegionSetModal } from "./create-region-set-modal";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
+import { TrackContextMenu } from "./track-context-menu";
+import { RegionSetContextMenu } from "./region-set-context-menu";
+
+import type { TrackRegion } from "@/Domain/TrackRegion";
+import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
 
 
- export type RightClickContext =
-  | { type: 'track'; trackId: string }
-  | { type: 'regionSet'; trackId: string; regionSetId: string }
-  | { type: 'region'; trackId: string; regionSetId: string; regionId: string }
+export type RightClickContext =
+  | { type: "track"; trackId: string; x: number; y: number }
+  | { type: "region"; trackId: string; regionSetId: string; regionId: string; x: number; y: number }
+  | { type: "regionSet"; trackId: string; regionSetId: string; x: number; y: number }
   | null;
+
+
+export type SelectedContext =
+  | { type: "track"; trackId: string }
+  | { type: "regionSet"; trackId: string; regionSetId: string }
+  | { type: "region"; trackId: string; regionSetId: string; regionId: string }
+  | null; 
 
 export function Dashboard() {
 
@@ -39,9 +51,18 @@ export function Dashboard() {
   const [trackToRename,setTrackToRename]=useState<{trackId:string,trackInitialName:string}|null>(null);
   const [detailsTrackModalOpen,setDetailsTrackModalOpen]=useState(false);
   const [detailedTrack,setDetailedTrack]=useState<TrackMetaWithRegions|null>(null);
-  const [copiedTrack,setCopiedTrack]=useState<TrackMetaWithRegions|null>(null);
-  const [copyTrackModalOpen,setCopyTrackModalOpen]=useState(false);
+  
 
+
+  const [copiedTrack,setCopiedTrack]=useState<TrackMetaWithRegions|null>(null);
+  const [copiedRegionSet,setCopiedRegionSet]=useState<TrackRegionSet|null>(null);
+  const [copyTrackModalOpen,setCopyTrackModalOpen]=useState(false);
+  const [copyRegionSetModalOpen,setCopyRegionSetModalOpen]=useState(false);
+  const [copiedRegion,setCopiedRegion]=useState<TrackRegion|null>(null);
+  const [copyRegionModalOpen,setCopyRegionModalOpe]=useState(false);
+  
+
+  const [selectedContext, setSelectedContext] = useState<SelectedContext>(null);
   const [selectedTrack,setSelectedTrack]=useState<TrackMetaWithRegions|null>(null);
   const { setBlob, getBlob } = useAudioPlaybackCache();
 
@@ -112,17 +133,14 @@ export function Dashboard() {
             return;
         }
       }
-      console.log("🧪 Blob debug:", {
-  type: blob.type,
-  size: blob.size,
-});
+      console.log("🧪 Blob debug:", {type: blob.type,size: blob.size });
       const url = URL.createObjectURL(blob);
       setObjectUrl(url);
       setWaveformPlayerOpen(true);
   };
 
   
-  const onRemoveTrack = async (trackId: string): Promise<RemoveTrackResult> => {
+  const onRemoveTrackClick = async (trackId: string): Promise<RemoveTrackResult> => {
     return await removeTrack({ trackId: trackId.toString() });
   };
 
@@ -200,6 +218,8 @@ export function Dashboard() {
     setAddTrackModalOpen(false); // ✅ Close modal
   };
 
+  
+  //region sets
   const onCreateRegionSetClick=(trackId:string)=>{
     setCreateRegionSetModalOpen(true);
   }
@@ -216,6 +236,33 @@ export function Dashboard() {
     setCreateRegionSetModalOpen(false);
     setRightClickContext(null);
   }
+
+  const onDetailsRegionSetClick=(regionSetId:string)=>{
+
+  }
+
+  const onCopyRegionSetClick=(regionSetId:string)=>{
+
+  }
+  const onRenameRegionSetClick=(regionSetId:string)=>{
+
+  }
+  const onRemoveRegionSetClick=async(regionSetId:string)=>{
+
+  }
+  const onPasteRegionSetClick=()=>{
+     console.log("inside paste");
+    if(!copiedTrack){
+      return undefined;
+    }
+    setCopyRegionSetModalOpen(true);
+  }
+  //regions
+  const onCreateRegionClick=(trackId:string,regionSetId:string)=>{
+
+  }
+ 
+
   //waveform methods
   const onCreateRegionClick=async (time:number)=>{
 
@@ -242,7 +289,7 @@ export function Dashboard() {
         onSelect={onSelectTrack}
         onAddTrackClick={() => setAddTrackModalOpen(true)}
         onCreateRegionSet={onCreateRegionSetClick}
-        onRemoveTrack={onRemoveTrack}
+        onRemoveTrack={onRemoveTrackClick}
         onCopyTrack={onCopyTrackClick}
         onPasteTrack={onPasteTrackClick}
         onDetailTrack={onDetailsTrackClick}
@@ -280,8 +327,8 @@ export function Dashboard() {
          onEditRegion={onEditRegion}
          onDeleteRegion={onDeleteRegion}/>
       )}
-  </div>
-</div>
+      </div>
+      </div>
 
         <TrackCreateModal 
           open={addTrackModalOpen} 
@@ -308,7 +355,7 @@ export function Dashboard() {
             track={{...detailedTrack,regions:[]}}
             onClose={onCloseDetailsTrack}>
           </DetailsTrackModal>}
-          {copiedTrack && <CopyTrackModal 
+        {copiedTrack && <CopyTrackModal 
               trackToCopy={{
                 trackId: copiedTrack.track_id,
                 sourceTrackNname: copiedTrack.track_info.name
@@ -316,10 +363,34 @@ export function Dashboard() {
               open={copyTrackModalOpen}
               onSubmit={onSubmitCopyTrackModal}
               onClose={onCloseCopyTrackModal}>
-          </CopyTrackModal>}
-          
+        </CopyTrackModal>}
 
 
+        {rightClickContext?.type=="track" &&(
+          <TrackContextMenu
+          onClose={()=>setRightClickContext(null)}
+          x={rightClickContext.x}
+          y={rightClickContext.y}
+          trackId={rightClickContext.trackId}
+          onCreateRegionSet={(id)=>onCreateRegionSetClick(id)}
+          onCopy={onCopyTrackClick}
+          onDetails={onDetailsTrackClick}
+          onRemove={onRemoveTrackClick}
+          onRename={onRenameTrackClick}
+          >
+        </TrackContextMenu>)}
+        {rightClickContext?.type=="regionSet" &&(
+          <RegionSetContextMenu
+            trackId={rightClickContext.trackId}
+            regionSetId={rightClickContext.regionSetId}
+            onClose={()=>setRightClickContext(null)}
+            x={rightClickContext?.x}
+            y={rightClickContext.y}
+            onCreateRegion={onCreateRegionClick}
+            onDetails={ondeta}
+
+          </RegionSetContextMenu>
+        )}
       </div>
     </SidebarProvider>
   );

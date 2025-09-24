@@ -237,22 +237,22 @@ export function Dashboard() {
     setRightClickContext(null);
   }
 
-  const onDetailsRegionSetClick=(regionSetId:string)=>{
+  const onDetailsRegionSetClick=(regionSetId:string,trackId:string)=>{
 
   }
 
-  const onCopyRegionSetClick=(regionSetId:string)=>{
+  const onCopyRegionSetClick=(regionSetId:string,trackId:string)=>{
 
   }
-  const onRenameRegionSetClick=(regionSetId:string)=>{
+  const onRenameRegionSetClick=(regionSetId:string,trackId:string)=>{
 
   }
-  const onRemoveRegionSetClick=async(regionSetId:string)=>{
+  const onRemoveRegionSetClick=async(regionSetId:string,trackId:string)=>{
 
   }
   const onPasteRegionSetClick=()=>{
      console.log("inside paste");
-    if(!copiedTrack){
+    if(!copiedRegionSet){
       return undefined;
     }
     setCopyRegionSetModalOpen(true);
@@ -264,21 +264,21 @@ export function Dashboard() {
  
 
   //waveform methods
-  const onCreateRegionClick=async (time:number)=>{
+  const onWaveCreateRegionClick=async (time:number)=>{
 
   };
 
-  const onCreateRegionDrag=async (start:number,end:number)=>{
+  const onWaveCreateRegionDrag=async (start:number,end:number)=>{
 
   };
   const onRegionDetails=(regionId:string)=>{
     return null;
   };
 
-  const onEditRegion=async (regionId:string)=>{
+  const onWaveEditRegion=async (regionId:string)=>{
 
   };
-  const onDeleteRegion=async(regionId:string)=>{
+  const onWaveDeleteRegion=async(regionId:string)=>{
 
   }
 
@@ -387,8 +387,10 @@ export function Dashboard() {
             x={rightClickContext?.x}
             y={rightClickContext.y}
             onCreateRegion={onCreateRegionClick}
-            onDetails={ondeta}
-
+            onDetails={onDetailsRegionSetClick}
+            onCopy={onCopyRegionSetClick}
+            onRemove={onRemoveRegionSetClick}
+            onRename={onRenameRegionSetClick}>
           </RegionSetContextMenu>
         )}
       </div>

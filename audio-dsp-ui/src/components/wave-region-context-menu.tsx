@@ -2,23 +2,25 @@ import { ContextMenuContent, ContextMenuTrigger } from "@radix-ui/react-context-
 import { ContextMenu, ContextMenuItem } from "./ui/context-menu"
 
 export interface WaveRegionContextMenuProps{
-    children:React.ReactNode,
+    trackId:string,
+    regionSetId:string,
     regionId:string,
-    onEdit:(id:string)=>void,
-    onDelete:(id:string)=>void
-    onDetails:(id:string)=>void
+    onEdit:(regionId:string,regionSetId:string,trackId:string)=>void,
+    onDelete:(regionId:string,regionSetId:string,trackId:string)=>void
+    onDetails:(regionId:string,regionSetId:string,trackId:string)=>void
+    onRename:(regionId:string,regionSetId:string,trackId:string)=>void
 }
 
-export function WaveRegionContextMenu({onDelete,onDetails,onEdit,regionId,children}:WaveRegionContextMenuProps){
+export function WaveRegionContextMenu({onDelete,onDetails,onEdit,onRename,trackId,regionSetId,regionId}:WaveRegionContextMenuProps){
     return (
         <ContextMenu>
             <ContextMenuTrigger>
-                {children}
             </ContextMenuTrigger>
             <ContextMenuContent>
-                <ContextMenuItem onClick={()=>onEdit(regionId)}>Edit</ContextMenuItem>
-                <ContextMenuItem onClick={() => onDetails(regionId)}>Details</ContextMenuItem>
-                <ContextMenuItem onClick={() => onDelete(regionId)}>Delete</ContextMenuItem>
+                <ContextMenuItem onClick={()=>onEdit(regionId,regionSetId,trackId)}>Edit</ContextMenuItem>
+                <ContextMenuItem onClick={() => onDetails(regionId,regionSetId,trackId)}>Details</ContextMenuItem>
+                <ContextMenuItem onClick={() => onDelete(regionId,regionSetId,trackId)}>Delete</ContextMenuItem>
+                <ContextMenuItem onClick={() => onRename(regionId,regionSetId,trackId)}>Rename</ContextMenuItem>
             </ContextMenuContent>
         </ContextMenu>
     )

@@ -9,7 +9,7 @@ export interface WaveformPlayerProps{
     onRegionDetails:(regionId:string)=>void,
     onDeleteRegion:(regionId:string)=>void,
     onEditRegion:(regionId:string)=>void,
-
+   
 
     onCreateRegionClick:(time:number)=>void,
     onCreateRegionDrag:(start:number,end:number)=>void,
@@ -20,7 +20,7 @@ export interface WaveformPlayerProps{
 }
 
 type ContextMenuContext =
-  | { type: 'region'; regionId: string }
+  | { type: 'region'; regionId: string; }
   | { type: 'waveform'; time: number }
   | null;
 

@@ -6,17 +6,18 @@ interface RegionSetContextMenuProps{
   trackId: string;
   regionSetId:string,
   onClose:()=>void;
-  onCreateRegion:(id:string)=>void
-  onRemove: (id: string) => void
-  onRename: (id: string) => void
-  onCopy: (id: string) => void
-  onDetails:(id:string)=>void
+  onCreateRegion:(regionSetId:string,trackId:string)=>void
+  onRemove: (regionSetId: string,trackId:string) => void
+  onRename: (regionSetId: string,trackId:string) => void
+  onCopy: (regionSetId: string,trackId:string) => void
+  onDetails:(regionSetId:string,trackId:string)=>void
 }
 
 export function RegionSetContextMenu({
   x,
   y,
   trackId,
+  regionSetId,
   onClose,
   onCreateRegion,
   onDetails,
@@ -28,11 +29,11 @@ export function RegionSetContextMenu({
     <ContextMenu>
       <ContextMenuTrigger></ContextMenuTrigger>
        <ContextMenuContent style={{ position: "absolute", top: y, left: x, zIndex: 1000 }} onClick={onClose}>   
-        <ContextMenuItem onClick={() => {onCreateRegion(trackId); onClose()}}>Create Region</ContextMenuItem>
-         <ContextMenuItem onClick={() => {onDetails(trackId);onClose()}}>Details</ContextMenuItem>
-        <ContextMenuItem onClick={() => {onRename(trackId);onClose();}}>Rename</ContextMenuItem>
-         <ContextMenuItem onClick={() => {onCopy(trackId);onClose();}}>Copy</ContextMenuItem>
-         <ContextMenuItem onClick={() => {onRemove(trackId);onClose();}}>Delete</ContextMenuItem>
+        <ContextMenuItem onClick={() => {onCreateRegion(regionSetId,trackId); onClose()}}>Create Region</ContextMenuItem>
+         <ContextMenuItem onClick={() => {onDetails(regionSetId,trackId);onClose()}}>Details</ContextMenuItem>
+        <ContextMenuItem onClick={() => {onRename(regionSetId,trackId);onClose();}}>Rename</ContextMenuItem>
+         <ContextMenuItem onClick={() => {onCopy(regionSetId,trackId);onClose();}}>Copy</ContextMenuItem>
+         <ContextMenuItem onClick={() => {onRemove(regionSetId,trackId);onClose();}}>Delete</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

@@ -11,7 +11,7 @@ import { SidebarProvider } from "./ui/sidebar-provider";
 import { TrackCreateModal } from "./create-track-modal";
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
 import { TrackRenameModal } from "./rename-track-modal";
-import { DetailsTrackModal } from "./details-track-modal";
+import { DetailsTrackModal } from "./coordinators/details-track-modal";
 import { CopyTrackModal } from "./modals/copy-track-modal";
 import type { CopyTrackParams } from "@/Dtos/Tracks/CopyTrackParams";
 import { apiCopyTrack, apiGetTrackRaw } from "@/Services/TracksService";

@@ -13,7 +13,7 @@ export interface DetailsRegionSetModalProps {
   onClose: () => void;
 }
 
-export function DetailsTrackModal({ regionSet, open, onClose }: DetailsRegionSetModalProps) {
+export function DetailsRegionSetModal({ regionSet, open, onClose }: DetailsRegionSetModalProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="space-y-6">

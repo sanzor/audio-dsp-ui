@@ -7,33 +7,30 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog"
+} from "../ui/dialog"
 
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams"
 import { useState } from "react"
 
-interface CreateRegionSetModalProps {
+interface CreateRegionModalProps {
   trackId:string,
   open: boolean
   onClose: () => void
   onSubmit: (track: CreateRegionSetParams) => void
 }
 
-export function CreateRegionSetModal({
+export function CreateRegionModal({
   trackId,
   open,
   onClose,
   onSubmit,
-}: CreateRegionSetModalProps) {
-  const [regionSetName, setRegionSetName] = useState("");
+}: CreateRegionModalProps) {
+  const [regionName, setRegionName] = useState("");
 
 
   const handleSubmit = () => {
-
-
-
     const createRegionSetParams: CreateRegionSetParams = {
-        name:regionSetName,
+        name:regionName,
         track_id:trackId
     };
     console.log("Submitting form");
@@ -46,7 +43,7 @@ export function CreateRegionSetModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create New Track</DialogTitle>
+          <DialogTitle>Create New Region</DialogTitle>
           <DialogDescription>
             Provide a name and preview the audio before saving.
           </DialogDescription>
@@ -61,8 +58,8 @@ export function CreateRegionSetModal({
             <Input
               id="track-name"
               className="col-span-3"
-              value={regionSetName}
-              onChange={(e) => setRegionSetName(e.target.value)}
+              value={regionName}
+              onChange={(e) => setRegionName(e.target.value)}
               placeholder="Enter track name"
             />
           </div>
@@ -71,7 +68,7 @@ export function CreateRegionSetModal({
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!regionSetName}>
+          <Button onClick={handleSubmit} disabled={!regionName}>
             Submit
           </Button>
         </DialogFooter>

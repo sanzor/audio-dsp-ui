@@ -12,18 +12,21 @@ import { TrackCreateModal } from "./create-track-modal";
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
 import { TrackRenameModal } from "./rename-track-modal";
 import { DetailsTrackModal } from "./details-track-modal";
-import { CopyTrackModal } from "./copy-track-modal";
+import { CopyTrackModal } from "./modals/copy-track-modal";
 import type { CopyTrackParams } from "@/Dtos/Tracks/CopyTrackParams";
 import { apiCopyTrack, apiGetTrackRaw } from "@/Services/TracksService";
 import { WaveformPlayer } from "./waveform-player";
 import { useAudioPlaybackCache } from "@/Providers/UsePlaybackCache";
-import { CreateRegionSetModal } from "./create-region-set-modal";
+import { CreateRegionSetModal } from "./modals/create-region-set-modal";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
 import { TrackContextMenu } from "./track-context-menu";
 import { RegionSetContextMenu } from "./region-set-context-menu";
 
 import type { TrackRegion } from "@/Domain/TrackRegion";
 import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
+import { useRegionSets } from "@/Providers/UseRegionSets";
+import { error } from "node:console";
+import { apiCreateRegionSet } from "@/Services/RegionSetsService";
 
 
 export type RightClickContext =
@@ -44,16 +47,23 @@ export function Dashboard() {
  
   const [rightClickContext, setRightClickContext] = useState<RightClickContext>(null);
   const { user, loading } = useAuth();
+  
 
   const [addTrackModalOpen, setAddTrackModalOpen] = useState(false);
   const [createRegionSetModalOpen, setCreateRegionSetModalOpen] = useState(false);
+  const [createRegionSetTrackId,setCreateRegionSetTrackId]=useState<string|null>(null);
   const [renameTrackModalOpen,setRenameTrackModalOpen]=useState(false);
   const [trackToRename,setTrackToRename]=useState<{trackId:string,trackInitialName:string}|null>(null);
+
+  //details
   const [detailsTrackModalOpen,setDetailsTrackModalOpen]=useState(false);
   const [detailedTrack,setDetailedTrack]=useState<TrackMetaWithRegions|null>(null);
-  
+  const [detailsRegionSetModalOpen,setDetailsRegionSetModalOpen]=useState(false);
+  const [detailedRegionSet,setDetailedRegionSet]=useState<TrackRegionSet|null>(null);
+  const [detailsRegionModalOpen,setDetailsRegionModalOpen]=useState(false);
+  const [detailedRegion,setDetailedRegion]=useState<TrackRegion|null>(null);
 
-
+  //copy
   const [copiedTrack,setCopiedTrack]=useState<TrackMetaWithRegions|null>(null);
   const [copiedRegionSet,setCopiedRegionSet]=useState<TrackRegionSet|null>(null);
   const [copyTrackModalOpen,setCopyTrackModalOpen]=useState(false);
@@ -72,7 +82,13 @@ export function Dashboard() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [waveformPlayerOpen,setWaveformPlayerOpen]=useState(false);
   const {tracks,addTrack,removeTrack,updateTrack}=useTracks();
-  const {}
+  const {
+    createRegion,
+    createRegionSet,
+    removeRegionSet,
+    trackRegionSetsMap,
+    removeRegion,
+    updateRegionSet}=useRegionSets();
 
  const [tracksWithRegions, setTracksWithRegions] = useState<TrackMetaWithRegions[]>([]);
 
@@ -114,7 +130,18 @@ export function Dashboard() {
   }, [loading, user, navigate]); // ✅ include navigate in dependencies
 
   if (loading) return <div>Loading...</div>;
-
+  const onSelect=async(ctx:SelectedContext)=>{
+    if(ctx?.type=="track"){
+      await onSelectTrack(ctx.trackId);
+    }
+    if(ctx?.type=="regionSet"){
+      await onSelectRegionSet(ctx.trackId,ctx.regionSetId);
+    }
+    if(ctx?.type=="region"){
+      console.log("selected region:",ctx.regionId);
+      await onSelectRegion(ctx.trackId,ctx.regionSetId,ctx.regionId);
+    }
+  }
   const onSelectTrack=async(trackId:string)=>{
       const track=tracks.find(x=>x.track_id===trackId);
       if(!track){
@@ -139,7 +166,13 @@ export function Dashboard() {
       setWaveformPlayerOpen(true);
   };
 
-  
+  const onSelectRegionSet=async (trackId:string,regionSet:string)=>{
+      setsele
+  }
+
+  const onSelectRegion=async (trackId:string,regionSetId:string,regionId:string)=>{
+
+  }
   const onRemoveTrackClick = async (trackId: string): Promise<RemoveTrackResult> => {
     return await removeTrack({ trackId: trackId.toString() });
   };
@@ -221,14 +254,20 @@ export function Dashboard() {
   
   //region sets
   const onCreateRegionSetClick=(trackId:string)=>{
+    const track=tracksWithRegions.find(x=>x.track_id===trackId);
+    if(!track){
+      error("Could not find track");
+    }
+    setCreateRegionSetTrackId(trackId);
     setCreateRegionSetModalOpen(true);
   }
 
   const onSubmitCreateRegionSetModal=async(createRegionSetParams:CreateRegionSetParams)=>{
     
-    const result=await ({track_id:createRegionSetParams.track_id,track_name:createRegionSetParams.name!});
+    const result=await apiCreateRegionSet({name:createRegionSetParams.name,track_id:createRegionSetParams.track_id});
     setRenameTrackModalOpen(false);
     setRightClickContext(null);
+    setCreateRegionSetTrackId(null);
     return result;
   };
 
@@ -238,17 +277,58 @@ export function Dashboard() {
   }
 
   const onDetailsRegionSetClick=(regionSetId:string,trackId:string)=>{
-
+    const track=tracks.find(x=>x.track_id===trackId);
+    if(!track){
+      error(`Could not find track ${trackId}`)
+      return;
+    }
+    const regionSets=trackRegionSetsMap.get(track.track_id);
+    if(!regionSets){
+      error("Could not find region sets");
+      return;
+    }
+    const regionSet=regionSets.find(x=>x.region_set_id===regionSetId);
+    if(!regionSet){
+      error(`Could not find region set ${regionSetId}`)
+      return;
+    }
+    setDetailedRegionSet(regionSet);
+    setDetailsTrackModalOpen(true);
   }
 
+ // Optional dep
   const onCopyRegionSetClick=(regionSetId:string,trackId:string)=>{
+    const track=tracks.find(x=>x.track_id===trackId);
+     if(!track){
+      error(`Could not find track ${trackId}`)
+      return;
+    }
+     const regionSets=trackRegionSetsMap.get(track.track_id);
+     if(!regionSets){
+        error("Could not find region sets");
+        return;
+     }
+     const regionSet=regionSets.find(x=>x.region_set_id===regionSetId);
+     if(!regionSet){
+        error(`Could not find region set ${regionSetId}`)
+        return;
+     }
+     setCopiedRegionSet(copiedRegionSet);
+     setCopyRegionSetModalOpen(true);
+     //notify user copy took place
 
   }
   const onRenameRegionSetClick=(regionSetId:string,trackId:string)=>{
-
+      const targetTrack=tracks.find(x=>x.track_id===trackId);
+     if(!targetTrack){
+        return;
+     }
+     console.log("click rename");
+     setTrackToRename({trackId:trackId,trackInitialName:targetTrack.track_info.name});
+     setRenameTrackModalOpen(true);
   }
   const onRemoveRegionSetClick=async(regionSetId:string,trackId:string)=>{
-
+     await removeRegionSet({region_set_id:regionSetId})
   }
   const onPasteRegionSetClick=()=>{
      console.log("inside paste");
@@ -259,7 +339,7 @@ export function Dashboard() {
   }
   //regions
   const onCreateRegionClick=(trackId:string,regionSetId:string)=>{
-
+      setcreate
   }
  
 
@@ -286,7 +366,7 @@ export function Dashboard() {
     <SidebarProvider>
       <div className="flex">
       <AppSidebar
-        onSelect={onSelectTrack}
+        onSelect={onSelect}
         onAddTrackClick={() => setAddTrackModalOpen(true)}
         onCreateRegionSet={onCreateRegionSetClick}
         onRemoveTrack={onRemoveTrackClick}
@@ -321,11 +401,11 @@ export function Dashboard() {
         <WaveformPlayer
          track={selectedTrack} 
          url={objectUrl} 
-         onCreateRegionClick={onCreateRegionClick}
-         onCreateRegionDrag={onCreateRegionDrag}
+         onCreateRegionClick={onWaveCreateRegionClick}
+         onCreateRegionDrag={onWaveCreateRegionDrag}
          onRegionDetails={onRegionDetails}
-         onEditRegion={onEditRegion}
-         onDeleteRegion={onDeleteRegion}/>
+         onEditRegion={onWaveEditRegion}
+         onDeleteRegion={onWaveDeleteRegion}/>
       )}
       </div>
       </div>

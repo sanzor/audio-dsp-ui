@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/sidebar"
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
 import { Button } from "./ui/button"
-import type { RightClickContext } from "./dashboard"
+import type { RightClickContext, SelectedContext } from "./dashboard"
 
 
 // This is sample data.
@@ -103,7 +103,7 @@ export interface AppSidebarProps{
   tracks: TrackMetaWithRegions[],                         // <- or with regions if needed
   onAddTrackClick: () => void,
   onRightClick:(context:RightClickContext)=>void,
-  onSelect:(trackId:string)=>void,
+  onSelect:(ctx:SelectedContext)=>void,
   onCreateRegionSet:(trackId:string)=>void
   onDetailTrack:(trackId:string)=>void,
   onRemoveTrack: (trackId: string) => void,
@@ -172,7 +172,7 @@ export function AppSidebar({ tracks,
         </div>
         <NavMain 
         onRightClick={rightClick}
-        onSelect={selectTrack} 
+        onSelect={selectTrack}
         onPaste={pasteTrack} 
         onCreateRegionSet={createRegionSet} 
          onDetails={detailsTrack} 

@@ -31,6 +31,7 @@ export function WaveformPlayer({track,url,onRegionDetails: onDetails,onEditRegio
     // const [waveObject,setWaveObject]=useState<WaveSurfer|null>(null);
     const [regionsPlugin, setRegionsPlugin] = useState<RegionsPlugin | null>(null);
     const renderedRegionIds = useRef<Set<string>>(new Set());
+
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 

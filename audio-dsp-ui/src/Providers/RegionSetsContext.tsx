@@ -160,7 +160,7 @@ export const RegionSetsProvider = ({ children }: RegionSetsProviderProps) => {
   }
 
   return (
-    <TrackContext.Provider value={{ 
+    <RegionSetsContext.Provider value={{ 
         trackRegionSetsMap,
          loading,
           error,
@@ -173,7 +173,7 @@ export const RegionSetsProvider = ({ children }: RegionSetsProviderProps) => {
            updateRegion
            }}>
       {children}
-    </TrackContext.Provider>
+    </RegionSetsContext.Provider>
   )
 }
 

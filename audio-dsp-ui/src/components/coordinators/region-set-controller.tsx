@@ -1,5 +1,5 @@
 // RegionSetController.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { RegionSetContextMenu } from "../region-set-context-menu";
 import { CreateRegionSetModal } from "../modals/create-region-set-modal";
@@ -34,6 +34,8 @@ export function RegionSetController({
   const [copiedRegionSet, setCopiedRegionSet] = useState<TrackRegionSet | null>(null);
 
   // handlers
+
+  //create
   const onCreateRegionSetClick = (trackId: string) => {
     const track = tracks.find((x) => x.track_id === trackId);
     if (!track) {
@@ -54,6 +56,8 @@ export function RegionSetController({
     setRightClickContext(null);
   };
 
+
+  //details
   const onDetailsRegionSetClick = (regionSetId: string, trackId: string) => {
     const track = tracks.find((x) => x.track_id === trackId);
     if (!track) {
@@ -74,6 +78,16 @@ export function RegionSetController({
     setDetailsRegionSetModalOpen(true);
   };
 
+  const onCloseDetailsRegionSetModal=()=>{
+    setDetailedRegionSet(null);
+    setDetailsRegionSetModalOpen(false);
+  }
+  //copy
+  
+    useEffect(() => {
+      setCopiedRegionSet(copiedRegionSet);
+      }, [copiedRegionSet, open]);
+  
   const onCopyRegionSetClick = (regionSetId: string, trackId: string) => {
     const track = tracks.find((x) => x.track_id === trackId);
     if (!track) {
@@ -91,6 +105,13 @@ export function RegionSetController({
       return;
     }
     setCopiedRegionSet(regionSet);
+  };
+
+   const onPasteRegionSetClick=()=>{
+    console.log("inside paste");
+    if(!copiedRegionSet){
+      return undefined;
+    }
     setCopyRegionSetModalOpen(true);
   };
 
@@ -129,13 +150,13 @@ export function RegionSetController({
           onSubmit={onSubmitCreateRegionSetModal}
         />
       )}
-       {rightClickContext?.type === "regionSet" && detailedRegionSet(
+       { detailedRegionSet && (rightClickContext?.type === "regionSet") &&
         <DetailsRegionSetModal
           regionSet={detailedRegionSet}
-          open={createRegionSetModalOpen}
-          onClose={onCloseCreateRegionSetModal}
+          open={detailsRegionSetModalOpen}
+          onClose={onCloseDetailsRegionSetModal}
         />
-      )}
+      }
 
       {/* TODO: add DetailsRegionSetModal + CopyRegionSetModal here */}
     </>

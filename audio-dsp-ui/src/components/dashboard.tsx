@@ -42,10 +42,17 @@ export type SelectedContext =
   | { type: "region"; trackId: string; regionSetId: string; regionId: string }
   | null; 
 
+
+type Clipboard =
+  | { type: "track"; trackId: string }
+  | { type: "regionSet"; trackId: string; regionSetId: string }
+  | { type: "region"; trackId: string; regionSetId: string; regionId: string }
+  | null; 
 export function Dashboard() {
 
  
   const [rightClickContext, setRightClickContext] = useState<RightClickContext>(null);
+  const [clipboard, setClipboard] = useState<Clipboard>(null);
   const { user, loading } = useAuth();
   
 

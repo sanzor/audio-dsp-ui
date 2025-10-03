@@ -1,5 +1,6 @@
 
 import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
+import type { CopyRegionSetParams } from "@/Dtos/RegionSets/CoyRegionSetParams";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
 import type { CreateRegionSetResult } from "@/Dtos/RegionSets/CreateRegionSetResult";
 import type { EditRegionSetParams } from "@/Dtos/RegionSets/EditRegionSetParams";
@@ -92,4 +93,21 @@ export async function apiRemoveRegionSet(params: RemoveRegionSetParams): Promise
   });
 
   if (!res.ok) throw new Error('Refresh token failed');
+}
+
+export async function apiCopyRegionSet(params: CopyRegionSetParams): Promise<CreateRegionSetResult> {
+  console.log("a");
+  const res = await fetch(`${BASE_URL}/region-sets/create`, {
+    method: 'POST', // ✅ must be POST to send body
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(params),
+  });
+  console.log(res.status);
+  if (!res.ok) {
+    throw new Error(`Failed to update track: ${res.statusText}`);
+  }
+  return await res.json();
 }

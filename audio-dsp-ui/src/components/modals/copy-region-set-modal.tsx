@@ -5,19 +5,22 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
 import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
+import { Label } from "../ui/label";
 
 export interface CopyRegionSetModalProps {
+  targetTrackId:string,
   regionSetToCopy: TrackRegionSet | null; // 👈 allow null
   open: boolean;
   onClose: () => void;
-  onSubmit: (regionSetId:string, copyRegionName: string) => void;
+  onPaste: (trackId:string,regionSetId:string, copyRegionName: string) => void;
 }
 
-export function CopyRegionModal({
+export function CopyRegionSetModal({
   regionSetToCopy,
+  targetTrackId,
   open,
   onClose,
-  onSubmit,
+  onPaste: onPaste,
 }: CopyRegionSetModalProps) {
   
 
@@ -29,7 +32,7 @@ export function CopyRegionModal({
 
   const handleSubmit = () => {
     if (copyRegionSetName?.trim() && regionSetToCopy?.region_set_id) {
-    onSubmit(regionSetToCopy?.region_set_id, copyRegionSetName.trim());
+    onPaste(targetTrackId,regionSetToCopy?.region_set_id, copyRegionSetName.trim());
     onClose();
     }
 };
@@ -38,18 +41,22 @@ export function CopyRegionModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Region set to copy</DialogTitle>
+          <DialogTitle>Region set to paste</DialogTitle>
         </DialogHeader>
-        <Input
-          value={copyRegionSetName}
-          onChange={(e) => setCopyRegionSetName(e.target.value)}
-          placeholder="Enter new name"
-        />
+          <div className="space-y-2">
+            <Label htmlFor="track-id">Track ID</Label>
+            <Input id="track-id" value={targetTrackId} readOnly />
+          </div>
+          <Input
+           value={copyRegionSetName}
+           onChange={(e) => setCopyRegionSetName(e.target.value)}
+            placeholder="Enter new name"
+          />
         <DialogFooter className="mt-4">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>Save</Button>
+          <Button onClick={handleSubmit}>Submit</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

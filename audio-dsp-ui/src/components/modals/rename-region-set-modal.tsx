@@ -10,18 +10,18 @@ export interface RenameRegionSetProps {
   regionSetToRename: TrackRegionSet | null; // 👈 allow null
   open: boolean;
   onClose: () => void;
-  onSubmit: (trackId: string, newName: string) => void;
+  onSubmit: (trackId:string,regionSetId: string, newName: string) => void;
 }
 
 export function RegionSetRenameModal({
-  regionSetToRename: initialName,
+  regionSetToRename: regionSet,
   open,
   onClose,
   onSubmit,
 }: RenameRegionSetProps) {
   
 
-  const [regionSetName, setRegionSetName] = useState(initialName?.name);
+  const [regionSetName, setRegionSetName] = useState(regionSet?.name);
 
   useEffect(() => {
     console.log("inside rename modal");
@@ -29,8 +29,8 @@ export function RegionSetRenameModal({
   }, [regionSetName, open]);
 
   const handleSubmit = () => {
-  if (initialName && regionSetName?.trim()) {
-    onSubmit(initialName.name, regionSetName.trim());
+  if (regionSet && regionSetName?.trim()) {
+    onSubmit(regionSet.track_id,regionSet.name, regionSetName.trim());
     onClose();
   }
 };

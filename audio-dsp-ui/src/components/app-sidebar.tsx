@@ -24,6 +24,11 @@ import {
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
 import { Button } from "./ui/button"
 import type { RightClickContext, SelectedContext } from "./dashboard"
+import { useState } from "react"
+import { DetailsTrackModal } from "./modals/details-track-modal"
+import type { TrackRegion } from "@/Domain/TrackRegion"
+import type { TrackRegionSet } from "@/Domain/TrackRegionSet"
+import { useRegionSets } from "@/Providers/UseRegionSets"
 
 
 // This is sample data.
@@ -113,16 +118,13 @@ export interface AppSidebarProps{
 };
 
 export function AppSidebar({ tracks,
-  onRightClick,
-  onAddTrackClick: onAddTrack,
-  onCreateRegionSet,
-  onDetailTrack, 
-  onCopyTrack,
-  onRemoveTrack,
-  onRenameTrack,
-  onPasteTrack,
-  onSelect 
+
 }:AppSidebarProps) {
+  
+  const [detailsTrackModalOpen,setDetailsTrackModalOpen]=useState(false);
+  const [detailedTrack,setDetailedTrack]=useState<TrackMetaWithRegions|null>(null);
+
+
   const selectTrack=(trackId:string)=>{
       onSelect(trackId);
   }
@@ -133,9 +135,29 @@ export function AppSidebar({ tracks,
   const createRegionSet=(elem:string)=>{
     onCreateRegionSet(elem);
   }
-  const detailsTrack=(elem:string)=>{
-      onDetailTrack(elem);
+
+   const onDetailsTrackClick=(trackId:string)=>{
+    const track=tracks.find(x=>x.track_id===trackId);
+    if(!track){
+      return;
+    }
+    setDetailedTrack({...track,regions:[]});
+    setDetailsTrackModalOpen(true);
+  };
+  const onCloseDetailsTrack=()=>{
+    setDetailsTrackModalOpen(false);
   }
+  const onCopyTrackClick=(trackId:string)=>{
+     const track=tracks.find(x=>x.track_id==trackId);
+     if(!track){
+      return;
+     }
+     console.log("Copied track");
+     setCopiedTrack({...track,regions:[]});
+     //notify user copy took place
+
+  };
+ 
   const removeTrack=(elem:string)=>{
       onRemoveTrack(elem);
   }
@@ -175,7 +197,7 @@ export function AppSidebar({ tracks,
         onSelect={selectTrack}
         onPaste={pasteTrack} 
         onCreateRegionSet={createRegionSet} 
-         onDetails={detailsTrack} 
+         onDetails={onDetailsTrackClick} 
          onRemove={removeTrack} 
          onRename={renameTrack} 
          onCopy={copyTrack} 
@@ -187,6 +209,14 @@ export function AppSidebar({ tracks,
       </SidebarFooter>
 
       <SidebarRail />
+
+
+
+      {detailedTrack &&<DetailsTrackModal
+                  open={detailsTrackModalOpen}
+                  track={{...detailedTrack,regions:[]}}
+                  onClose={onCloseDetailsTrack}>
+      </DetailsTrackModal>}
     </Sidebar>
   )
 }

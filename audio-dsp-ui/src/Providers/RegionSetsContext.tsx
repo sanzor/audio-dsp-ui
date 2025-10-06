@@ -8,11 +8,14 @@ import type { CreateRegionSetResult } from '@/Dtos/RegionSets/CreateRegionSetRes
 import type { EditRegionSetParams as UpdateRegionSetParams } from '@/Dtos/RegionSets/EditRegionSetParams'
 import type { EditRegionSetResult } from '@/Dtos/RegionSets/EditRegionSetResult'
 import type { RemoveRegionSetParams } from '@/Dtos/RegionSets/RemoveRegionSetParams'
-import { apiCreateRegionSet, apiGetAllRegionSets, apiGetRegionSetsForTrack, apiRemoveRegionSet, apiUpdateRegionSet } from '@/Services/RegionSetsService'
+import { apiCopyRegionSet, apiCreateRegionSet, apiGetAllRegionSets, apiGetRegionSetsForTrack, apiRemoveRegionSet, apiUpdateRegionSet } from '@/Services/RegionSetsService'
 import type { CreateRegionParams } from '@/Dtos/Regions/CreateRegionParams'
 import type { EditRegionParams } from '@/Dtos/Regions/EditRegionParams'
 import type { RemoveRegionParams } from '@/Dtos/Regions/RemoveRegionParams'
-import { apiAddRegion, apiEditRegion, apiRemoveRegion } from '@/Services/RegionsService'
+import { apiAddRegion, apiCopyRegion, apiEditRegion, apiRemoveRegion } from '@/Services/RegionsService'
+import type { CopyRegionSetParams } from '@/Dtos/RegionSets/CoyRegionSetParams'
+import type { CopyRegionParams } from '@/Dtos/Regions/CopyRegionParams'
+import type { CopyRegionResult } from '@/Dtos/Regions/CopyRegionResult'
 
 
 // --- Types
@@ -24,10 +27,12 @@ interface RegionSetContextType {
   createRegionSet: (params: CreateRegionSetParams) => Promise<CreateRegionSetResult>
   updateRegionSet:(params:UpdateRegionSetParams)=>Promise<EditRegionSetResult>
   removeRegionSet: (params: RemoveRegionSetParams) => Promise<void>
+  copyRegionSet:(params:CopyRegionSetParams)=>Promise<TrackRegionSet>
 
   createRegion(params: CreateRegionParams): Promise<TrackRegionSet>
   updateRegion(params: EditRegionParams): Promise<TrackRegionSet>
   removeRegion(params: RemoveRegionParams): Promise<TrackRegionSet>
+  copyRegion(params:CopyRegionParams):Promise<TrackRegionSet>
 }
 interface RegionSetsProviderProps {
   children: ReactNode
@@ -130,6 +135,10 @@ export const RegionSetsProvider = ({ children }: RegionSetsProviderProps) => {
 
   return updated;
 };
+  const copyRegion=async (params:CopyRegionParams):Promise<TrackRegionSet>=>{
+    const result=await apiCopyRegion(params);
+    return result.regionSet;
+  }
   const createRegionSet = async (params: CreateRegionSetParams):Promise<CreateRegionSetResult>=> {
     console.log("inside add region set - context");
     const result=await apiCreateRegionSet(params)
@@ -159,6 +168,12 @@ export const RegionSetsProvider = ({ children }: RegionSetsProviderProps) => {
     return result;
   }
 
+  const copyRegionSet=async(params:CopyRegionSetParams):Promise<TrackRegionSet>=>{
+    const result=await apiCopyRegionSet(params);
+    await refresh();
+    return result.region_set;
+  }
+
   return (
     <RegionSetsContext.Provider value={{ 
         trackRegionSetsMap,
@@ -166,11 +181,13 @@ export const RegionSetsProvider = ({ children }: RegionSetsProviderProps) => {
           error,
            refresh, 
            createRegionSet,
+           copyRegionSet,
            updateRegionSet, 
            removeRegionSet,
            removeRegion,
            createRegion,
-           updateRegion
+           updateRegion,
+           copyRegion
            }}>
       {children}
     </RegionSetsContext.Provider>

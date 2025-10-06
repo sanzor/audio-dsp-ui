@@ -1,4 +1,6 @@
 import type { TrackRegion } from "@/Domain/TrackRegion";
+import type { CopyRegionParams } from "@/Dtos/Regions/CopyRegionParams";
+import type { CopyRegionResult } from "@/Dtos/Regions/CopyRegionResult";
 import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
 import type { CreateRegionResult } from "@/Dtos/Regions/CreateRegionResult";
 import type { EditRegionParams } from "@/Dtos/Regions/EditRegionParams";
@@ -63,5 +65,21 @@ export async function apiRemoveRegion(params: RemoveRegionParams): Promise<Remov
   });
 
   if (!res.ok) throw new Error('Failed to remove region');
+  return await res.json();
+}
+
+export async function apiCopyRegion(params:CopyRegionParams):Promise<CopyRegionResult>{
+  const res = await fetch(`${BASE_URL}/regions/copy`, {
+    method: 'PATCH', // ✅ must be POST to send body
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(params),
+  });
+  console.log(res.status);
+  if (!res.ok) {
+    throw new Error(`Failed to update region: ${res.statusText}`);
+  }
   return await res.json();
 }

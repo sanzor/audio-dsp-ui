@@ -30,7 +30,7 @@ export function RegionSetController({
   const [pasteSourceRegionSet,setPasteSourceRegionSet]=useState<TrackRegionSet|null>(null);
   const [pasteTargetTrackId,setPasteTargetTrackId]=useState<string|null>(null);
 
-  const { removeRegionSet,trackRegionSetsMap,updateRegionSet } = useRegionSets();
+  const { removeRegionSet,trackRegionSetsMap,updateRegionSet,copyRegion,copyRegionSet } = useRegionSets();
   const { tracks } = useTracks();
 
   const [createRegionSetModalOpen, setCreateRegionSetModalOpen] = useState(false);
@@ -151,8 +151,8 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
   };
 
   const onPasteRegionSetSubmit=async(trackId:string,regionSetId:string,copyRegionSetName:string)=>{
-   
-    const result=await apiCopyRegionSet({copy_region_set_name:copyRegionSetName,regionSetId:regionSetId,trackId:trackId});
+
+    const result=await copyRegionSet({copy_region_set_name:copyRegionSetName,regionSetId:regionSetId,trackId:trackId});
     return result;
   };
   const onPasteRegionSetClick=(targetTrackId:string)=>{

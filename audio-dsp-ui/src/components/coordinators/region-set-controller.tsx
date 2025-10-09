@@ -150,11 +150,6 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
     console.log("Copied region set:", regionSet.name);
   };
 
-  const onPasteRegionSetSubmit=async(trackId:string,regionSetId:string,copyRegionSetName:string)=>{
-
-    const result=await copyRegionSet({copy_region_set_name:copyRegionSetName,regionSetId:regionSetId,trackId:trackId});
-    return result;
-  };
   const onPasteRegionSetClick=(targetTrackId:string)=>{
     if (clipboard?.type !== "regionSet" || !clipboard){
       console.error("Nothing to paste");
@@ -170,7 +165,13 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
     setPasteTargetTrackId(targetTrackId);
     setPasteRegionSetModalOpen(true);
   }
-  const onCloseCopyRegionSetModal=()=>{
+
+  const onPasteRegionSetSubmit=async(trackId:string,regionSetId:string,copyRegionSetName:string)=>{
+
+    const result=await copyRegionSet({copy_region_set_name:copyRegionSetName,regionSetId:regionSetId,trackId:trackId});
+    return result;
+  };
+  const onClosePasteRegionSetModal=()=>{
       setPasteRegionSetModalOpen(false);
   };
   return (
@@ -186,6 +187,8 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
           onCreateRegion={onCreateRegionSetClick}
           onDetails={onDetailsRegionSetClick}
           onCopy={onCopyRegionSetClick}
+          onPaste={onPasteRegionSetClick}
+          canPaste={clipboard?.type==="region"}
           onRemove={onRemoveRegionSetClick}
           onRename={onRenameRegionSetClick}
         />
@@ -222,8 +225,8 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
                     targetTrackId={pasteTargetTrackId}
                     regionSetToCopy={pasteSourceRegionSet}
                     open={pasteRegionSetModalOpen}
-                    onPaste={on}
-                    onClose={onCloseCopyRegionSetModal}>
+                    onPaste={onPasteRegionSetSubmit}
+                    onClose={onClosePasteRegionSetModal}>
               </CopyRegionSetModal>}
       
 

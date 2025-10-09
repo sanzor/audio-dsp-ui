@@ -10,6 +10,8 @@ interface RegionSetContextMenuProps{
   onRemove: (regionSetId: string,trackId:string) => void
   onRename: (regionSetId: string,trackId:string) => void
   onCopy: (regionSetId: string,trackId:string) => void
+  onPaste:(regionSetId:string,trackId:string)=>void
+  canPaste:boolean
   onDetails:(regionSetId:string,trackId:string)=>void
 }
 
@@ -24,7 +26,10 @@ export function RegionSetContextMenu({
   onRemove,
   onRename,
   onCopy,
+  onPaste,
+  canPaste
 }: RegionSetContextMenuProps) {
+   
   return (
     <ContextMenu>
       <ContextMenuTrigger></ContextMenuTrigger>
@@ -34,6 +39,7 @@ export function RegionSetContextMenu({
         <ContextMenuItem onClick={() => {onRename(regionSetId,trackId);onClose();}}>Rename</ContextMenuItem>
          <ContextMenuItem onClick={() => {onCopy(regionSetId,trackId);onClose();}}>Copy</ContextMenuItem>
          <ContextMenuItem onClick={() => {onRemove(regionSetId,trackId);onClose();}}>Delete</ContextMenuItem>
+         <ContextMenuItem disabled={canPaste} onClick={()=>onPaste(regionSetId,trackId)}>Paste</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

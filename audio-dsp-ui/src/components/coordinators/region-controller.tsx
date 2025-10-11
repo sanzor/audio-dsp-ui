@@ -14,26 +14,23 @@ import { useTracks } from "@/Providers/UseTracks";
 import { RegionSetRenameModal } from "../modals/rename-region-set-modal";
 import { CopyRegionSetModal } from "../modals/copy-region-set-modal";
 import { useClipboard } from "@/Providers/UseClipboard";
-import type { TrackRegion } from "@/Domain/TrackRegion";
 
-type RegionSetsControllerProps = {
+type RegionControllerProps = {
   rightClickContext: RightClickContext;
   setRightClickContext: (ctx: RightClickContext) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 };
 
-export function RegionSetController({
+export function RegionController({
   rightClickContext,
   setRightClickContext,
-}: RegionSetsControllerProps) {
+}: RegionControllerProps) {
   const { clipboard, setClipboard } = useClipboard();
- 
-
   const [pasteRegionModalOpen, setPasteRegionModalOpen] = useState(false);
-  const [pasteSourceRegion,setPasteSourceRegion]=useState<TrackRegion|null>(null);
-  const [pasteTargetRegionSetId,setPasteTargetRegionSetId]=useState<string|null>(null);
+  const [pasteSourceRegion,setPasteSourceRegion]=useState<TrackRegionSet|null>(null);
+  const [pasteTargetTrackId,setPasteTargetTrackId]=useState<string|null>(null);
 
-  const { removeRegionSet,trackRegionSetsMap,updateRegionSet,copyRegionSet ,copyRegion} = useRegionSets();
+  const { removeRegionSet,trackRegionSetsMap,updateRegionSet,copyRegion,copyRegionSet } = useRegionSets();
   const { tracks } = useTracks();
 
   const [createRegionSetModalOpen, setCreateRegionSetModalOpen] = useState(false);
@@ -153,9 +150,8 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
     console.log("Copied region set:", regionSet.name);
   };
 
-
-  const onPasteRegionClick=(destTrackId:string,destRegionSetId:string)=>{
-    if (clipboard?.type !== "region" || !clipboard){
+  const onPasteRegionSetClick=(targetTrackId:string)=>{
+    if (clipboard?.type !== "regionSet" || !clipboard){
       console.error("Nothing to paste");
       return;
     }
@@ -165,23 +161,14 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
        console.error("Clipboard region set not found anymore");
        return;
     }
-    const sourceRegion=sourceRegionSet.regions.find(x=>x.region_id===clipboard.regionId);
-    if(!sourceRegion){
-       console.error("Clipboard region  not found anymore");
-       return;
-    }
-    const destRegionSet=findRegionSet(destTrackId,destRegionSetId);
-    if(!destRegionSet){
-       console.error("Destination region set  not found");
-       return;
-    }
-    setPasteTargetRegionSetId(destRegionSet.region_set_id);
-    setPasteSourceRegion(sourceRegion);
+    setPasteSourceRegion(sourceRegionSet);
+    setPasteTargetTrackId(targetTrackId);
     setPasteRegionModalOpen(true);
   }
 
-  const onPasteRegionSubmit=async(regionSetId:string,regionId:string,copyRegionName:string)=>{
-    const result=await copyRegion({regionId:regionId,regionSetId:regionSetId,copyName:copyRegionName});
+  const onPasteRegionSetSubmit=async(trackId:string,regionSetId:string,copyRegionSetName:string)=>{
+
+    const result=await copyRegionSet({copy_region_set_name:copyRegionSetName,regionSetId:regionSetId,trackId:trackId});
     return result;
   };
   const onClosePasteRegionSetModal=()=>{
@@ -200,7 +187,7 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
           onCreateRegion={onCreateRegionSetClick}
           onDetails={onDetailsRegionSetClick}
           onCopy={onCopyRegionSetClick}
-          onPaste={onPasteRegionClick}
+          onPaste={onPasteRegionSetClick}
           canPaste={clipboard?.type==="region"}
           onRemove={onRemoveRegionSetClick}
           onRename={onRenameRegionSetClick}
@@ -233,12 +220,12 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
               >
         </RegionSetRenameModal>}
       
-       {clipboard?.type==="regionSet"  && pasteTargetTrackId && pasteSourceRegionSet &&
+       {clipboard?.type==="regionSet"  && pasteTargetTrackId && pasteSourceRegion &&
        <CopyRegionSetModal 
                     targetTrackId={pasteTargetTrackId}
-                    regionSetToCopy={pasteSourceRegionSet}
-                    open={pasteRegionSetModalOpen}
-                    onPaste={onPasteRegionSubmit}
+                    regionSetToCopy={pasteSourceRegion}
+                    open={pasteRegionModalOpen}
+                    onPaste={onPasteRegionSetSubmit}
                     onClose={onClosePasteRegionSetModal}>
               </CopyRegionSetModal>}
       

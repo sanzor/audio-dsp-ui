@@ -28,6 +28,7 @@ import { useRegionSets } from "@/Providers/UseRegionSets";
 import { error } from "node:console";
 import { apiCreateRegionSet } from "@/Services/RegionSetsService";
 import { useSelection } from "@/Providers/UseSelection";
+import type { SelectedContext } from "@/Providers/SelectionContext";
 
 
 export type RightClickContext =

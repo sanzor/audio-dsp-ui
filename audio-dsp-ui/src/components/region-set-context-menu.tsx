@@ -10,7 +10,7 @@ interface RegionSetContextMenuProps{
   onRemove: (regionSetId: string,trackId:string) => void
   onRename: (regionSetId: string,trackId:string) => void
   onCopy: (regionSetId: string,trackId:string) => void
-  onPaste:(regionSetId:string,trackId:string)=>void
+  onPaste:(destTrackId:string,destRegionSetId:string)=>void
   canPaste:boolean
   onDetails:(regionSetId:string,trackId:string)=>void
 }

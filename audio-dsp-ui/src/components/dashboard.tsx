@@ -11,22 +11,14 @@ import { SidebarProvider } from "./ui/sidebar-provider";
 import { TrackCreateModal } from "./create-track-modal";
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
 import { TrackRenameModal } from "./rename-track-modal";
-import { DetailsTrackModal } from "./coordinators/details-track-modal";
 import { CopyTrackModal } from "./modals/copy-track-modal";
 import type { CopyTrackParams } from "@/Dtos/Tracks/CopyTrackParams";
 import { apiCopyTrack, apiGetStoredTrack } from "@/Services/TracksService";
 import { WaveformPlayer } from "./waveform-player";
 import { useAudioPlaybackCache } from "@/Providers/UsePlaybackCache";
 import { CreateRegionSetModal } from "./modals/create-region-set-modal";
-import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
 import { TrackContextMenu } from "./track-context-menu";
-import { RegionSetContextMenu } from "./region-set-context-menu";
 
-import type { TrackRegion } from "@/Domain/TrackRegion";
-import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
-import { useRegionSets } from "@/Providers/UseRegionSets";
-import { error } from "node:console";
-import { apiCreateRegionSet } from "@/Services/RegionSetsService";
 import { useSelection } from "@/Providers/UseSelection";
 import type { SelectedContext } from "@/Providers/SelectionContext";
 
@@ -37,13 +29,6 @@ export type RightClickContext =
   | { type: "regionSet"; trackId: string; regionSetId: string; x: number; y: number }
   | null;
 
-
-
-type Clipboard =
-  | { type: "track"; trackId: string }
-  | { type: "regionSet"; trackId: string; regionSetId: string }
-  | { type: "region"; trackId: string; regionSetId: string; regionId: string }
-  | null; 
 export function Dashboard() {
 
  

@@ -5,7 +5,6 @@ import {  useState } from "react";
 import { RegionSetContextMenu } from "../region-set-context-menu";
 import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
 import { useRegionSets } from "@/Providers/UseRegionSets";
-import {  apiCreateRegionSet } from "@/Services/RegionSetsService";
 import { error } from "console";
 import type { RightClickContext } from "../dashboard";
 import { DetailsRegionSetModal } from "../modals/details-region-set-modal";
@@ -28,13 +27,13 @@ export function RegionSetController({
 }: RegionSetsControllerProps) {
   const { clipboard, setClipboard } = useClipboard();
 
-  const { removeRegionSet,trackRegionSetsMap,updateRegionSet ,copyRegion} = useRegionSets();
+  const { removeRegionSet,trackRegionSetsMap,updateRegionSet ,copyRegion,createRegion} = useRegionSets();
   const { tracks } = useTracks();
 
-  const [parentRegionSetForNewRegion,setParentRegionSetForNewRegion]=useState<{trackId:string,regionSetId:string}|null>(null);
+  const [regionSetForCreateRegion,setRegionSetForCreateRegion]=useState<{trackId:string,regionSetId:string}|null>(null);
   const [detailedRegionSet, setDetailedRegionSet] = useState<TrackRegionSet | null>(null);
   const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(null);
-  const [pasteRegionDestination, setPasteRegionDestination] = useState<{
+  const [regionSetForPasteRegion, setRegionSetForPasteRegion] = useState<{
     trackId: string;
     regionSetId: string;
   } | null>(null);
@@ -66,11 +65,11 @@ export function RegionSetController({
     if(!regionSet){
       return;
     }
-    setParentRegionSetForNewRegion({regionSetId:regionSet?.region_set_id,trackId:regionSet?.track_id});
+    setRegionSetForCreateRegion({regionSetId:regionSet?.region_set_id,trackId:regionSet?.track_id});
   };
 
   const onSubmitCreateRegionModal = async (params: CreateRegionParams) => {
-    await apiCreateRegionSet({ 
+    await createRegion({ 
       name: params.name, 
       trackId:params.trackId,
       region_set_id:params.region_set_id,
@@ -80,6 +79,7 @@ export function RegionSetController({
 
   const onCloseCreateRegionSetModal = () => {
     setRightClickContext(null);
+    setRegionSetForCreateRegion(null);
   };
 
 
@@ -105,6 +105,7 @@ export function RegionSetController({
 
   const onCloseDetailsRegionSetModal=()=>{
     setDetailedRegionSet(null);
+    setRightClickContext(null);
   }
 ///
 
@@ -115,7 +116,7 @@ export function RegionSetController({
   };
   const onRenameRegionSetClick=(regionSetId:string,trackId:string)=>{
     const targetRegionSet=findRegionSet(trackId,regionSetId);
-    if(targetRegionSet){
+    if(!targetRegionSet){
       console.log("could not find region set");
       return;
     }
@@ -169,7 +170,7 @@ export function RegionSetController({
        console.error("Destination region set  not found");
        return;
     }
-    setPasteRegionDestination({ trackId: destTrackId, regionSetId: destRegionSetId });
+    setRegionSetForPasteRegion({ trackId: destTrackId, regionSetId: destRegionSetId });
   }
 
   const onPasteRegionSubmit=async(regionSetId:string,regionId:string,copyRegionName:string)=>{
@@ -178,7 +179,7 @@ export function RegionSetController({
     return result;
   };
   const onClosePasteRegionSetModal=()=>{
-      setParentRegionSetForNewRegion(null); // ✅ Clear parent = close modal
+      setRegionSetForPasteRegion(null); // ✅ Clear parent = close modal
       setRightClickContext(null);
   };
 
@@ -207,18 +208,21 @@ export function RegionSetController({
       )}
 
       {/* Modals */}
-      {rightClickContext?.type === "regionSet" && (
+      {rightClickContext?.type === "regionSet" && regionSetForCreateRegion && (
         <CreateRegionModal
-          trackId={rightClickContext.trackId}
-          open={true}
+          trackId={regionSetForCreateRegion?.trackId}
+          regionSetId={regionSetForCreateRegion?.regionSetId}
+          startTime={null}
+          endTime={null}
+          open={Boolean(regionSetForCreateRegion)}
           onClose={onCloseCreateRegionSetModal}
-          onSubmit={onSubmitCreateRegionModal}
+          onSubmit={async(e)=>await onSubmitCreateRegionModal(e)}
         />
       )}
        { detailedRegionSet && (rightClickContext?.type === "regionSet") &&
         <DetailsRegionSetModal
           regionSet={detailedRegionSet}
-          open={true}
+          open={Boolean(detailedRegionSet)}
           onClose={onCloseDetailsRegionSetModal}
         />
       }
@@ -227,25 +231,22 @@ export function RegionSetController({
         <RegionSetRenameModal 
                 regionSetToRename={regionSetToRename}
                 onClose={()=>onCloseRenameRegionSetModal()}
-                open={true}
+                open={Boolean(regionSetToRename)}
                 onSubmit={onSubmitRegionSetRenameModal}
               >
         </RegionSetRenameModal>}
       
        {clipboard?.type === "region" && 
        pasteSourceRegion && 
-       pasteRegionDestination && (
+       regionSetForPasteRegion && (
         <PasteRegionModal 
-          destRegionSetId={pasteRegionDestination.regionSetId}
+          destRegionSetId={regionSetForPasteRegion.regionSetId}
           regionToCopy={pasteSourceRegion}
-          open={true}
+          open={Boolean(regionSetForPasteRegion)}
           onSubmit={onPasteRegionSubmit}
           onClose={onClosePasteRegionSetModal}
         />
       )}
-      
-
-      {/* TODO: add DetailsRegionSetModal + CopyRegionSetModal here */}
     </>
   );
 }

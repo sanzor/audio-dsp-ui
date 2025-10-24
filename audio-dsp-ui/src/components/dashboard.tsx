@@ -14,7 +14,7 @@ import { TrackRenameModal } from "./rename-track-modal";
 import { DetailsTrackModal } from "./coordinators/details-track-modal";
 import { CopyTrackModal } from "./modals/copy-track-modal";
 import type { CopyTrackParams } from "@/Dtos/Tracks/CopyTrackParams";
-import { apiCopyTrack, apiGetTrackRaw } from "@/Services/TracksService";
+import { apiCopyTrack, apiGetStoredTrack } from "@/Services/TracksService";
 import { WaveformPlayer } from "./waveform-player";
 import { useAudioPlaybackCache } from "@/Providers/UsePlaybackCache";
 import { CreateRegionSetModal } from "./modals/create-region-set-modal";
@@ -48,7 +48,6 @@ export function Dashboard() {
 
  
   const [rightClickContext, setRightClickContext] = useState<RightClickContext>(null);
-  const [clipboard, setClipboard] = useState<Clipboard>(null);
   const { user, loading } = useAuth();
   const {selectedContext}=useSelection();
 
@@ -61,12 +60,7 @@ export function Dashboard() {
 
 
   //copy
-  const [copiedTrack,setCopiedTrack]=useState<TrackMetaWithRegions|null>(null);
-  const [copiedRegionSet,setCopiedRegionSet]=useState<TrackRegionSet|null>(null);
   const [copyTrackModalOpen,setCopyTrackModalOpen]=useState(false);
-  const [copyRegionSetModalOpen,setCopyRegionSetModalOpen]=useState(false);
-  const [copiedRegion,setCopiedRegion]=useState<TrackRegion|null>(null);
-  const [copyRegionModalOpen,setCopyRegionModalOpe]=useState(false);
   
 
   const [selectedTrack,setSelectedTrack]=useState<TrackMetaWithRegions|null>(null);
@@ -78,13 +72,7 @@ export function Dashboard() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [waveformPlayerOpen,setWaveformPlayerOpen]=useState(false);
   const {tracks,addTrack,removeTrack,updateTrack}=useTracks();
-  const {
-    createRegion,
-    createRegionSet,
-    removeRegionSet,
-    trackRegionSetsMap,
-    removeRegion,
-    updateRegionSet}=useRegionSets();
+
   
 
   const onSelectTrack = useCallback(async (trackId: string) => {
@@ -97,7 +85,7 @@ export function Dashboard() {
 
       if (!blob) {
         try {
-          const response = await apiGetTrackRaw({ track_id: trackId });
+          const response = await apiGetStoredTrack({ track_id: trackId });
           blob = response.blob;
           setBlob(trackId, blob);
         } catch (e) {
@@ -300,6 +288,7 @@ export function Dashboard() {
         onPasteTrack={onPasteTrackClick}
 
         onRightClick={setRightClickContext}
+        
       />
 
        {/* Sidebar (Track Management) */}

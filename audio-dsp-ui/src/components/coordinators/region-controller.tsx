@@ -1,19 +1,20 @@
+
 // RegionSetController.tsx
 import {  useState } from "react";
 
-import { RegionSetContextMenu } from "../region-set-context-menu";
-import { CreateRegionSetModal } from "../modals/create-region-set-modal";
-import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
+import { RegionContextMenu } from "../region-context-menu";
+import { CreateRegionModal } from "../modals/create-region-modal";
+import type { CreateRegionParams } from "@/Dtos/RegionSets/CreateRegionParams";
 import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
-import { useRegionSets } from "@/Providers/UseRegionSets";
-import { apiCopyRegionSet, apiCreateRegionSet } from "@/Services/RegionSetsService";
+import { useRegionSets, useRegionsSets } from "@/Providers/UseRegionSets";
+import {  apiCreateRegionSet } from "@/Services/RegionSetsService";
 import { error } from "console";
 import type { RightClickContext } from "../dashboard";
-import { DetailsRegionSetModal } from "../modals/details-region-set-modal";
-import { useTracks } from "@/Providers/UseTracks";
-import { RegionSetRenameModal } from "../modals/rename-region-set-modal";
-import { CopyRegionSetModal } from "../modals/copy-region-set-modal";
+import { DetailsRegionModal } from "../modals/details-region-modal";
+import { RegionRenameModal } from "../modals/rename-region-modal";
 import { useClipboard } from "@/Providers/UseClipboard";
+import type { TrackRegion } from "@/Domain/TrackRegion";
+import { useTracks } from "@/Providers/UseTracks";
 
 type RegionControllerProps = {
   rightClickContext: RightClickContext;
@@ -26,27 +27,27 @@ export function RegionController({
   setRightClickContext,
 }: RegionControllerProps) {
   const { clipboard, setClipboard } = useClipboard();
-  const [pasteRegionModalOpen, setPasteRegionModalOpen] = useState(false);
-  const [pasteSourceRegion,setPasteSourceRegion]=useState<TrackRegionSet|null>(null);
-  const [pasteTargetTrackId,setPasteTargetTrackId]=useState<string|null>(null);
-
-  const { removeRegionSet,trackRegionSetsMap,updateRegionSet,copyRegion,copyRegionSet } = useRegionSets();
   const { tracks } = useTracks();
 
-  const [createRegionSetModalOpen, setCreateRegionSetModalOpen] = useState(false);
-
-  const [detailsRegionSetModalOpen, setDetailsRegionSetModalOpen] = useState(false);
-  const [detailedRegionSet, setDetailedRegionSet] = useState<TrackRegionSet | null>(null);
 
 
-const [renameRegionSetModalOpen,setRenameRegionSetModalOpen]=useState(false);
-const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(null);
+  const { removeRegion,trackRegionSetsMap,updateRegion ,copyRegion} = useRegionSets();
+
+
+  const [createRegionModalOpen, setCreateRegionModalOpen] = useState(false);
+
+  const [detailsRegionModalOpen, setDetailsRegionModalOpen] = useState(false);
+  const [detailedRegionSet, setDetailedRegionSet] = useState<TrackRegion | null>(null);
+
+
+const [renameRegionModalOpen,setRenameRegionModalOpen]=useState(false);
+const [regionToRename,setRegionToRename]=useState<TrackRegion|null>(null);
 
 
  
   // handlers
-  const findRegionSet=(trackId:string,regionSetId:string):TrackRegionSet|null=>{
-     const track = tracks.find((x) => x.track_id === trackId);
+  const findRegion=(trackId:string,regionSetId:string,regionId:string):TrackRegion|null=>{
+    const track = tracks.find((x) => x.track_id === trackId);
     if (!track) {
       error(`Could not find track ${trackId}`);
       return null;
@@ -61,26 +62,31 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
       error(`Could not find region set ${regionSetId}`);
       return null;
     }
-    return regionSet;
+    const region=regionSet.regions.find((x)=>x.region_id===regionId);
+    if (!region) {
+      error(`Could not find region  ${regionId}`);
+      return null;
+    }
+    return region;
   }
   //create
-  const onCreateRegionSetClick = (trackId: string) => {
+  const onCreateRegionClick = (trackId: string) => {
     const track = tracks.find((x) => x.track_id === trackId);
     if (!track) {
       error("Could not find track");
       return;
     }
-    setCreateRegionSetModalOpen(true);
+    setCreateRegionModalOpen(true);
   };
 
   const onSubmitCreateRegionSetModal = async (params: CreateRegionSetParams) => {
     await apiCreateRegionSet({ name: params.name, track_id: params.track_id });
-    setCreateRegionSetModalOpen(false);
+    setCreateRegionModalOpen(false);
     setRightClickContext(null);
   };
 
   const onCloseCreateRegionSetModal = () => {
-    setCreateRegionSetModalOpen(false);
+    setCreateRegionModalOpen(false);
     setRightClickContext(null);
   };
 
@@ -103,12 +109,12 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
       return;
     }
     setDetailedRegionSet(regionSet);
-    setDetailsRegionSetModalOpen(true);
+    setDetailsRegionModalOpen(true);
   };
 
   const onCloseDetailsRegionSetModal=()=>{
     setDetailedRegionSet(null);
-    setDetailsRegionSetModalOpen(false);
+    setDetailsRegionModalOpen(false);
   }
 ///
 
@@ -118,62 +124,76 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
     await removeRegionSet({ region_set_id: regionSetId });
   };
   const onRenameRegionSetClick=(regionSetId:string,trackId:string)=>{
-    const targetRegionSet=findRegionSet(trackId,regionSetId);
+    const targetRegionSet=findRegion(trackId,regionSetId);
     if(targetRegionSet){
       console.log("could not find region set");
       return;
     }
-     setRegionSetToRename(targetRegionSet);
-     setRenameRegionSetModalOpen(true);
+     setRegionToRename(targetRegionSet);
+     setRenameRegionModalOpen(true);
   }
   // (you can add rename handlers here later)
   const onSubmitRegionSetRenameModal=async(trackId:string,regionSetId:string,newRegionSetName:string)=>{
-    if(!regionSetToRename){
+    if(!regionToRename){
       return;
     }
     
     const result=await updateRegionSet({name:newRegionSetName,region_set_id:regionSetId,trackId:trackId});
-    setRenameRegionSetModalOpen(false);
+    setRenameRegionModalOpen(false);
     return result;
   };
 
   const onCloseRenameRegionSetModal=()=>{
-    setRenameRegionSetModalOpen(false);
+    setRenameRegionModalOpen(false);
   }
 
 
   const onCopyRegionSetClick = (regionSetId: string, trackId: string) => {
-    const regionSet = findRegionSet(trackId, regionSetId);
+    const regionSet = findRegion(trackId, regionSetId);
     if (!regionSet) return;
 
     setClipboard({ type: "regionSet", trackId, regionSetId }); // 🔑 store in global clipboard
     console.log("Copied region set:", regionSet.name);
   };
 
-  const onPasteRegionSetClick=(targetTrackId:string)=>{
-    if (clipboard?.type !== "regionSet" || !clipboard){
+
+  const onPasteRegionClick=(destTrackId:string,destRegionSetId:string)=>{
+    if (clipboard?.type !== "region" || !clipboard){
       console.error("Nothing to paste");
       return;
     }
 
-    const sourceRegionSet = findRegionSet(clipboard.trackId, clipboard.regionSetId);
+    const sourceRegionSet = findRegion(clipboard.trackId, clipboard.regionSetId);
     if (!sourceRegionSet){
        console.error("Clipboard region set not found anymore");
        return;
     }
-    setPasteSourceRegion(sourceRegionSet);
-    setPasteTargetTrackId(targetTrackId);
-    setPasteRegionModalOpen(true);
+    const sourceRegion=sourceRegionSet.regions.find(x=>x.region_id===clipboard.regionId);
+    if(!sourceRegion){
+       console.error("Clipboard region  not found anymore");
+       return;
+    }
+    const destRegionSet=findRegion(destTrackId,destRegionSetId);
+    if(!destRegionSet){
+       console.error("Destination region set  not found");
+       return;
+    }
+    setPasteRegionDestination({ trackId: destTrackId, regionSetId: destRegionSetId });
   }
 
-  const onPasteRegionSetSubmit=async(trackId:string,regionSetId:string,copyRegionSetName:string)=>{
-
-    const result=await copyRegionSet({copy_region_set_name:copyRegionSetName,regionSetId:regionSetId,trackId:trackId});
+  const onPasteRegionSubmit=async(regionSetId:string,regionId:string,copyRegionName:string)=>{
+    const result=await copyRegion({regionId:regionId,regionSetId:regionSetId,copyName:copyRegionName});
+    setPasteRegionDestination(null);
     return result;
   };
   const onClosePasteRegionSetModal=()=>{
-      setPasteRegionModalOpen(false);
+      setPasteRegionDestination(null);
   };
+
+  const pasteSourceRegion = clipboard?.type === "region" 
+    ? findRegion(clipboard.trackId, clipboard.regionSetId)
+        ?.regions.find(r => r.region_id === clipboard.regionId)
+    : null;
   return (
     <>
       {/* Context menu */}
@@ -187,7 +207,7 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
           onCreateRegion={onCreateRegionSetClick}
           onDetails={onDetailsRegionSetClick}
           onCopy={onCopyRegionSetClick}
-          onPaste={onPasteRegionSetClick}
+          onPaste={onPasteRegionClick}
           canPaste={clipboard?.type==="region"}
           onRemove={onRemoveRegionSetClick}
           onRename={onRenameRegionSetClick}
@@ -198,7 +218,7 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
       {rightClickContext?.type === "regionSet" && (
         <CreateRegionSetModal
           trackId={rightClickContext.trackId}
-          open={createRegionSetModalOpen}
+          open={createRegionModalOpen}
           onClose={onCloseCreateRegionSetModal}
           onSubmit={onSubmitCreateRegionSetModal}
         />
@@ -206,28 +226,31 @@ const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(nul
        { detailedRegionSet && (rightClickContext?.type === "regionSet") &&
         <DetailsRegionSetModal
           regionSet={detailedRegionSet}
-          open={detailsRegionSetModalOpen}
+          open={detailsRegionModalOpen}
           onClose={onCloseDetailsRegionSetModal}
         />
       }
 
-        {regionSetToRename &&  (rightClickContext?.type === "regionSet") &&
+        {regionToRename &&  (rightClickContext?.type === "regionSet") &&
         <RegionSetRenameModal 
-                regionSetToRename={regionSetToRename}
+                regionSetToRename={regionToRename}
                 onClose={()=>onCloseRenameRegionSetModal()}
-                open={renameRegionSetModalOpen}
+                open={renameRegionModalOpen}
                 onSubmit={onSubmitRegionSetRenameModal}
               >
         </RegionSetRenameModal>}
       
-       {clipboard?.type==="regionSet"  && pasteTargetTrackId && pasteSourceRegion &&
-       <CopyRegionSetModal 
-                    targetTrackId={pasteTargetTrackId}
-                    regionSetToCopy={pasteSourceRegion}
-                    open={pasteRegionModalOpen}
-                    onPaste={onPasteRegionSetSubmit}
-                    onClose={onClosePasteRegionSetModal}>
-              </CopyRegionSetModal>}
+       {clipboard?.type === "region" && 
+       pasteSourceRegion && 
+       pasteRegionDestination && (
+        <PasteRegionModal 
+          destRegionSetId={pasteRegionDestination.regionSetId}
+          regionToCopy={pasteSourceRegion}
+          open={true}
+          onSubmit={onPasteRegionSubmit}
+          onClose={onClosePasteRegionSetModal}
+        />
+      )}
       
 
       {/* TODO: add DetailsRegionSetModal + CopyRegionSetModal here */}

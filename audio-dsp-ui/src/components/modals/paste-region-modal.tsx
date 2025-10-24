@@ -6,19 +6,21 @@ import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
 import type { TrackRegion } from "@/Domain/TrackRegion";
 
-export interface CopyRegionModalProps {
+export interface PasteRegionModalProps {
   regionToCopy: TrackRegion | null; // 👈 allow null
+  destRegionSetId:string,
   open: boolean;
   onClose: () => void;
-  onSubmit: (regionSetId:string, copyRegionName: string) => void;
+  onSubmit: (regionSetId:string,regionId:string, copyRegionName: string) => void;
 }
 
-export function CopyRegionModal({
+export function PasteRegionModal({
   regionToCopy,
+  destRegionSetId,
   open,
   onClose,
   onSubmit,
-}: CopyRegionModalProps) {
+}: PasteRegionModalProps) {
   
 
   const [copyRegionName, setCopyRegionName] = useState(regionToCopy?.name);
@@ -29,7 +31,7 @@ export function CopyRegionModal({
 
   const handleSubmit = () => {
     if (copyRegionName?.trim() && regionToCopy?.region_set_id) {
-    onSubmit(regionToCopy?.region_set_id, copyRegionName.trim());
+    onSubmit(destRegionSetId,regionToCopy.region_id, copyRegionName.trim());
     onClose();
     }
 };
@@ -38,7 +40,7 @@ export function CopyRegionModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Region to copy</DialogTitle>
+          <DialogTitle>Region to paste</DialogTitle>
         </DialogHeader>
         <Input
           value={copyRegionName}

@@ -53,7 +53,7 @@ export async function apiGetTrackInfo(params:GetTrackParams): Promise<GetTrackRe
   return await res.json();
 }
 
-export async function apiGetTrackRaw(params: GetTrackRawParams): Promise<GetTrackRawResult> {
+export async function apiGetStoredTrack(params: GetTrackRawParams): Promise<GetTrackRawResult> {
   const res = await fetch(`${BASE_URL}/tracks/get-stored-track?track_id=${params.track_id}`, {
     method: 'GET',
     credentials: 'include'

@@ -1,5 +1,6 @@
 
 import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
+import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
 import type { CopyRegionSetParams } from "@/Dtos/RegionSets/CoyRegionSetParams";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
 import type { CreateRegionSetResult } from "@/Dtos/RegionSets/CreateRegionSetResult";
@@ -52,9 +53,9 @@ export async function apiGetAllRegionSets():Promise<GetRegionSetsResult>{
 }
 
 
-export async function apiCreateRegionSet(params: CreateRegionSetParams): Promise<CreateRegionSetResult> {
+export async function apiCreateRegionSet(params: CreateRegionParams): Promise<CreateRegionSetResult> {
   console.log("a");
-  const res = await fetch(`${BASE_URL}/region-sets/create`, {
+  const res = await fetch(`${BASE_URL}/regions/create`, {
     method: 'POST', // ✅ must be POST to send body
     credentials: 'include',
     headers: {

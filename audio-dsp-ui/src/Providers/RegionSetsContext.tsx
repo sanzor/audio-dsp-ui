@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// src/contexts/TrackContext.tsx
+
 import { createContext, useEffect, useState, useCallback, type ReactNode, useRef } from 'react'
 import { useAuth } from '@/Auth/UseAuth'
 import type { TrackRegionSet } from '@/Domain/TrackRegionSet'
@@ -8,14 +7,15 @@ import type { CreateRegionSetResult } from '@/Dtos/RegionSets/CreateRegionSetRes
 import type { EditRegionSetParams as UpdateRegionSetParams } from '@/Dtos/RegionSets/EditRegionSetParams'
 import type { EditRegionSetResult } from '@/Dtos/RegionSets/EditRegionSetResult'
 import type { RemoveRegionSetParams } from '@/Dtos/RegionSets/RemoveRegionSetParams'
-import { apiCopyRegionSet, apiCreateRegionSet, apiGetAllRegionSets, apiGetRegionSetsForTrack, apiRemoveRegionSet, apiUpdateRegionSet } from '@/Services/RegionSetsService'
+import { apiCopyRegionSet, apiCreateRegionSet, apiGetAllRegionSets, apiGetRegionSetsForTrack, apiRemoveRegionSet, apiUpdateRegionSet } 
+from '@/Services/RegionSetsService'
 import type { CreateRegionParams } from '@/Dtos/Regions/CreateRegionParams'
-import type { EditRegionParams } from '@/Dtos/Regions/EditRegionParams'
+
 import type { RemoveRegionParams } from '@/Dtos/Regions/RemoveRegionParams'
 import { apiAddRegion, apiCopyRegion, apiEditRegion, apiRemoveRegion } from '@/Services/RegionsService'
 import type { CopyRegionSetParams } from '@/Dtos/RegionSets/CoyRegionSetParams'
 import type { CopyRegionParams } from '@/Dtos/Regions/CopyRegionParams'
-import type { CopyRegionResult } from '@/Dtos/Regions/CopyRegionResult'
+import type { EditRegionParams } from '@/Dtos/Regions/EditRegionParams'
 
 
 // --- Types
@@ -117,16 +117,16 @@ export const RegionSetsProvider = ({ children }: RegionSetsProviderProps) => {
 };
 
   const removeRegion = async (params: RemoveRegionParams): Promise<TrackRegionSet> => {
-  const { set: updated } = await apiRemoveRegion(params);
+  await apiRemoveRegion(params);
 
   setTrackRegionSetsMap(prev => {
     const m = new Map(prev);
-    const sets = m.get(updated.track_id) ?? [];
+    const trackSets = m.get(params.trackId) ?? [];
 
-    const idx = sets.findIndex(s => s.region_set_id === updated.region_set_id);
+    const idx = trackSets.findIndex(s => s.region_set_id === params.regionSetId);
     if (idx === -1) return prev;
-
-    const nextSets = [...sets];
+    
+    const nextSets = [...trackSets];
     nextSets[idx] = updated; // updated set has one less region
 
     m.set(updated.track_id, nextSets);

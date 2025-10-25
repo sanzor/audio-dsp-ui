@@ -59,7 +59,7 @@ export async function apiEditRegion(params: EditRegionParams): Promise<EditRegio
 }
 
 export async function apiRemoveRegion(params: RemoveRegionParams): Promise<RemoveRegionResult> {
-  const res = await fetch(`${BASE_URL}/regions/remove?track_id=${params.region_id}`, {
+  const res = await fetch(`${BASE_URL}/regions/remove?track_id=${params.regionId}`, {
     method: 'DELETE',
     credentials: 'include'
   });

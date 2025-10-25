@@ -2,19 +2,20 @@
 // RegionSetController.tsx
 import {  useState } from "react";
 
-import { RegionContextMenu } from "../region-context-menu";
-import { CreateRegionModal } from "../modals/create-region-modal";
-import type { CreateRegionParams } from "@/Dtos/RegionSets/CreateRegionParams";
+import { RegionSetContextMenu } from "../region-set-context-menu";
 import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
-import { useRegionSets, useRegionsSets } from "@/Providers/UseRegionSets";
-import {  apiCreateRegionSet } from "@/Services/RegionSetsService";
+import { useRegionSets } from "@/Providers/UseRegionSets";
 import { error } from "console";
 import type { RightClickContext } from "../dashboard";
-import { DetailsRegionModal } from "../modals/details-region-modal";
-import { RegionRenameModal } from "../modals/rename-region-modal";
-import { useClipboard } from "@/Providers/UseClipboard";
-import type { TrackRegion } from "@/Domain/TrackRegion";
+import { DetailsRegionSetModal } from "../modals/details-region-set-modal";
 import { useTracks } from "@/Providers/UseTracks";
+import { RegionSetRenameModal } from "../modals/rename-region-set-modal";
+import { PasteRegionModal } from "../modals/paste-region-modal";
+import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
+import { CreateRegionModal } from "../modals/create-region-modal";
+import { useUIState } from "@/Providers/UseUIStateProvider";
+import type { TrackRegion } from "@/Domain/TrackRegion";
+import type { CreateGraphParams } from "@/Dtos/Graphs/CreateGraphParams";
 
 type RegionControllerProps = {
   rightClickContext: RightClickContext;
@@ -26,28 +27,27 @@ export function RegionController({
   rightClickContext,
   setRightClickContext,
 }: RegionControllerProps) {
-  const { clipboard, setClipboard } = useClipboard();
+  const { clipboard, setClipboard } = useUIState();
+
+  const { 
+    removeRegionSet,
+    trackRegionSetsMap,updateRegionSet ,copyRegion,createRegion} = useRegionSets();
   const { tracks } = useTracks();
 
-
-
-  const { removeRegion,trackRegionSetsMap,updateRegion ,copyRegion} = useRegionSets();
-
-
-  const [createRegionModalOpen, setCreateRegionModalOpen] = useState(false);
-
-  const [detailsRegionModalOpen, setDetailsRegionModalOpen] = useState(false);
-  const [detailedRegionSet, setDetailedRegionSet] = useState<TrackRegion | null>(null);
-
-
-const [renameRegionModalOpen,setRenameRegionModalOpen]=useState(false);
-const [regionToRename,setRegionToRename]=useState<TrackRegion|null>(null);
+  const [regionForCreateGraph,setRegionForCreateGraph]=useState<{trackId:string,regionSetId:string,regionId:string}|null>(null);
+  const [detailedRegion, setDetailedRegion] = useState<TrackRegion | null>(null);
+  const [regionToRename,setRegionToRename]=useState<TrackRegionSet|null>(null);
+  const [regionForPasteGraph, setRegionForPasteGraph] = useState<{
+    trackId: string;
+    regionSetId: string;
+    regionId:string
+  } | null>(null);
 
 
  
   // handlers
   const findRegion=(trackId:string,regionSetId:string,regionId:string):TrackRegion|null=>{
-    const track = tracks.find((x) => x.track_id === trackId);
+     const track = tracks.find((x) => x.track_id === trackId);
     if (!track) {
       error(`Could not find track ${trackId}`);
       return null;
@@ -62,32 +62,34 @@ const [regionToRename,setRegionToRename]=useState<TrackRegion|null>(null);
       error(`Could not find region set ${regionSetId}`);
       return null;
     }
-    const region=regionSet.regions.find((x)=>x.region_id===regionId);
+    const region = regionSet.regions.find((x) => x.region_id === regionId);
     if (!region) {
-      error(`Could not find region  ${regionId}`);
+      error(`Could not find region  ${region}`);
       return null;
     }
     return region;
   }
   //create
-  const onCreateRegionClick = (trackId: string) => {
-    const track = tracks.find((x) => x.track_id === trackId);
-    if (!track) {
-      error("Could not find track");
+  const onCreateGraphClick = (trackId: string,regionSetId:string,regionId:string) => {
+    const region=findRegion(trackId,regionSetId,regionId);
+    if(!region){
       return;
     }
-    setCreateRegionModalOpen(true);
+    setRegionForCreateGraph({regionSetId:region?.region_set_id,trackId:trackId,regionId:regionId});
   };
 
-  const onSubmitCreateRegionSetModal = async (params: CreateRegionSetParams) => {
-    await apiCreateRegionSet({ name: params.name, track_id: params.track_id });
-    setCreateRegionModalOpen(false);
-    setRightClickContext(null);
+  const onSubmitCreateGraphModal = async (params: CreateGraphParams) => {
+    await createRegion({ 
+      name: params.name, 
+      trackId:params.trackId,
+      region_set_id:params.region_set_id,
+      start_time:params.start_time,
+      end_time:params.end_time });
   };
 
   const onCloseCreateRegionSetModal = () => {
-    setCreateRegionModalOpen(false);
     setRightClickContext(null);
+    setRegionForCreateGraph(null);
   };
 
 
@@ -108,13 +110,12 @@ const [regionToRename,setRegionToRename]=useState<TrackRegion|null>(null);
       error(`Could not find region set ${regionSetId}`);
       return;
     }
-    setDetailedRegionSet(regionSet);
-    setDetailsRegionModalOpen(true);
+    setDetailedRegion(regionSet);
   };
 
   const onCloseDetailsRegionSetModal=()=>{
-    setDetailedRegionSet(null);
-    setDetailsRegionModalOpen(false);
+    setDetailedRegion(null);
+    setRightClickContext(null);
   }
 ///
 
@@ -125,12 +126,11 @@ const [regionToRename,setRegionToRename]=useState<TrackRegion|null>(null);
   };
   const onRenameRegionSetClick=(regionSetId:string,trackId:string)=>{
     const targetRegionSet=findRegion(trackId,regionSetId);
-    if(targetRegionSet){
+    if(!targetRegionSet){
       console.log("could not find region set");
       return;
     }
      setRegionToRename(targetRegionSet);
-     setRenameRegionModalOpen(true);
   }
   // (you can add rename handlers here later)
   const onSubmitRegionSetRenameModal=async(trackId:string,regionSetId:string,newRegionSetName:string)=>{
@@ -139,12 +139,14 @@ const [regionToRename,setRegionToRename]=useState<TrackRegion|null>(null);
     }
     
     const result=await updateRegionSet({name:newRegionSetName,region_set_id:regionSetId,trackId:trackId});
-    setRenameRegionModalOpen(false);
+    onCloseRenameRegionSetModal();
+
     return result;
   };
 
   const onCloseRenameRegionSetModal=()=>{
-    setRenameRegionModalOpen(false);
+    setRightClickContext(null);
+    setRegionToRename(null);
   }
 
 
@@ -178,16 +180,17 @@ const [regionToRename,setRegionToRename]=useState<TrackRegion|null>(null);
        console.error("Destination region set  not found");
        return;
     }
-    setPasteRegionDestination({ trackId: destTrackId, regionSetId: destRegionSetId });
+    setRegionForPasteGraph({ trackId: destTrackId, regionSetId: destRegionSetId });
   }
 
   const onPasteRegionSubmit=async(regionSetId:string,regionId:string,copyRegionName:string)=>{
-    const result=await copyRegion({regionId:regionId,regionSetId:regionSetId,copyName:copyRegionName});
-    setPasteRegionDestination(null);
+    const result=await copyRegion({regionId:regionId,regionSetId:regionSetId,copyName:copyRegionName}); 
+    onClosePasteRegionSetModal();
     return result;
   };
   const onClosePasteRegionSetModal=()=>{
-      setPasteRegionDestination(null);
+      setRegionForPasteGraph(null); // ✅ Clear parent = close modal
+      setRightClickContext(null);
   };
 
   const pasteSourceRegion = clipboard?.type === "region" 
@@ -204,7 +207,7 @@ const [regionToRename,setRegionToRename]=useState<TrackRegion|null>(null);
           onClose={() => setRightClickContext(null)}
           x={rightClickContext.x}
           y={rightClickContext.y}
-          onCreateRegion={onCreateRegionSetClick}
+          onCreateRegion={onCreateGraphClick}
           onDetails={onDetailsRegionSetClick}
           onCopy={onCopyRegionSetClick}
           onPaste={onPasteRegionClick}
@@ -215,18 +218,21 @@ const [regionToRename,setRegionToRename]=useState<TrackRegion|null>(null);
       )}
 
       {/* Modals */}
-      {rightClickContext?.type === "regionSet" && (
-        <CreateRegionSetModal
-          trackId={rightClickContext.trackId}
-          open={createRegionModalOpen}
+      {rightClickContext?.type === "regionSet" && regionForCreateGraph && (
+        <CreateRegionModal
+          trackId={regionForCreateGraph?.trackId}
+          regionSetId={regionForCreateGraph?.regionSetId}
+          startTime={null}
+          endTime={null}
+          open={Boolean(regionForCreateGraph)}
           onClose={onCloseCreateRegionSetModal}
-          onSubmit={onSubmitCreateRegionSetModal}
+          onSubmit={async(e)=>await onSubmitCreateGraphModal(e)}
         />
       )}
-       { detailedRegionSet && (rightClickContext?.type === "regionSet") &&
+       { detailedRegion && (rightClickContext?.type === "regionSet") &&
         <DetailsRegionSetModal
-          regionSet={detailedRegionSet}
-          open={detailsRegionModalOpen}
+          regionSet={detailedRegion}
+          open={Boolean(detailedRegion)}
           onClose={onCloseDetailsRegionSetModal}
         />
       }
@@ -235,25 +241,22 @@ const [regionToRename,setRegionToRename]=useState<TrackRegion|null>(null);
         <RegionSetRenameModal 
                 regionSetToRename={regionToRename}
                 onClose={()=>onCloseRenameRegionSetModal()}
-                open={renameRegionModalOpen}
+                open={Boolean(regionToRename)}
                 onSubmit={onSubmitRegionSetRenameModal}
               >
         </RegionSetRenameModal>}
       
        {clipboard?.type === "region" && 
        pasteSourceRegion && 
-       pasteRegionDestination && (
+       regionForPasteGraph && (
         <PasteRegionModal 
-          destRegionSetId={pasteRegionDestination.regionSetId}
+          destRegionSetId={regionForPasteGraph.regionSetId}
           regionToCopy={pasteSourceRegion}
-          open={true}
+          open={Boolean(regionForPasteGraph)}
           onSubmit={onPasteRegionSubmit}
           onClose={onClosePasteRegionSetModal}
         />
       )}
-      
-
-      {/* TODO: add DetailsRegionSetModal + CopyRegionSetModal here */}
     </>
   );
 }

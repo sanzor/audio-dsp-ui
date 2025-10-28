@@ -30,8 +30,8 @@ export function RegionController({
   const { clipboard, setClipboard } = useUIState();
 
   const { 
-    removeRegionSet,
-    trackRegionSetsMap,updateRegionSet ,copyRegion,createRegion} = useRegionSets();
+    removeRegion,
+    trackRegionSetsMap,updateRegion ,copyRegion,createRegion} = useRegionSets();
   const { tracks } = useTracks();
 
   const [regionForCreateGraph,setRegionForCreateGraph]=useState<{trackId:string,regionSetId:string,regionId:string}|null>(null);

@@ -15,16 +15,16 @@ import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
 import { CreateRegionModal } from "../modals/create-region-modal";
 import { useUIState } from "@/Providers/UseUIStateProvider";
 
-type RegionSetsControllerProps = {
+type GraphControllerProps = {
   rightClickContext: RightClickContext;
   setRightClickContext: (ctx: RightClickContext) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 };
 
-export function RegionSetController({
+export function GraphController({
   rightClickContext,
   setRightClickContext,
-}: RegionSetsControllerProps) {
+}: GraphControllerProps) {
   const { clipboard, setClipboard } = useUIState();
 
   const { 

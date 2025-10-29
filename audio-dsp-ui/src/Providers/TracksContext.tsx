@@ -1,6 +1,6 @@
 // src/contexts/TrackContext.tsx
 import { createContext, useEffect, useState, useCallback, type ReactNode, useRef } from 'react'
-import type { TrackMeta } from '@/Domain/TrackMeta'
+import type { TrackMeta } from '@/Domain/Track/TrackMeta'
 import { apiAddTrack, apiGetTracks, apiRemoveTrack, apiUpdateTrack } from '@/Services/TracksService'
 import type { AddTrackParams } from '@/Dtos/Tracks/AddTrackParams'
 import type { AddTrackResult } from '@/Dtos/Tracks/AddTrackResult'

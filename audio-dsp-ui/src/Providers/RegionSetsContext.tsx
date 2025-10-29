@@ -1,7 +1,7 @@
 
 import { createContext, useEffect, useState, useCallback, type ReactNode, useRef } from 'react'
 import { useAuth } from '@/Auth/UseAuth'
-import type { TrackRegionSet } from '@/Domain/TrackRegionSet'
+import type { TrackRegionSet } from '@/Domain/RegionSet/TrackRegionSet'
 import type { CreateRegionSetParams } from '@/Dtos/RegionSets/CreateRegionSetParams'
 import type { CreateRegionSetResult } from '@/Dtos/RegionSets/CreateRegionSetResult'
 import type { EditRegionSetParams as UpdateRegionSetParams } from '@/Dtos/RegionSets/EditRegionSetParams'
@@ -79,7 +79,7 @@ export const RegionSetsProvider = ({ children }: RegionSetsProviderProps) => {
     const sets = m.get(updated.track_id) ?? [];
 
     const nextSets = sets.map(s =>
-      s.region_set_id === updated.region_set_id ? updated : s
+      s.id === updated.id ? updated : s
     );
 
     // if the array was empty (not loaded yet), insert it
@@ -102,7 +102,7 @@ export const RegionSetsProvider = ({ children }: RegionSetsProviderProps) => {
     const sets = m.get(updated.track_id) ?? [];
 
     // Find the exact RegionSet
-    const idx = sets.findIndex(s => s.region_set_id === updated.region_set_id);
+    const idx = sets.findIndex(s => s.id === updated.id);
     if (idx === -1) return prev; // RegionSet not in state yet
 
     // Replace the whole RegionSet with the updated one from API
@@ -123,7 +123,7 @@ export const RegionSetsProvider = ({ children }: RegionSetsProviderProps) => {
     const m = new Map(prev);
     const trackSets = m.get(params.trackId) ?? [];
 
-    const idx = trackSets.findIndex(s => s.region_set_id === params.regionSetId);
+    const idx = trackSets.findIndex(s => s.id === params.regionSetId);
     if (idx === -1) return prev;
     
     const nextSets = [...trackSets];
@@ -156,7 +156,7 @@ export const RegionSetsProvider = ({ children }: RegionSetsProviderProps) => {
     setTrackRegionSetsMap(prev=>{
         const newMap=new Map(prev);
         const sets=newMap.get(params.trackId)??[];
-        const updatedSets=sets.map(s=>s.region_set_id===params.region_set_id?{...s,...result.region_set}:s);
+        const updatedSets=sets.map(s=>s.id===params.region_set_id?{...s,...result.region_set}:s);
         newMap.set(params.trackId,updatedSets);
         return newMap
     });

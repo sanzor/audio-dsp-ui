@@ -3,7 +3,7 @@
 import {  useState } from "react";
 
 import { RegionSetContextMenu } from "../region-set-context-menu";
-import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
+import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
 import { useRegionSets } from "@/Providers/UseRegionSets";
 import { error } from "console";
 import type { RightClickContext } from "../dashboard";
@@ -54,7 +54,7 @@ export function RegionSetController({
       error("Could not find region sets");
       return null;
     }
-    const regionSet = regionSets.find((x) => x.region_set_id === regionSetId);
+    const regionSet = regionSets.find((x) => x.id === regionSetId);
     if (!regionSet) {
       error(`Could not find region set ${regionSetId}`);
       return null;
@@ -67,7 +67,7 @@ export function RegionSetController({
     if(!regionSet){
       return;
     }
-    setRegionSetForCreateRegion({regionSetId:regionSet?.region_set_id,trackId:regionSet?.track_id});
+    setRegionSetForCreateRegion({regionSetId:regionSet?.id,trackId:regionSet?.track_id});
   };
 
   const onSubmitCreateRegionModal = async (params: CreateRegionParams) => {
@@ -97,7 +97,7 @@ export function RegionSetController({
       error("Could not find region sets");
       return;
     }
-    const regionSet = regionSets.find((x) => x.region_set_id === regionSetId);
+    const regionSet = regionSets.find((x) => x.id === regionSetId);
     if (!regionSet) {
       error(`Could not find region set ${regionSetId}`);
       return;

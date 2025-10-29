@@ -1,5 +1,5 @@
 
-import type { TrackRegion } from "@/Domain/TrackRegion";
+import type { TrackRegion } from "@/Domain/Region/TrackRegion";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";

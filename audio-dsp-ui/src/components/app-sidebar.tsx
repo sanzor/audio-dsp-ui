@@ -26,8 +26,8 @@ import { Button } from "./ui/button"
 import type { RightClickContext, SelectedContext } from "./dashboard"
 import { useState } from "react"
 import { DetailsTrackModal } from "./modals/details-track-modal"
-import type { TrackRegion } from "@/Domain/TrackRegion"
-import type { TrackRegionSet } from "@/Domain/TrackRegionSet"
+import type { TrackRegion } from "@/Domain/Region/TrackRegion"
+import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet"
 import { useRegionSets } from "@/Providers/UseRegionSets"
 
 

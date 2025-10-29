@@ -5,7 +5,7 @@ import type { GetTrackParams } from '@/Dtos/Tracks/GetTrackParams';
 import type { GetTrackResult } from '@/Dtos/Tracks/GetTrackResult';
 import type { UpdateTrackParams } from '@/Dtos/Tracks/UpdateTrackParams';
 import type { UpdateTrackResult } from '@/Dtos/Tracks/UpdateTrackResult';
-import type { TrackMeta } from '@/Domain/TrackMeta';
+import type { TrackMeta } from '@/Domain/Track/TrackMeta';
 import type { CopyTrackParams } from '@/Dtos/Tracks/CopyTrackParams';
 import type { CopyTrackResult } from '@/Dtos/Tracks/CopyTrackResult';
 import type { GetTrackRawParams } from '@/Dtos/Tracks/GetTrackRawParams';

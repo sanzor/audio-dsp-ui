@@ -1,5 +1,5 @@
-import type { TrackRegion  } from "./TrackRegion";
-import type { TrackMeta } from "./TrackMeta";
+import type { TrackRegion  } from "./Region/TrackRegion";
+import type { TrackMeta } from "./Track/TrackMeta";
 
 export interface TrackMetaWithRegions extends TrackMeta {
   regions: TrackRegion[];

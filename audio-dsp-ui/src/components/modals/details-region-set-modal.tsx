@@ -1,11 +1,11 @@
 
-import type { TrackRegion } from "@/Domain/TrackRegion";
+import type { TrackRegion } from "@/Domain/Region/TrackRegion";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
+import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
 
 export interface DetailsRegionSetModalProps {
   open: boolean;
@@ -28,7 +28,7 @@ export function DetailsRegionSetModal({ regionSet, open, onClose }: DetailsRegio
 
          <div className="space-y-2">
           <Label htmlFor="track-id">Region Set ID</Label>
-          <Input id="track-id" value={regionSet.region_set_id} readOnly />
+          <Input id="track-id" value={regionSet.id} readOnly />
         </div>
 
         <div className="space-y-2">

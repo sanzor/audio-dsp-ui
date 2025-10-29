@@ -18,7 +18,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
-import type { TrackRegion } from "@/Domain/TrackRegion"
+import type { TrackRegion } from "@/Domain/Region/TrackRegion"
 
 import type { RightClickContext } from "./dashboard"
 

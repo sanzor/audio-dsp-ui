@@ -3,7 +3,7 @@
 import {  useState } from "react";
 
 import { RegionSetContextMenu } from "../region-set-context-menu";
-import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
+import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
 import { useRegionSets } from "@/Providers/UseRegionSets";
 import { error } from "console";
 import type { RightClickContext } from "../dashboard";
@@ -14,7 +14,7 @@ import { PasteRegionModal } from "../modals/paste-region-modal";
 import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
 import { CreateRegionModal } from "../modals/create-region-modal";
 import { useUIState } from "@/Providers/UseUIStateProvider";
-import type { TrackRegion } from "@/Domain/TrackRegion";
+import type { TrackRegion } from "@/Domain/Region/TrackRegion";
 import type { CreateGraphParams } from "@/Dtos/Graphs/CreateGraphParams";
 
 type RegionControllerProps = {
@@ -57,7 +57,7 @@ export function RegionController({
       error("Could not find region sets");
       return null;
     }
-    const regionSet = regionSets.find((x) => x.region_set_id === regionSetId);
+    const regionSet = regionSets.find((x) => x.id === regionSetId);
     if (!regionSet) {
       error(`Could not find region set ${regionSetId}`);
       return null;
@@ -105,7 +105,7 @@ export function RegionController({
       error("Could not find region sets");
       return;
     }
-    const regionSet = regionSets.find((x) => x.region_set_id === regionSetId);
+    const regionSet = regionSets.find((x) => x.id === regionSetId);
     if (!regionSet) {
       error(`Could not find region set ${regionSetId}`);
       return;

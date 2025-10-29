@@ -1,5 +1,5 @@
 
-import type { TrackRegion } from '@/Domain/TrackRegion';
+import type { TrackRegion } from '@/Domain/Region/TrackRegion';
 import {create} from 'zustand'
 
 type RegionCache=Map<string,TrackRegion>;

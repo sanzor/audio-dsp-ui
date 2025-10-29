@@ -1,5 +1,5 @@
 
-import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
+import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
 import type { CopyRegionSetParams } from "@/Dtos/RegionSets/CoyRegionSetParams";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
 import type { CreateRegionSetResult } from "@/Dtos/RegionSets/CreateRegionSetResult";

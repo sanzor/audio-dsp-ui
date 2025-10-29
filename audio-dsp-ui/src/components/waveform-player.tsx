@@ -3,7 +3,7 @@ import {  useEffect, useRef, useState } from "react"
 import WaveSurfer from "wavesurfer.js"
 import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.esm.js'
 import Minimap from 'wavesurfer.js/dist/plugins/minimap.esm.js'
-import type { TrackRegion } from "@/Domain/TrackRegion";
+import type { TrackRegion } from "@/Domain/Region/TrackRegion";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "./ui/context-menu";
 export interface WaveformPlayerProps{
     onRegionDetails:(regionId:string)=>void,

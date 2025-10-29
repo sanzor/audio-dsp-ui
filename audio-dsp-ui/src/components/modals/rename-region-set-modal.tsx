@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
-import type { TrackRegionSet } from "@/Domain/TrackRegionSet";
+import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
 
 export interface RenameRegionSetProps {
   regionSetToRename: TrackRegionSet | null; // 👈 allow null

@@ -1,4 +1,4 @@
-import type { TrackMeta } from '@/Domain/TrackMeta'
+import type { TrackMeta } from '@/Domain/Track/TrackMeta'
 import {create} from 'zustand'
 
 type TrackCache=Map<string,TrackMeta>;

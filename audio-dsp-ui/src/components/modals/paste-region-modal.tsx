@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
-import type { TrackRegion } from "@/Domain/TrackRegion";
+import type { TrackRegion } from "@/Domain/Region/TrackRegion";
 
 export interface PasteRegionModalProps {
   regionToCopy: TrackRegion | null; // 👈 allow null

@@ -1,4 +1,4 @@
-import type { TrackRegion } from "@/Domain/TrackRegion";
+import type { TrackRegion } from "@/Domain/Region/TrackRegion";
 import type { CopyRegionParams } from "@/Dtos/Regions/CopyRegionParams";
 import type { CopyRegionResult } from "@/Dtos/Regions/CopyRegionResult";
 import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";

@@ -1,4 +1,5 @@
-import type { Port } from "./Port";
+import type { Port } from "./Port"
+
 
 export interface Node{
     id:string,

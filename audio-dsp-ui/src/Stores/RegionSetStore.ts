@@ -1,21 +1,16 @@
 // /src/Stores/useRegionSetStore.ts
 
+import type { NormalizedTrackRegionSet } from '@/Domain/RegionSet/NormalizedTrackRegionSet';
 import { create } from 'zustand';
 
-import type { TrackRegionSet } from '@/Domain/RegionSet/TrackRegionSet'; 
+
 
 
 // ----------------------------------------------------
 // 1. Normalized State & Action Definitions
 // ----------------------------------------------------
 
-// The local entity representation, holding necessary foreign keys
-export interface NormalizedRegionSet extends TrackRegionSet { 
-    track_id: string;      // Reference to the parent Track
-    region_ids: string[]; // References to child Regions
-}
-
-type RegionSetCache = Map<string, NormalizedRegionSet>;
+type RegionSetCache = Map<string, NormalizedTrackRegionSet>;
 
 interface RegionSetState {
     regionSets: RegionSetCache;
@@ -24,11 +19,11 @@ interface RegionSetState {
 
 interface RegionSetActions {
     // CRUD Operations for the Set itself
-    getRegionSet: (setId: string) => NormalizedRegionSet | undefined;
-    setAllRegionSets: (sets: NormalizedRegionSet[]) => void;
-    addRegionSet: (set: NormalizedRegionSet) => void;
+    getRegionSet: (setId: string) => NormalizedTrackRegionSet | undefined;
+    setAllRegionSets: (sets: NormalizedTrackRegionSet[]) => void;
+    addRegionSet: (set: NormalizedTrackRegionSet) => void;
     removeRegionSet: (setId: string) => void;
-    updateRegionSet: (setId: string, updates: Partial<NormalizedRegionSet>) => void;
+    updateRegionSet: (setId: string, updates: Partial<NormalizedTrackRegionSet>) => void;
 }
 
 type RegionSetStore = RegionSetState & RegionSetActions;
@@ -43,9 +38,9 @@ export const useRegionSetStore = create<RegionSetStore>((set, get) => ({
 
     // --- CRUD ---
 
-    setAllRegionSets: (newSets) => {
-        const setMap = new Map<string, NormalizedRegionSet>(); 
-        newSets.forEach(s => setMap.set(s.id, s));
+    setAllRegionSets: (newRegionSets) => {
+        const setMap = new Map<string, NormalizedTrackRegionSet>(); 
+        newRegionSets.forEach(s => setMap.set(s.id, s));
         set({ regionSets: setMap, loading: false });
     },
 

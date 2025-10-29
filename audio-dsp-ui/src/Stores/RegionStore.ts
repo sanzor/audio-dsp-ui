@@ -1,18 +1,19 @@
 
+import type { NormalizedTrackRegion } from '@/Domain/Region/NormalizedTrackRegion';
 import type { TrackRegion } from '@/Domain/Region/TrackRegion';
 import {create} from 'zustand'
 
-type RegionCache=Map<string,TrackRegion>;
+type RegionCache=Map<string,NormalizedTrackRegion>;
 interface RegionState{
     regions:RegionCache,
     loading:boolean
 }
 interface TrackActions{
-    getRegion:(regionId:string)=>TrackRegion|undefined;
-    addRegion:(region:TrackRegion)=>void;
+    getRegion:(regionId:string)=>NormalizedTrackRegion|undefined;
+    addRegion:(region:NormalizedTrackRegion)=>void;
     removeRegion:(regionId:string)=>void;
-    updateRegion:(regionId:string,region:Partial<TrackRegion>)=>void
-    setAllRegions:(regions:[TrackRegion])=>void
+    updateRegion:(regionId:string,region:Partial<NormalizedTrackRegion>)=>void
+    setAllRegions:(regions:[NormalizedTrackRegion])=>void
 
 }
 
@@ -23,9 +24,9 @@ export const useTrackStore = create<RegionStore>((set, get) => ({
     loading: true,
 
     // --- Already implemented ---
-    setAllRegions: (newTracks) => {
-        const regionMap = new Map<string, TrackRegion>(); 
-        newTracks.forEach(t => regionMap.set(t.region_id, t));
+    setAllRegions: (newRegions) => {
+        const regionMap = new Map<string, NormalizedTrackRegion>(); 
+        newRegions.forEach(t => regionMap.set(t.region_id, t));
         set({ 
             regions: regionMap, 
             loading: false 
@@ -35,7 +36,7 @@ export const useTrackStore = create<RegionStore>((set, get) => ({
     // ----------------------------------------------------
     // ✅ getTrack: Use the 'get' function to read state.
     // ----------------------------------------------------
-    getRegion: (regionId: string): TrackRegion | undefined => {
+    getRegion: (regionId: string): NormalizedTrackRegion | undefined => {
         // Use the 'get()' function to synchronously retrieve the current state
         return get().regions.get(regionId);
     },
@@ -43,7 +44,7 @@ export const useTrackStore = create<RegionStore>((set, get) => ({
     // ----------------------------------------------------
     // ✅ addTrack: Update the state immutably using 'set'.
     // ----------------------------------------------------
-    addRegion: (region: TrackRegion): void => {
+    addRegion: (region: NormalizedTrackRegion): void => {
         set((state) => {
             // 1. Create a new Map based on the current tracks
             const newMap = new Map(state.regions); 

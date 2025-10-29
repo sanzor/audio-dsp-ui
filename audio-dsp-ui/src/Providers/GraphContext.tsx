@@ -16,15 +16,15 @@ import { apiAddRegion, apiCopyRegion, apiEditRegion, apiRemoveRegion } from '@/S
 import type { CopyRegionSetParams } from '@/Dtos/RegionSets/CoyRegionSetParams'
 import type { CopyRegionParams } from '@/Dtos/Regions/CopyRegionParams'
 import type { EditRegionParams } from '@/Dtos/Regions/EditRegionParams'
-import type { Graph } from '@/Domain/Graph'
 import type { EditGraphParams } from '@/Dtos/Graphs/EditGraphParams'
 import type { EditGraphResult } from '@/Dtos/Graphs/EditGraphResult'
 import type { RemoveGraphParams } from '@/Dtos/Graphs/RemoveGraphParams'
+import type { Graph } from '@/Domain/Graph/Graph'
 
 
 // --- Types
 interface GraphContextType {
-  trackRegionSetsMap: Map<string,Graph[]>
+  graphMap: Map<string,Graph[]>
   loading: boolean
   error: string | null
   refresh: () => Promise<void>

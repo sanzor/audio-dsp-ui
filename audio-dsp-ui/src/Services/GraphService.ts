@@ -1,5 +1,6 @@
 
-import type { Graph } from "@/Domain/Graph";
+
+import type { Graph } from "@/Domain/Graph/Graph";
 import type { CreateGraphParams } from "@/Dtos/Graphs/CreateGraphParams";
 import type { CreateGraphResult } from "@/Dtos/Graphs/CreateGraphResult";
 import type { EditGraphParams } from "@/Dtos/Graphs/EditGraphParams";

@@ -1,6 +1,8 @@
 
+import { normalizeRegion } from '@/Domain/Region/Mappers';
 import type { NormalizedTrackRegion } from '@/Domain/Region/NormalizedTrackRegion';
 import type { TrackRegion } from '@/Domain/Region/TrackRegion';
+import type { TrackRegionSetViewModel } from '@/Domain/RegionSet/TrackRegionSetViewModel';
 import {create} from 'zustand'
 
 type RegionCache=Map<string,NormalizedTrackRegion>;
@@ -14,12 +16,13 @@ interface TrackActions{
     removeRegion:(regionId:string)=>void;
     updateRegion:(regionId:string,region:Partial<NormalizedTrackRegion>)=>void
     setAllRegions:(regions:[NormalizedTrackRegion])=>void
-
+    removeRegionsBySetId:(setId:string)=>void
+    addRegionsFromSet:(set:TrackRegionSetViewModel)=>void
 }
 
 type RegionStore=RegionState & TrackActions;
 
-export const useTrackStore = create<RegionStore>((set, get) => ({
+export const useRegionStore = create<RegionStore>((set, get) => ({
     regions: new Map(),
     loading: true,
 
@@ -54,6 +57,19 @@ export const useTrackStore = create<RegionStore>((set, get) => ({
             return { regions: newMap };
         });
     },
+    addRegionsFromSet:(regionSet:TrackRegionSetViewModel):void=>{
+        set((state) => {
+            // 1. Create a new Map based on the current tracks
+            const newMap = new Map(state.regions); 
+            // 2. Add the new track
+             for(const region of regionSet.regions){
+                const normalizedRegion=normalizeRegion(region);
+                newMap.set(region.region_id,normalizedRegion);
+            } 
+            // 3. Return the new state object with the updated map
+            return { regions: newMap };
+        });
+    },
 
     // ----------------------------------------------------
     // ✅ removeTrack: Update the state immutably using 'set'.
@@ -68,7 +84,18 @@ export const useTrackStore = create<RegionStore>((set, get) => ({
             return { regions: newMap };
         });
     },
-
+    removeRegionsBySetId: (setId: string): void => {
+        set((state) => {
+            // 1. Create a new Map based on the current tracks
+            const newMap = new Map(state.regions); 
+            for(const [key,value] of newMap){
+                if(value.region_set_id===setId){
+                    newMap.delete(key);
+                }
+            }
+            return { regions: newMap };
+        });
+    },
     // ----------------------------------------------------
     // ✅ updateTrack: Update a property on a single track.
     // ----------------------------------------------------
@@ -91,5 +118,5 @@ export const useTrackStore = create<RegionStore>((set, get) => ({
             // 3. Return the new state object
             return { regions: newMap };
         });
-    },
+    }
 }));

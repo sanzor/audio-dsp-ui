@@ -1,5 +1,6 @@
 import type { NormalizedTrackRegionSet } from "@/Domain/RegionSet/NormalizedTrackRegionSet";
 import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
+import { normalizeRegion } from "../Regions/utils";
 
 const cascadeNormalization = (regionSetApi: TrackRegionSet) => {
     const regionIds: string[] = [];
@@ -12,7 +13,7 @@ const cascadeNormalization = (regionSetApi: TrackRegionSet) => {
         // 🚨 Update the child store
         // useRegionStore.addRegion(normalizedRegion); 
 
-        regionIds.push(regionApi.id); // Assuming ID is on the Region entity
+        regionIds.push(regionApi.region_id); // Assuming ID is on the Region entity
     }
 
     return regionIds;

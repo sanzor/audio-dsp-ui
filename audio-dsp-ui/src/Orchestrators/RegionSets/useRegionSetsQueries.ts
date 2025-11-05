@@ -1,7 +1,7 @@
 import { useAuth } from "@/Auth/UseAuth";
 import type { NormalizedTrackRegionSet } from "@/Domain/RegionSet/NormalizedTrackRegionSet";
 import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
-import { apiGetRegionSet } from "@/Services/RegionSetsService";
+import { apiGetRegionSet, apiGetRegionSetsForTrack } from "@/Services/RegionSetsService";
 import { useRegionSetStore } from "@/Stores/RegionSetStore";
 import { useQuery } from "react-query";
 import { normalizeRegionSet } from "./utils";
@@ -26,7 +26,6 @@ export const useGetRegionSet = (regionSetId: string) => {
         queryFn: () => apiGetRegionSet(regionSetId),
         
         enabled: !!regionSetId && !!user,
-        
         // 🚨 FIX 2: onSuccess should accept the TQueryFnData type (TrackRegionSet).
         // React Query allows this when select is also present.
         onSuccess: (regionSetApi: TrackRegionSet) => {
@@ -42,4 +41,41 @@ export const useGetRegionSet = (regionSetId: string) => {
         // Data leaving the hook is the Normalized Model (Type 2)
         select: (data) => data ? normalizeRegionSet(data) : cachedRegionSet,
     });
+};
+
+export const useGetAllRegionSetsForTrack = (trackId: string) => {
+    const setAllRegionSets = useRegionSetStore(state => state.setAllRegionSets);
+    const { user } = useAuth();
+    
+    // 1. Define the separate query key
+    const queryKey = ['regionSets', 'track', trackId];
+    
+    // 2. Define the separate query function
+    const queryFunction = async() => {
+        const rez=await apiGetRegionSetsForTrack(trackId);
+        return rez.sets
+    };
+
+    // 🚨 FIX: Pass queryKey, queryFn, and the remaining options as THREE arguments.
+    return useQuery<
+        TrackRegionSet[], 
+        string, 
+        NormalizedTrackRegionSet[], 
+        string[]
+    >(
+        queryKey, // ARGUMENT 1: queryKey
+        queryFunction, // ARGUMENT 2: queryFn
+        {
+            // ARGUMENT 3: options object (must NOT contain queryKey or queryFn)
+            enabled: !!trackId && !!user,
+            
+           onSuccess: (regionSetsApiList: TrackRegionSet[]) => { 
+                // 1. Orchestration: Normalize the data and update all child stores (cascade)
+                const normalizedSetsList = regionSetsApiList.map(normalizeRegionSet);
+                
+                // 2. Update the current entity's store (RegionSetStore)
+                setAllRegionSets(normalizedSetsList);
+            },
+        }
+    );
 };

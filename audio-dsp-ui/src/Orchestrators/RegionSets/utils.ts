@@ -2,16 +2,16 @@ import type { NormalizedTrackRegionSet } from "@/Domain/RegionSet/NormalizedTrac
 import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
 import { normalizeRegion } from "../Regions/utils";
 
+
 const cascadeNormalization = (regionSetApi: TrackRegionSet) => {
     const regionIds: string[] = [];
-
     // This is the multi-store update loop
     for (const regionApi of regionSetApi.regions) {
         // Assume normalizeRegion handles the deeper cascade (Graph -> Node/Edge)
         const normalizedRegion = normalizeRegion(regionApi);
         
         // 🚨 Update the child store
-        // useRegionStore.addRegion(normalizedRegion); 
+        useRegionStore.(normalizedRegion); 
 
         regionIds.push(regionApi.region_id); // Assuming ID is on the Region entity
     }

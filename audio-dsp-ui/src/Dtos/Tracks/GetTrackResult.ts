@@ -1,4 +1,5 @@
+import type { TrackMeta } from "@/Domain/Track/TrackMeta";
+
 export interface GetTrackResult{
-    id:number,
-    name:string
+    track:TrackMeta
 }

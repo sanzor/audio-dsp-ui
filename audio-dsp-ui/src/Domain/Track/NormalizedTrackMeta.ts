@@ -1,5 +1,5 @@
 import type { TrackMeta } from "./TrackMeta";
 
 export interface NormalizedTrackMeta extends TrackMeta{
-    region_sets:string[]
+    region_sets_ids:string[]
 }

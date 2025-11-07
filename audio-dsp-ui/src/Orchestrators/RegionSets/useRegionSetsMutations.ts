@@ -6,8 +6,9 @@ import { useRegionSetStore } from '@/Stores/RegionSetStore';
 import type { CopyRegionSetParams } from '@/Dtos/RegionSets/CoyRegionSetParams';
 import type { RemoveRegionSetParams } from '@/Dtos/RegionSets/RemoveRegionSetParams';
 import { apiCopyRegionSet, apiRemoveRegionSet } from '@/Services/RegionSetsService';
-import { normalizeRegionSetWithCascade } from './utils';
+import { cascadeDeleteRegionSet, normalizeRegionSetWithCascade } from './utils';
 import type { CreateRegionSetResult } from '@/Dtos/RegionSets/CreateRegionSetResult';
+import type { NormalizedTrackRegionSet } from '@/Domain/RegionSet/NormalizedTrackRegionSet';
 
 /**
  * Copy RegionSet Mutation
@@ -58,49 +59,58 @@ export const useDeleteRegionSet = () => {
   const queryClient = useQueryClient();
   const getRegionSet = useRegionSetStore(state => state.getRegionSet);
 
-  return useMutation<void, Error, RemoveRegionSetParams>({
-    mutationFn: (removeSetParams: RemoveRegionSetParams) => apiRemoveRegionSet(removeSetParams),
-    
-    // Optimistic update: remove from store immediately
-    onMutate: async (removeSetParams: RemoveRegionSetParams) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries(['regionSet', removeSetParams]);
+  return useMutation<void, Error, RemoveRegionSetParams, { previousSet?: NormalizedTrackRegionSet }>(
+    (removeSetParams: RemoveRegionSetParams) => apiRemoveRegionSet(removeSetParams),
+    {
+      // Optimistic update: remove from store immediately
+      onMutate: async (removeSetParams: RemoveRegionSetParams) => {
+        const setId = removeSetParams.region_set_id; // Adjust based on your params structure
+        
+        // Cancel outgoing refetches
+        await queryClient.cancelQueries(['regionSet', setId]);
+        
+        // Snapshot the current value for rollback
+        const previousSet = getRegionSet(setId);
+        
+        // Optimistically remove from all stores
+        if (previousSet) {
+          cascadeDeleteRegionSet(setId);
+        }
+        
+        return { previousSet };
+      },
       
-      // Snapshot the current value for rollback
-      const previousSet = getRegionSet(removeSetParams.region_set_id);
+      onSuccess: (_, removeSetParams, context) => {
+        const setId = removeSetParams.region_set_id;
+        
+        // Invalidate parent track's region sets list
+        if (context?.previousSet) {
+          queryClient.invalidateQueries([
+            'regionSets', 
+            'track', 
+            context.previousSet.track_id
+          ]);
+        }
+        
+        // Remove the individual query
+        queryClient.removeQueries(['regionSet', setId]);
+      },
       
-      // Optimistically remove from all stores
-      cascadeDeleteRegionSet(removeSetParams);
-      
-      return { previousSet };
-    },
-    
-    onSuccess: (_, setId) => {
-      // Invalidate parent track's region sets list
-      const previousSet = getRegionSet(setId);
-      if (previousSet) {
-        queryClient.invalidateQueries([
-          'regionSets', 
-          'track', 
-          previousSet.track_id
-        ]);
-      }
-      
-      // Remove the individual query
-      queryClient.removeQueries(['regionSet', setId]);
-    },
-    
-    onError: (error: Error, setId, context) => {
-      console.error('Failed to delete region set:', error);
-      
-      // Rollback: restore the entity if we have the snapshot
-      if (context?.previousSet) {
-        // You would need to implement rollback cascade here
-        // For now, just invalidate to refetch
-        queryClient.invalidateQueries(['regionSet', setId]);
-      }
-    },
-  });
+      onError: (error: Error, removeSetParams, context) => {
+        console.error('Failed to delete region set:', error);
+        
+        // Rollback: restore the entity if we have the snapshot
+        if (context?.previousSet) {
+          const addRegionSet = useRegionSetStore.getState().addRegionSet;
+          addRegionSet(context.previousSet);
+          
+          // Also need to restore children - implement rollback cascade
+          // For now, invalidate to refetch everything
+          queryClient.invalidateQueries(['regionSet', removeSetParams.region_set_id]);
+        }
+      },
+    }
+  );
 };
 
 /**
@@ -134,3 +144,5 @@ export const useRenameRegionSet = () => {
     },
   });
 };
+
+

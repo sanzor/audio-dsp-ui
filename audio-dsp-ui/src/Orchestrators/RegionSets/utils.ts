@@ -1,10 +1,13 @@
 import type { NormalizedTrackRegionSet } from "@/Domain/RegionSet/NormalizedTrackRegionSet";
 import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
-import { normalizeRegion } from "../Regions/utils";
+import { cascadeDeleteRegion, normalizeRegion } from "../Regions/utils";
 import { useRegionStore } from "@/Stores/RegionStore";
 import { useRegionSetStore } from "@/Stores/RegionSetStore";
 
 
+/**
+ * Cascade normalization: Updates all child stores and returns the normalized parent
+ */
 export const normalizeRegionSetWithCascade = (
   regionSetApi: TrackRegionSet
 ): NormalizedTrackRegionSet => {
@@ -22,28 +25,29 @@ export const normalizeRegionSetWithCascade = (
   }
 
   // Return the normalized parent with child IDs
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { regions, ...rest } = regionSetApi;
   return {
     ...rest,
     region_ids: regionIds,
   };
-};
+}
 
 export const cascadeDeleteRegionSet = (setId: string): void => {
+  // 1. Get store accessors (using .getState() because we're outside React)
   const getRegionSet = useRegionSetStore.getState().getRegionSet;
-  const removeRegion = useRegionStore.getState().removeRegion;
   const removeRegionSet = useRegionSetStore.getState().removeRegionSet;
 
-  // Get the entity before deletion
+  // 2. Get the entity to find its children
   const regionSet = getRegionSet(setId);
-  if (!regionSet) return;
+  if (!regionSet) return; // Already deleted or doesn't exist
 
-  // Cascade delete all child regions (which will cascade to graphs, etc.)
+  // 3. CASCADE DOWN: Delete all child regions first
+  //    Each child deletion will cascade further (Region → Graph → Nodes/Edges)
   for (const regionId of regionSet.region_ids) {
-    // Assume cascadeDeleteRegion handles Graph -> Nodes/Edges
-    cascadeDeleteRegion(regionId);
+    cascadeDeleteRegion(regionId); // This recursively deletes Graph, Nodes, Edges
   }
 
-  // Finally, remove the parent
+  // 4. DELETE PARENT: Finally, remove this RegionSet from its store
   removeRegionSet(setId);
 };

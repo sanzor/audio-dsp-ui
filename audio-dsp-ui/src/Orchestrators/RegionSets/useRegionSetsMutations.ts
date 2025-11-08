@@ -2,13 +2,17 @@
 
 import { useMutation, useQueryClient } from 'react-query';
 import { useRegionSetStore } from '@/Stores/RegionSetStore';
+import { useTrackStore } from '@/Stores/TrackStore';
+import { useRegionStore } from '@/Stores/RegionStore';
 
 import type { CopyRegionSetParams } from '@/Dtos/RegionSets/CoyRegionSetParams';
+import type { CreateRegionSetParams } from '@/Dtos/RegionSets/CreateRegionSetParams';
 import type { RemoveRegionSetParams } from '@/Dtos/RegionSets/RemoveRegionSetParams';
-import { apiCopyRegionSet, apiRemoveRegionSet } from '@/Services/RegionSetsService';
+import { apiCopyRegionSet, apiCreateRegionSet, apiRemoveRegionSet } from '@/Services/RegionSetsService';
 import { cascadeDeleteRegionSet, normalizeRegionSetWithCascade } from './utils';
 import type { CreateRegionSetResult } from '@/Dtos/RegionSets/CreateRegionSetResult';
 import type { NormalizedTrackRegionSet } from '@/Domain/RegionSet/NormalizedTrackRegionSet';
+import type { NormalizedTrackRegion } from '@/Domain/Region/NormalizedTrackRegion';
 
 /**
  * Copy RegionSet Mutation
@@ -19,6 +23,7 @@ import type { NormalizedTrackRegionSet } from '@/Domain/RegionSet/NormalizedTrac
 export const useCopyRegionSet = () => {
   const queryClient = useQueryClient();
   const addRegionSet = useRegionSetStore(state => state.addRegionSet);
+  const attachRegionSet = useTrackStore(state => state.attachRegionSet);
 
   return useMutation<CreateRegionSetResult, Error, CopyRegionSetParams>({
     mutationFn: (copySetParams: CopyRegionSetParams) => apiCopyRegionSet(copySetParams),
@@ -29,6 +34,7 @@ export const useCopyRegionSet = () => {
       
       // 2. Add the new copy to RegionSetStore
       addRegionSet(normalizedCopy);
+      attachRegionSet(normalizedCopy.track_id, normalizedCopy.id);
       
       // 3. Invalidate queries to refresh UI
       // Invalidate the parent track's region sets list
@@ -50,6 +56,30 @@ export const useCopyRegionSet = () => {
 };
 
 /**
+ * Create RegionSet Mutation
+ */
+export const useCreateRegionSet = () => {
+  const queryClient = useQueryClient();
+  const addRegionSet = useRegionSetStore(state => state.addRegionSet);
+  const attachRegionSet = useTrackStore(state => state.attachRegionSet);
+
+  return useMutation<CreateRegionSetResult, Error, CreateRegionSetParams>({
+    mutationFn: (createParams: CreateRegionSetParams) => apiCreateRegionSet(createParams),
+    onSuccess: (data) => {
+      const normalized = normalizeRegionSetWithCascade(data.region_set);
+      addRegionSet(normalized);
+      attachRegionSet(normalized.track_id, normalized.id);
+
+      queryClient.invalidateQueries(['regionSets', 'track', normalized.track_id]);
+      queryClient.setQueryData(['regionSet', normalized.id], normalized);
+    },
+    onError: (error: Error) => {
+      console.error('Failed to create region set:', error);
+    },
+  });
+};
+
+/**
  * Delete RegionSet Mutation
  * - Calls API to delete
  * - Cascades deletion through all child stores
@@ -58,8 +88,9 @@ export const useCopyRegionSet = () => {
 export const useDeleteRegionSet = () => {
   const queryClient = useQueryClient();
   const getRegionSet = useRegionSetStore(state => state.getRegionSet);
+  const getRegion = useRegionStore(state => state.getRegion);
 
-  return useMutation<void, Error, RemoveRegionSetParams, { previousSet?: NormalizedTrackRegionSet }>(
+  return useMutation<void, Error, RemoveRegionSetParams, { previousSet?: NormalizedTrackRegionSet; previousRegions: NormalizedTrackRegion[] }>(
     (removeSetParams: RemoveRegionSetParams) => apiRemoveRegionSet(removeSetParams),
     {
       // Optimistic update: remove from store immediately
@@ -71,13 +102,18 @@ export const useDeleteRegionSet = () => {
         
         // Snapshot the current value for rollback
         const previousSet = getRegionSet(setId);
+        const previousRegions = previousSet
+          ? previousSet.region_ids
+              .map(regionId => getRegion(regionId))
+              .filter((region): region is NormalizedTrackRegion => Boolean(region))
+          : [];
         
         // Optimistically remove from all stores
         if (previousSet) {
           cascadeDeleteRegionSet(setId);
         }
         
-        return { previousSet };
+        return { previousSet, previousRegions };
       },
       
       onSuccess: (_, removeSetParams, context) => {
@@ -102,12 +138,15 @@ export const useDeleteRegionSet = () => {
         // Rollback: restore the entity if we have the snapshot
         if (context?.previousSet) {
           const addRegionSet = useRegionSetStore.getState().addRegionSet;
+          const addRegion = useRegionStore.getState().addRegion;
+          const attachRegionSet = useTrackStore.getState().attachRegionSet;
+
           addRegionSet(context.previousSet);
-          
-          // Also need to restore children - implement rollback cascade
-          // For now, invalidate to refetch everything
-          queryClient.invalidateQueries(['regionSet', removeSetParams.region_set_id]);
+          attachRegionSet(context.previousSet.track_id, context.previousSet.id);
+
+          context.previousRegions.forEach(region => addRegion(region));
         }
+        queryClient.invalidateQueries(['regionSet', removeSetParams.region_set_id]);
       },
     }
   );
@@ -144,5 +183,3 @@ export const useRenameRegionSet = () => {
     },
   });
 };
-
-

@@ -20,14 +20,11 @@ export function TrackRenameModal({
   onClose,
   onSubmit,
 }: RenameTrackModalProps) {
-  
-
-  const [trackName, setName] = useState(initialName?.trackInitialName);
+  const [trackName, setName] = useState(initialName?.trackInitialName ?? "");
 
   useEffect(() => {
-    console.log("inside rename modal");
-    setName(trackName); // Reset when modal opens
-  }, [trackName, open]);
+    setName(initialName?.trackInitialName ?? "");
+  }, [initialName?.trackInitialName, open]);
 
   const handleSubmit = () => {
   if (initialName && trackName?.trim()) {

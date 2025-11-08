@@ -19,12 +19,12 @@ import {
 } from "@/components/ui/sidebar"
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
 import type { TrackRegion } from "@/Domain/Region/TrackRegion"
-
+import type { SelectedContext } from "@/Providers/UIStateProvider"
 import type { RightClickContext } from "./dashboard"
 
 export interface NavMainProps{
    tracks:TrackMetaWithRegions[],
-   onSelect:(trackId:string)=>void,
+   onSelect:(ctx: SelectedContext)=>void,
    onRightClick: (ctx: RightClickContext) => void
 }
 export function NavMain({
@@ -37,11 +37,11 @@ export function NavMain({
   function TrackItem({track,onSelect,onRightClick}
     :{
       track: TrackMetaWithRegions,
-      onSelect: (id: string) => void,
+      onSelect: (ctx: SelectedContext) => void,
       onRightClick: (ctx: RightClickContext) => void}){
         return(
          <div className="track-item" 
-          onClick={()=>onSelect(track.track_id)}
+          onClick={()=>onSelect({ type: "track", trackId: track.track_id })}
           onContextMenu={(e)=>{
             e.preventDefault();
             onRightClick({

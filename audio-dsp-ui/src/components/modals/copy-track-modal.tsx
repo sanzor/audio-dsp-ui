@@ -18,9 +18,7 @@ export function CopyTrackModal({
   onClose,
   onSubmit,
 }: CopyTrackModalProps) {
-  
-
-  const [copyTrackName, setCopyTrackName] = useState(trackToCopy?.sourceTrackNname);
+  const [copyTrackName, setCopyTrackName] = useState(trackToCopy?.sourceTrackNname ?? "");
 
   useEffect(() => {
     setCopyTrackName(trackToCopy?.sourceTrackNname ?? "");

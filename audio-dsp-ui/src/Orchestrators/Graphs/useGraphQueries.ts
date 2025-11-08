@@ -4,15 +4,7 @@ import type { NormalizedGraph } from "@/Domain/Graph/NormalizedGraph";
 import { apiGetGraph } from "@/Services/GraphService";
 import { useGraphStore } from "@/Stores/GraphStore";
 import { useQuery } from "react-query";
-
-const normalizeGraph = (graphApi: Graph): NormalizedGraph => {
-    // NOTE: This assumes Graph API model includes nested nodes/edges arrays.
-    return {
-        ...graphApi,
-        nodes_ids: graphApi.nodes ? graphApi.nodes.map(n => n.id) : [], 
-        edges_ids: graphApi.edges ? graphApi.edges.map(e => e.id) : [],
-    } as NormalizedGraph; 
-};
+import { normalizeGraph } from "./utils";
 
 
 export const useGetGraph = (graphId: string) => {

@@ -1,19 +1,19 @@
 
 // RegionSetController.tsx
-import {  useState } from "react";
+import { useState } from "react";
 
 import { RegionSetContextMenu } from "../region-set-context-menu";
-import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
-import { useRegionSets } from "@/Providers/UseRegionSets";
-import { error } from "console";
+import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
 import type { RightClickContext } from "../dashboard";
 import { DetailsRegionSetModal } from "../modals/details-region-set-modal";
-import { useTracks } from "@/Providers/UseTracks";
 import { RegionSetRenameModal } from "../modals/rename-region-set-modal";
 import { PasteRegionModal } from "../modals/paste-region-modal";
 import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
 import { CreateRegionModal } from "../modals/create-region-modal";
 import { useUIState } from "@/Providers/UseUIStateProvider";
+import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
+import { useCopyRegion, useCreateRegion } from "@/Orchestrators/Regions/useRegionMutations";
+import { useDeleteRegionSet, useRenameRegionSet } from "@/Orchestrators/RegionSets/useRegionSetsMutations";
 
 type RegionSetsControllerProps = {
   rightClickContext: RightClickContext;
@@ -26,15 +26,15 @@ export function RegionSetController({
   setRightClickContext,
 }: RegionSetsControllerProps) {
   const { clipboard, setClipboard } = useUIState();
+  const trackMap = useTrackViewModelMap();
+  const createRegionMutation = useCreateRegion();
+  const copyRegionMutation = useCopyRegion();
+  const deleteRegionSet = useDeleteRegionSet();
+  const renameRegionSet = useRenameRegionSet();
 
-  const { 
-    removeRegionSet,
-    trackRegionSetsMap,updateRegionSet ,copyRegion,createRegion} = useRegionSets();
-  const { tracks } = useTracks();
-
-  const [regionSetForCreateRegion,setRegionSetForCreateRegion]=useState<{trackId:string,regionSetId:string}|null>(null);
-  const [detailedRegionSet, setDetailedRegionSet] = useState<TrackRegionSet | null>(null);
-  const [regionSetToRename,setRegionSetToRename]=useState<TrackRegionSet|null>(null);
+  const [regionSetForCreateRegion, setRegionSetForCreateRegion] = useState<{ trackId: string; regionSetId: string } | null>(null);
+  const [detailedRegionSet, setDetailedRegionSet] = useState<TrackRegionSetViewModel | null>(null);
+  const [regionSetToRename, setRegionSetToRename] = useState<TrackRegionSetViewModel | null>(null);
   const [regionSetForPasteRegion, setRegionSetForPasteRegion] = useState<{
     trackId: string;
     regionSetId: string;
@@ -43,24 +43,11 @@ export function RegionSetController({
 
  
   // handlers
-  const findRegionSet=(trackId:string,regionSetId:string):TrackRegionSet|null=>{
-     const track = tracks.find((x) => x.track_id === trackId);
-    if (!track) {
-      error(`Could not find track ${trackId}`);
-      return null;
-    }
-    const regionSets = trackRegionSetsMap.get(track.track_id);
-    if (!regionSets) {
-      error("Could not find region sets");
-      return null;
-    }
-    const regionSet = regionSets.find((x) => x.id === regionSetId);
-    if (!regionSet) {
-      error(`Could not find region set ${regionSetId}`);
-      return null;
-    }
-    return regionSet;
-  }
+  const findRegionSet = (trackId: string, regionSetId: string): TrackRegionSetViewModel | null => {
+    const track = trackMap.get(trackId);
+    if (!track) return null;
+    return track.regionSets.find(set => set.id === regionSetId) ?? null;
+  };
   //create
   const onCreateRegionClick = (trackId: string,regionSetId:string) => {
     const regionSet=findRegionSet(trackId,regionSetId);
@@ -71,12 +58,7 @@ export function RegionSetController({
   };
 
   const onSubmitCreateRegionModal = async (params: CreateRegionParams) => {
-    await createRegion({ 
-      name: params.name, 
-      trackId:params.trackId,
-      region_set_id:params.region_set_id,
-      start_time:params.start_time,
-      end_time:params.end_time });
+    await createRegionMutation.mutateAsync(params);
   };
 
   const onCloseCreateRegionSetModal = () => {
@@ -87,21 +69,8 @@ export function RegionSetController({
 
   //details
   const onDetailsRegionSetClick = (regionSetId: string, trackId: string) => {
-    const track = tracks.find((x) => x.track_id === trackId);
-    if (!track) {
-      error(`Could not find track ${trackId}`);
-      return;
-    }
-    const regionSets = trackRegionSetsMap.get(track.track_id);
-    if (!regionSets) {
-      error("Could not find region sets");
-      return;
-    }
-    const regionSet = regionSets.find((x) => x.id === regionSetId);
-    if (!regionSet) {
-      error(`Could not find region set ${regionSetId}`);
-      return;
-    }
+    const regionSet = findRegionSet(trackId, regionSetId);
+    if (!regionSet) return;
     setDetailedRegionSet(regionSet);
   };
 
@@ -114,7 +83,7 @@ export function RegionSetController({
 
  //rename
   const onRemoveRegionSetClick = async (regionSetId: string) => {
-    await removeRegionSet({ region_set_id: regionSetId });
+    await deleteRegionSet.mutateAsync({ region_set_id: regionSetId });
   };
   const onRenameRegionSetClick=(regionSetId:string,trackId:string)=>{
     const targetRegionSet=findRegionSet(trackId,regionSetId);
@@ -130,10 +99,8 @@ export function RegionSetController({
       return;
     }
     
-    const result=await updateRegionSet({name:newRegionSetName,region_set_id:regionSetId,trackId:trackId});
+    await renameRegionSet.mutateAsync({ setId: regionSetId, newName: newRegionSetName });
     onCloseRenameRegionSetModal();
-
-    return result;
   };
 
   const onCloseRenameRegionSetModal=()=>{
@@ -176,9 +143,8 @@ export function RegionSetController({
   }
 
   const onPasteRegionSubmit=async(regionSetId:string,regionId:string,copyRegionName:string)=>{
-    const result=await copyRegion({regionId:regionId,regionSetId:regionSetId,copyName:copyRegionName}); 
+    await copyRegionMutation.mutateAsync({regionId:regionId,regionSetId:regionSetId,copyName:copyRegionName}); 
     onClosePasteRegionSetModal();
-    return result;
   };
   const onClosePasteRegionSetModal=()=>{
       setRegionSetForPasteRegion(null); // ✅ Clear parent = close modal

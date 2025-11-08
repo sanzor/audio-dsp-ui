@@ -1,3 +1,5 @@
+import type { TrackMeta } from "@/Domain/Track/TrackMeta";
+
 export interface CopyTrackResult{
-    copy_track_id:string
+    track:TrackMeta
 }

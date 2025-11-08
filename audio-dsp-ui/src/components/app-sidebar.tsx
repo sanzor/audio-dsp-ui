@@ -23,13 +23,8 @@ import {
 } from "@/components/ui/sidebar"
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions"
 import { Button } from "./ui/button"
-import type { RightClickContext, SelectedContext } from "./dashboard"
-import { useState } from "react"
-import { DetailsTrackModal } from "./modals/details-track-modal"
-import type { TrackRegion } from "@/Domain/Region/TrackRegion"
-import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet"
-import { useRegionSets } from "@/Providers/UseRegionSets"
-
+import type { RightClickContext } from "./dashboard"
+import type { SelectedContext } from "@/Providers/UIStateProvider"
 
 // This is sample data.
 const data = {
@@ -104,79 +99,26 @@ const data = {
   projects: [
   ],
 }
-export interface AppSidebarProps{
-  tracks: TrackMetaWithRegions[],                         // <- or with regions if needed
-  onAddTrackClick: () => void,
-  onRightClick:(context:RightClickContext)=>void,
-  onSelect:(ctx:SelectedContext)=>void,
-  onCreateRegionSet:(trackId:string)=>void
-  onDetailTrack:(trackId:string)=>void,
-  onRemoveTrack: (trackId: string) => void,
-  onRenameTrack:(trackId:string)=>void,
-  onCopyTrack:(trackId:string)=>void;
-  onPasteTrack:()=>void
-};
+export interface AppSidebarProps {
+  tracks: TrackMetaWithRegions[];
+  onAddTrackClick: () => void;
+  onRightClick: (context: RightClickContext) => void;
+  onSelect: (ctx: SelectedContext) => void;
+}
 
-export function AppSidebar({ tracks,
-
-}:AppSidebarProps) {
-  
-  const [detailsTrackModalOpen,setDetailsTrackModalOpen]=useState(false);
-  const [detailedTrack,setDetailedTrack]=useState<TrackMetaWithRegions|null>(null);
-
-
-  const selectTrack=(trackId:string)=>{
-      onSelect(trackId);
-  }
-  const addTrackClick=():void=>{
-      onAddTrack();
+export function AppSidebar({
+  tracks,
+  onAddTrackClick,
+  onRightClick,
+  onSelect,
+}: AppSidebarProps) {
+  const handleSelectTrack = (trackId: string) => {
+    onSelect({ type: "track", trackId });
   };
 
-  const createRegionSet=(elem:string)=>{
-    onCreateRegionSet(elem);
-  }
-
-   const onDetailsTrackClick=(trackId:string)=>{
-    const track=tracks.find(x=>x.track_id===trackId);
-    if(!track){
-      return;
-    }
-    setDetailedTrack({...track,regions:[]});
-    setDetailsTrackModalOpen(true);
-  };
-  const onCloseDetailsTrack=()=>{
-    setDetailsTrackModalOpen(false);
-  }
-  const onCopyTrackClick=(trackId:string)=>{
-     const track=tracks.find(x=>x.track_id==trackId);
-     if(!track){
-      return;
-     }
-     console.log("Copied track");
-     setCopiedTrack({...track,regions:[]});
-     //notify user copy took place
-
-  };
- 
-  const removeTrack=(elem:string)=>{
-      onRemoveTrack(elem);
-  }
-  const renameTrack=(elem:string)=>{
-     onRenameTrack(elem);
-  }
-
-  const copyTrack=(elem:string)=>{
-    onCopyTrack(elem);
-  }
-  const pasteTrack=()=>{
-    onPasteTrack();
-  }
-  const rightClick=(context:RightClickContext)=>{
+  const handleRightClick = (context: RightClickContext) => {
     onRightClick(context);
-  }
-  React.useEffect(()=>{
-    console.log("Tracks from app-sidebar",tracks);
-  },[tracks])
+  };
   return (
 
     <Sidebar collapsible="icon">
@@ -186,22 +128,16 @@ export function AppSidebar({ tracks,
       <SidebarContent>
         <div className="px-2">
           <Button
-           onClick={addTrackClick}
+           onClick={onAddTrackClick}
            className="w-full justify-left bg-green-600 hover:bg-green-700 text-white font-medium shadow-sm rounded-md !bg-green-600 !text-white">
           <Plus className="mr-2 h-5 w-5" />
           Add Track
         </Button>
         </div>
         <NavMain 
-        onRightClick={rightClick}
-        onSelect={selectTrack}
-        onPaste={pasteTrack} 
-        onCreateRegionSet={createRegionSet} 
-         onDetails={onDetailsTrackClick} 
-         onRemove={removeTrack} 
-         onRename={renameTrack} 
-         onCopy={copyTrack} 
-         tracks={tracks} />
+        onRightClick={handleRightClick}
+        onSelect={onSelect}
+        tracks={tracks} />
         {/* <NavProjects tracks={tracks} onRemoveTrack={removeTrack} /> ✅ Here */}
       </SidebarContent>
       <SidebarFooter>
@@ -210,13 +146,6 @@ export function AppSidebar({ tracks,
 
       <SidebarRail />
 
-
-
-      {detailedTrack &&<DetailsTrackModal
-                  open={detailsTrackModalOpen}
-                  track={{...detailedTrack,regions:[]}}
-                  onClose={onCloseDetailsTrack}>
-      </DetailsTrackModal>}
     </Sidebar>
   )
 }

@@ -4,7 +4,8 @@
 import { useRegionSetStore } from "@/Stores/RegionSetStore";
 import type { TrackMeta } from "@/Domain/Track/TrackMeta";
 import type { NormalizedTrackMeta } from "@/Domain/Track/NormalizedTrackMeta";
-import { normalizeRegionSetWithCascade } from "../RegionSets/utils";
+import { cascadeDeleteRegionSet, normalizeRegionSetWithCascade } from "../RegionSets/utils";
+import { useTrackStore } from "@/Stores/TrackStore";
 
 
 /**
@@ -18,7 +19,7 @@ export const normalizeTrackWithCascade = (
 
   // Cascade to children: normalize each region and update RegionStore
   for (const regionSet of trackApi.regionSets) {
-    // normalizeRegion handles its own cascade (Graph -> Nodes/Edges)
+    // normalizeRegion handles its ow n cascade (Graph -> Nodes/Edges)
     const normalizedRegionSet = normalizeRegionSetWithCascade(regionSet);
     
     // Update the child store
@@ -32,24 +33,25 @@ export const normalizeTrackWithCascade = (
   return {
     ...rest,
     region_sets_ids: regionSetsIds,
+
   };
 }
 
-export const cascadeDeleteRegionSet = (setId: string): void => {
+export const cascadeDeleteTrack = (trackId: string): void => {
   // 1. Get store accessors (using .getState() because we're outside React)
-  const getRegionSet = useRegionSetStore.getState().getRegionSet;
-  const removeRegionSet = useRegionSetStore.getState().removeRegionSet;
+  const getTrack = useTrackStore.getState().getTrack;
+  const removeTrack = useTrackStore.getState().removeTrack;
 
   // 2. Get the entity to find its children
-  const regionSet = getRegionSet(setId);
-  if (!regionSet) return; // Already deleted or doesn't exist
+  const trackToDelete = getTrack(trackId);
+  if (!trackToDelete) return; // Already deleted or doesn't exist
 
-  // 3. CASCADE DOWN: Delete all child regions first
-  //    Each child deletion will cascade further (Region → Graph → Nodes/Edges)
-  for (const regionId of regionSet.region_ids) {
-    cascadeDeleteRegion(regionId); // This recursively deletes Graph, Nodes, Edges
+  // 3. CASCADE DOWN: Delete all child region sets first
+  //    Each child deletion will cascade further (Region Set -> Region → Graph → Nodes/Edges)
+  for (const regionId of trackToDelete.region_sets_ids) {
+    cascadeDeleteRegionSet(regionId); // This recursively deletes Graph, Nodes, Edges
   }
 
   // 4. DELETE PARENT: Finally, remove this RegionSet from its store
-  removeRegionSet(setId);
+  removeTrack(trackId);
 };

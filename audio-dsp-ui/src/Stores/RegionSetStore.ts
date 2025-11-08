@@ -3,13 +3,6 @@
 import type { NormalizedTrackRegionSet } from '@/Domain/RegionSet/NormalizedTrackRegionSet';
 import { create } from 'zustand';
 
-
-
-
-// ----------------------------------------------------
-// 1. Normalized State & Action Definitions
-// ----------------------------------------------------
-
 type RegionSetCache = Map<string, NormalizedTrackRegionSet>;
 
 interface RegionSetState {
@@ -18,85 +11,84 @@ interface RegionSetState {
 }
 
 interface RegionSetActions {
-    // CRUD Operations for the Set itself
     getRegionSet: (setId: string) => NormalizedTrackRegionSet | undefined;
     setAllRegionSets: (sets: NormalizedTrackRegionSet[]) => void;
     addRegionSet: (set: NormalizedTrackRegionSet) => void;
     removeRegionSet: (setId: string) => void;
     updateRegionSet: (setId: string, updates: Partial<NormalizedTrackRegionSet>) => void;
+    attachRegion: (setId: string, regionId: string) => void;
+    detachRegion: (setId: string, regionId: string) => void;
 }
 
 type RegionSetStore = RegionSetState & RegionSetActions;
 
-// ----------------------------------------------------
-// 2. Zustand Store Implementation
-// ----------------------------------------------------
+const updateRegionIds = (
+    entity: NormalizedTrackRegionSet,
+    updater: (regionIds: string[]) => string[]
+): NormalizedTrackRegionSet => ({
+    ...entity,
+    region_ids: updater(entity.region_ids ?? []),
+});
 
 export const useRegionSetStore = create<RegionSetStore>((set, get) => ({
     regionSets: new Map(),
     loading: true,
 
-    // --- CRUD ---
-
     setAllRegionSets: (newRegionSets) => {
-        const setMap = new Map<string, NormalizedTrackRegionSet>(); 
-        newRegionSets.forEach(s => setMap.set(s.id, s));
+        const setMap = new Map<string, NormalizedTrackRegionSet>();
+        newRegionSets.forEach((s) => setMap.set(s.id, s));
         set({ regionSets: setMap, loading: false });
     },
 
-    getRegionSet: (setId) => {
-        return get().regionSets.get(setId);
-    },
+    getRegionSet: (setId) => get().regionSets.get(setId),
 
-    addRegionSet: (setToAdd) => set((state) => {
-        const newMap = new Map(state.regionSets); 
-        newMap.set(setToAdd.id, setToAdd); 
-        return { regionSets: newMap };
-    }),
+    addRegionSet: (setToAdd) =>
+        set((state) => {
+            const newMap = new Map(state.regionSets);
+            newMap.set(setToAdd.id, setToAdd);
+            return { regionSets: newMap };
+        }),
 
-    removeRegionSet: (setId) => set((state) => {
-        const newMap = new Map(state.regionSets); 
-        newMap.delete(setId); 
-        return { regionSets: newMap };
-    }),
+    removeRegionSet: (setId) =>
+        set((state) => {
+            const newMap = new Map(state.regionSets);
+            newMap.delete(setId);
+            return { regionSets: newMap };
+        }),
 
-    updateRegionSet: (setId, updates) => set((state) => {
-        const setEntity = state.regionSets.get(setId);
-        if (!setEntity) return state;
+    updateRegionSet: (setId, updates) =>
+        set((state) => {
+            const setEntity = state.regionSets.get(setId);
+            if (!setEntity) return state;
 
-        const newMap = new Map(state.regionSets);
-        newMap.set(setId, { ...setEntity, ...updates });
-        return { regionSets: newMap };
-    }),
-    
-    // --- Relationship Management ---
+            const newMap = new Map(state.regionSets);
+            newMap.set(setId, { ...setEntity, ...updates });
+            return { regionSets: newMap };
+        }),
 
-    // addRegionId: (setId, regionId) => set((state) => {
-    //     const setEntity = state.regionSets.get(setId);
-    //     if (!setEntity) return state;
+    attachRegion: (setId, regionId) =>
+        set((state) => {
+            const setEntity = state.regionSets.get(setId);
+            if (!setEntity) return state;
 
-    //     const newMap = new Map(state.regionSets);
-    //     newMap.set(setId, {
-    //         ...setEntity,
-    //         // Add the new ID to the existing array, ensuring uniqueness if necessary
-    //         region_ids: [...setEntity.region_ids, regionId],
-    //     } as NormalizedRegionSet); // Cast may be needed if TS complains about merging TrackRegionSet
-        
-    //     return { regionSets: newMap };
-    // }),
-    
-    // removeRegionId: (setId, regionId) => set((state) => {
-    //     const setEntity = state.regionSets.get(setId);
-    //     if (!setEntity) return state;
+            const updated = updateRegionIds(setEntity, (ids) =>
+                ids.includes(regionId) ? ids : [...ids, regionId]
+            );
 
-    //     const newRegionIds = setEntity.region_ids.filter(id => id !== regionId);
+            const newMap = new Map(state.regionSets);
+            newMap.set(setId, updated);
+            return { regionSets: newMap };
+        }),
 
-    //     const newMap = new Map(state.regionSets);
-    //     newMap.set(setId, {
-    //         ...setEntity,
-    //         region_ids: newRegionIds,
-    //     } as NormalizedRegionSet);
-        
-    //     return { regionSets: newMap };
-    // }),
+    detachRegion: (setId, regionId) =>
+        set((state) => {
+            const setEntity = state.regionSets.get(setId);
+            if (!setEntity) return state;
+
+            const updated = updateRegionIds(setEntity, (ids) => ids.filter((id) => id !== regionId));
+
+            const newMap = new Map(state.regionSets);
+            newMap.set(setId, updated);
+            return { regionSets: newMap };
+        }),
 }));

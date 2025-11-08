@@ -9,6 +9,11 @@ import type { RemoveTrackResult } from '@/Dtos/Tracks/RemoveTrackResult'
 import { useAuth } from '@/Auth/UseAuth'
 import type { UpdateTrackParams } from '@/Dtos/Tracks/UpdateTrackParams'
 import type { UpdateTrackResult } from '@/Dtos/Tracks/UpdateTrackResult'
+import { normalizeTrackWithCascade } from '@/Orchestrators/Tracks/utils'
+import { useTrackStore } from '@/Stores/TrackStore'
+import { useRegionSetStore } from '@/Stores/RegionSetStore'
+import { useRegionStore } from '@/Stores/RegionStore'
+import { useGraphStore } from '@/Stores/GraphStore'
 
 
 // --- Types
@@ -30,6 +35,20 @@ interface TracksProviderProps {
 export const TrackContext = createContext<TrackContextType | null>(null)
 
 // --- Provider
+const syncStoresWithTracks = (tracks: TrackMeta[]): void => {
+  const setAllTracks = useTrackStore.getState().setAllTracks;
+  const resetRegionSets = useRegionSetStore.getState().setAllRegionSets;
+  const resetRegions = useRegionStore.getState().setAllRegions;
+  const resetGraphs = useGraphStore.getState().setAllGraphs;
+
+  resetRegionSets([]);
+  resetRegions([]);
+  resetGraphs([]);
+
+  const normalized = tracks.map(normalizeTrackWithCascade);
+  setAllTracks(normalized);
+};
+
 export const TracksProvider = ({ children }: TracksProviderProps) => {
   const { user, loading: authLoading } = useAuth(); // ✅ correctly rename this
   const [tracks, setTracks] = useState<TrackMeta[]>([]);
@@ -43,6 +62,7 @@ export const TracksProvider = ({ children }: TracksProviderProps) => {
    
     const data = await apiGetTracks();
     setTracks(data);
+    syncStoresWithTracks(data);
     // console.log("✅ Fetched tracks:", data);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {

@@ -1,92 +1,110 @@
-import type { TrackMeta } from '@/Domain/Track/TrackMeta'
-import {create} from 'zustand'
+import type { NormalizedTrackMeta } from '@/Domain/Track/NormalizedTrackMeta';
+import { create } from 'zustand';
 
-type TrackCache=Map<string,TrackMeta>;
-interface TrackState{
-    tracks:TrackCache,
-    loading:boolean
-}
-interface TrackActions{
-    getTrack:(trackId:string)=>TrackMeta|undefined;
-    addTrack:(track:TrackMeta)=>void;
-    removeTrack:(trackId:string)=>void;
-    updateTrack:(trackId:string,trackMeta:Partial<TrackMeta>)=>void
-    setAllTracks:(tracks:[TrackMeta])=>void
+type TrackCache = Map<string, NormalizedTrackMeta>;
 
+interface TrackState {
+    tracks: TrackCache;
+    loading: boolean;
 }
 
-type TrackStore=TrackState & TrackActions;
+interface TrackActions {
+    getTrack: (trackId: string) => NormalizedTrackMeta | undefined;
+    addTrack: (track: NormalizedTrackMeta) => void;
+    removeTrack: (trackId: string) => void;
+    updateTrack: (trackId: string, trackMeta: Partial<NormalizedTrackMeta>) => void;
+    setAllTracks: (tracks: NormalizedTrackMeta[]) => void;
+    attachRegionSet: (trackId: string, regionSetId: string) => void;
+    detachRegionSet: (trackId: string, regionSetId: string) => void;
+}
+
+type TrackStore = TrackState & TrackActions;
+
+const updateTrackRegionSets = (
+    track: NormalizedTrackMeta,
+    updater: (regionSetIds: string[]) => string[]
+): NormalizedTrackMeta => {
+    const currentIds = track.region_sets_ids ?? [];
+    return {
+        ...track,
+        region_sets_ids: updater(currentIds),
+    };
+};
 
 export const useTrackStore = create<TrackStore>((set, get) => ({
     tracks: new Map(),
     loading: true,
 
-    // --- Already implemented ---
     setAllTracks: (newTracks) => {
-        const trackMap = new Map<string, TrackMeta>(); 
-        newTracks.forEach(t => trackMap.set(t.track_id, t));
-        set({ 
-            tracks: trackMap, 
-            loading: false 
+        const trackMap = new Map<string, NormalizedTrackMeta>();
+        newTracks.forEach((t) => trackMap.set(t.track_id, t));
+        set({
+            tracks: trackMap,
+            loading: false,
         });
     },
 
-    // ----------------------------------------------------
-    // ✅ getTrack: Use the 'get' function to read state.
-    // ----------------------------------------------------
-    getTrack: (trackId: string): TrackMeta | undefined => {
-        // Use the 'get()' function to synchronously retrieve the current state
+    getTrack: (trackId: string): NormalizedTrackMeta | undefined => {
         return get().tracks.get(trackId);
     },
 
-    // ----------------------------------------------------
-    // ✅ addTrack: Update the state immutably using 'set'.
-    // ----------------------------------------------------
-    addTrack: (track: TrackMeta): void => {
+    addTrack: (track: NormalizedTrackMeta): void => {
         set((state) => {
-            // 1. Create a new Map based on the current tracks
-            const newMap = new Map(state.tracks); 
-            // 2. Add the new track
-            newMap.set(track.track_id, track); 
-            // 3. Return the new state object with the updated map
+            const newMap = new Map(state.tracks);
+            newMap.set(track.track_id, track);
             return { tracks: newMap };
         });
     },
 
-    // ----------------------------------------------------
-    // ✅ removeTrack: Update the state immutably using 'set'.
-    // ----------------------------------------------------
     removeTrack: (trackId: string): void => {
         set((state) => {
-            // 1. Create a new Map based on the current tracks
-            const newMap = new Map(state.tracks); 
-            // 2. Delete the track by ID
-            newMap.delete(trackId); 
-            // 3. Return the new state object
+            const newMap = new Map(state.tracks);
+            newMap.delete(trackId);
             return { tracks: newMap };
         });
     },
 
-    // ----------------------------------------------------
-    // ✅ updateTrack: Update a property on a single track.
-    // ----------------------------------------------------
-    // Assuming updateTrack takes the ID and the new partial data/properties to merge
-    // This example assumes TrackActions interface was: updateTrack(trackId: string, updates: Partial<TrackMeta>): void
-    updateTrack: (trackId: string, updates: Partial<TrackMeta>): void => {
+    updateTrack: (trackId: string, updates: Partial<NormalizedTrackMeta>): void => {
         set((state) => {
             const trackToUpdate = state.tracks.get(trackId);
-            if (!trackToUpdate) return state; // Guard against missing track
+            if (!trackToUpdate) return state;
 
-            // 1. Create a new Map
             const newMap = new Map(state.tracks);
-            
-            // 2. Create a new, updated track object and set it in the new Map
-            newMap.set(trackId, { 
-                ...trackToUpdate, 
-                ...updates 
+            newMap.set(trackId, {
+                ...trackToUpdate,
+                ...updates,
             });
 
-            // 3. Return the new state object
+            return { tracks: newMap };
+        });
+    },
+
+    attachRegionSet: (trackId: string, regionSetId: string) => {
+        set((state) => {
+            const track = state.tracks.get(trackId);
+            if (!track) return state;
+
+            const updatedTrack = updateTrackRegionSets(track, (ids) =>
+                ids.includes(regionSetId) ? ids : [...ids, regionSetId]
+            );
+
+            const newMap = new Map(state.tracks);
+            newMap.set(trackId, updatedTrack);
+            return { tracks: newMap };
+        });
+    },
+
+    detachRegionSet: (trackId: string, regionSetId: string) => {
+        set((state) => {
+            const track = state.tracks.get(trackId);
+            if (!track) return state;
+
+            const updatedTrack = updateTrackRegionSets(track, (ids) =>
+                ids.filter((id) => id !== regionSetId)
+            );
+
+            const newMap = new Map(state.tracks);
+            newMap.set(trackId, updatedTrack);
             return { tracks: newMap };
         });
     },

@@ -1,114 +1,101 @@
-// /src/Hooks/RegionSet/useRegionSetMutations.ts
-
 import { useMutation, useQueryClient } from 'react-query';
-
-
-
-import type { CreateRegionSetResult } from '@/Dtos/RegionSets/CreateRegionSetResult';
-import type { NormalizedTrackRegionSet } from '@/Domain/RegionSet/NormalizedTrackRegionSet';
-import type { AddTrackResult } from '@/Dtos/Tracks/AddTrackResult';
-import type { AddTrackParams } from '@/Dtos/Tracks/AddTrackParams';
 import { useTrackStore } from '@/Stores/TrackStore';
-import { apiCopyTrack } from '@/Services/TracksService';
 import type { CopyTrackParams } from '@/Dtos/Tracks/CopyTrackParams';
+import type { CopyTrackResult } from '@/Dtos/Tracks/CopyTrackResult';
+import type { RemoveTrackParams } from '@/Dtos/Tracks/RemoveTrackParams';
+import type { RemoveTrackResult } from '@/Dtos/Tracks/RemoveTrackResult';
+import type { NormalizedTrackMeta } from '@/Domain/Track/NormalizedTrackMeta';
+import { apiCopyTrack, apiRemoveTrack } from '@/Services/TracksService';
+import { normalizeTrackWithCascade, cascadeDeleteTrack } from './utils';
 
 /**
- * Copy RegionSet Mutation
+ * Copy Track Mutation
  * - Calls API to copy the entire tree
  * - Cascades normalization through all child stores
  * - Invalidates relevant queries
  */
 export const useCopyTrack = () => {
   const queryClient = useQueryClient();
-  const addRegionSet = useTrackStore(state => state.addTrack);
+  const addTrack = useTrackStore(state => state.addTrack);
 
-  return useMutation<AddTrackResult, Error, AddTrackParams>({
-    mutationFn: (copySetParams: CopyTrackParams) => apiCopyTrack(copySetParams),
-    
-    onSuccess: (data: CreateRegionSetResult) => {
-      // 1. Normalize the entire tree (cascades to Region, Graph, Nodes, Edges stores)
-      const normalizedCopy = normalizeTr(data.region_set);
+  // ✅ FIX: Correct types - CopyTrackResult and CopyTrackParams
+  return useMutation<CopyTrackResult, Error, CopyTrackParams>(
+    (copyParams: CopyTrackParams) => apiCopyTrack(copyParams),
+    {
+      onSuccess: (data: CopyTrackResult) => {
+        // 1. Normalize the entire tree (cascades to RegionSet, Region, Graph, Nodes, Edges stores)
+        const normalizedCopy = normalizeTrackWithCascade(data.track);
+        
+        // 2. Add the new copy to TrackStore
+        addTrack(normalizedCopy);
+        
+        // 3. Invalidate queries to refresh UI
+        queryClient.invalidateQueries(['tracks']);
+        
+        // Optionally set the new data directly to avoid refetch
+        queryClient.setQueryData(
+          ['track', normalizedCopy.track_id],
+          normalizedCopy
+        );
+      },
       
-      // 2. Add the new copy to RegionSetStore
-      addRegionSet(normalizedCopy);
-      
-      // 3. Invalidate queries to refresh UI
-      // Invalidate the parent track's region sets list
-      const trackId = normalizedCopy.track_id;
-      queryClient.invalidateQueries(['regionSets', 'track', trackId]);
-      
-      // Optionally set the new data directly to avoid refetch
-      queryClient.setQueryData(
-        ['regionSet', normalizedCopy.id],
-        normalizedCopy
-      );
-    },
-    
-    onError: (error: Error) => {
-      console.error('Failed to copy region set:', error);
-      // Could add toast notification here
-    },
-  });
+      onError: (error: Error) => {
+        console.error('Failed to copy track:', error);
+        // Could add toast notification here
+      },
+    }
+  );
 };
 
 /**
- * Delete RegionSet Mutation
+ * Delete Track Mutation
  * - Calls API to delete
  * - Cascades deletion through all child stores
  * - Invalidates relevant queries
  */
-export const useDeleteRegionSet = () => {
+export const useDeleteTrack = () => {
   const queryClient = useQueryClient();
-  const getRegionSet = useRegionSetStore(state => state.getRegionSet);
+  const getTrack = useTrackStore(state => state.getTrack);
 
-  return useMutation<void, Error, RemoveRegionSetParams, { previousSet?: NormalizedTrackRegionSet }>(
-    (removeSetParams: RemoveRegionSetParams) => apiRemoveRegionSet(removeSetParams),
+  return useMutation<RemoveTrackResult, Error, RemoveTrackParams, { previousTrack?: NormalizedTrackMeta }>(
+    (removeParams: RemoveTrackParams) => apiRemoveTrack(removeParams),
     {
       // Optimistic update: remove from store immediately
-      onMutate: async (removeSetParams: RemoveRegionSetParams) => {
-        const setId = removeSetParams.region_set_id; // Adjust based on your params structure
+      onMutate: async (removeParams: RemoveTrackParams) => {
+        const trackId = removeParams.trackId;
         
         // Cancel outgoing refetches
-        await queryClient.cancelQueries(['regionSet', setId]);
+        await queryClient.cancelQueries(['track', trackId]);
         
         // Snapshot the current value for rollback
-        const previousSet = getRegionSet(setId);
+        const previousTrack = getTrack(trackId);
         
         // Optimistically remove from all stores
-        if (previousSet) {
-          cascadeDeleteRegionSet(setId);
+        if (previousTrack) {
+          cascadeDeleteTrack(trackId);
         }
         
-        return { previousSet };
+        return { previousTrack };
       },
       
-      onSuccess: (_, removeSetParams, context) => {
-        const setId = removeSetParams.region_set_id;
+      onSuccess: (_, removeParams, context) => {
+        const trackId = removeParams.trackId;
         
-        // Invalidate parent track's region sets list
-        if (context?.previousSet) {
-          queryClient.invalidateQueries([
-            'regionSets', 
-            'track', 
-            context.previousSet.track_id
-          ]);
+        // Invalidate parent project's tracks list
+        if (context?.previousTrack) {
+          queryClient.invalidateQueries(['tracks']);
         }
         
         // Remove the individual query
-        queryClient.removeQueries(['regionSet', setId]);
+        queryClient.removeQueries(['track', trackId]);
       },
       
-      onError: (error: Error, removeSetParams, context) => {
-        console.error('Failed to delete region set:', error);
+      onError: (error: Error, removeParams, context) => {
+        console.error('Failed to delete track:', error);
         
-        // Rollback: restore the entity if we have the snapshot
-        if (context?.previousSet) {
-          const addRegionSet = useRegionSetStore.getState().addRegionSet;
-          addRegionSet(context.previousSet);
-          
-          // Also need to restore children - implement rollback cascade
-          // For now, invalidate to refetch everything
-          queryClient.invalidateQueries(['regionSet', removeSetParams.region_set_id]);
+        if (context?.previousTrack) {
+          queryClient.invalidateQueries(['track', removeParams.trackId]);
+          queryClient.invalidateQueries(['tracks']);
         }
       },
     }
@@ -116,35 +103,51 @@ export const useDeleteRegionSet = () => {
 };
 
 /**
- * Rename RegionSet Mutation (simpler example)
+ * Rename Track Mutation (simpler example)
  */
-export const useRenameRegionSet = () => {
+export const useRenameTrack = () => {
   const queryClient = useQueryClient();
-  const updateRegionSet = useRegionSetStore(state => state.updateRegionSet);
+  const updateTrack = useTrackStore(state => state.updateTrack);
+  const getTrack = useTrackStore(state => state.getTrack);
 
   return useMutation<
     void,
     Error,
-    { setId: string; newName: string }
-  >({
-    mutationFn: async ({ setId, newName }) => {
-      const response = await fetch(`/api/region-sets/${setId}`, {
+    { trackId: string; newName: string },
+    { previousTrack?: NormalizedTrackMeta }
+  >(
+    async ({ trackId, newName }) => {
+      const response = await fetch(`/api/tracks/${trackId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newName }),
       });
-      if (!response.ok) throw new Error('Failed to rename');
+      if (!response.ok) throw new Error('Failed to rename track');
     },
-    
-    onMutate: async ({ setId, newName }) => {
-      // Optimistic update
-      updateRegionSet(setId, { name: newName });
-    },
-    
-    onSuccess: (_, { setId }) => {
-      queryClient.invalidateQueries(['regionSet', setId]);
-    },
-  });
+    {
+      onMutate: async ({ trackId, newName }) => {
+        const previousTrack = getTrack(trackId);
+        if (previousTrack) {
+          updateTrack(trackId, {
+            track_info: {
+              ...previousTrack.track_info,
+              name: newName,
+            },
+          });
+        }
+
+        return { previousTrack };
+      },
+      
+      onError: (_, { trackId }, context) => {
+        if (context?.previousTrack) {
+          updateTrack(trackId, context.previousTrack);
+        }
+      },
+
+      onSettled: (_, __, { trackId }) => {
+        queryClient.invalidateQueries(['track', trackId]);
+      },
+    }
+  );
 };
-
-

@@ -207,13 +207,13 @@ export function RegionSetController({
        {clipboard?.type === "region" && 
        pasteSourceRegion && 
        regionSetForPasteRegion && (
-        <PasteRegionModal 
-          destRegionSetId={regionSetForPasteRegion.regionSetId}
-          regionToCopy={pasteSourceRegion}
-          open={Boolean(regionSetForPasteRegion)}
-          onSubmit={onPasteRegionSubmit}
-          onClose={onClosePasteRegionSetModal}
-        />
+       <PasteRegionModal 
+         destRegionSetId={regionSetForPasteRegion.regionSetId}
+          regionToCopy={pasteSourceRegion ?? null}
+         open={Boolean(regionSetForPasteRegion)}
+         onSubmit={onPasteRegionSubmit}
+         onClose={onClosePasteRegionSetModal}
+       />
       )}
     </>
   );

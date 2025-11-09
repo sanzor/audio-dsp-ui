@@ -39,7 +39,7 @@ export function RegionSetContextMenu({
         <ContextMenuItem onClick={() => {onRename(regionSetId,trackId);onClose();}}>Rename</ContextMenuItem>
          <ContextMenuItem onClick={() => {onCopy(regionSetId,trackId);onClose();}}>Copy</ContextMenuItem>
          <ContextMenuItem onClick={() => {onRemove(regionSetId,trackId);onClose();}}>Delete</ContextMenuItem>
-         <ContextMenuItem disabled={canPaste} onClick={()=>onPaste(regionSetId,trackId)}>Paste</ContextMenuItem>
+         <ContextMenuItem disabled={!canPaste} onClick={()=>onPaste(regionSetId,trackId)}>Paste</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

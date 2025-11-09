@@ -4,10 +4,10 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
-import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
+import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
 
 export interface RenameRegionSetProps {
-  regionSetToRename: TrackRegionSet | null; // 👈 allow null
+  regionSetToRename: TrackRegionSetViewModel | null; // 👈 allow null
   open: boolean;
   onClose: () => void;
   onSubmit: (trackId:string,regionSetId: string, newName: string) => void;
@@ -19,21 +19,18 @@ export function RegionSetRenameModal({
   onClose,
   onSubmit,
 }: RenameRegionSetProps) {
-  
-
-  const [regionSetName, setRegionSetName] = useState(regionSet?.name);
+  const [regionSetName, setRegionSetName] = useState(regionSet?.name ?? "");
 
   useEffect(() => {
-    console.log("inside rename modal");
-    setRegionSetName(regionSetName); // Reset when modal opens
-  }, [regionSetName, open]);
+    setRegionSetName(regionSet?.name ?? "");
+  }, [regionSet?.name, open]);
 
   const handleSubmit = () => {
-  if (regionSet && regionSetName?.trim()) {
-    onSubmit(regionSet.track_id,regionSet.name, regionSetName.trim());
-    onClose();
-  }
-};
+    if (regionSet && regionSetName.trim()) {
+      onSubmit(regionSet.track_id, regionSet.id, regionSetName.trim());
+      onClose();
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

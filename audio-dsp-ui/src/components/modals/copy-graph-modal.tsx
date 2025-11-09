@@ -2,30 +2,29 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
-import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
 
-export interface RenameRegionProps {
-  regionToRename: TrackRegionViewModel | null; // 👈 allow null
+interface CopyGraphModalProps {
+  sourceGraphName: string;
   open: boolean;
   onClose: () => void;
-  onSubmit: (regionId: string, newName: string) => void;
+  onSubmit: (copyName: string) => void;
 }
 
-export function RegionRenameModal({
-  regionToRename,
+export function CopyGraphModal({
+  sourceGraphName,
   open,
   onClose,
   onSubmit,
-}: RenameRegionProps) {
-  const [regionName, setRegionName] = useState(regionToRename?.name ?? "");
+}: CopyGraphModalProps) {
+  const [graphName, setGraphName] = useState(sourceGraphName);
 
   useEffect(() => {
-    setRegionName(regionToRename?.name ?? "");
-  }, [regionToRename?.name, open]);
+    setGraphName(sourceGraphName);
+  }, [sourceGraphName, open]);
 
   const handleSubmit = () => {
-    if (regionToRename && regionName.trim()) {
-      onSubmit(regionToRename.region_id, regionName.trim());
+    if (graphName.trim()) {
+      onSubmit(graphName.trim());
       onClose();
     }
   };
@@ -34,12 +33,12 @@ export function RegionRenameModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Rename Region</DialogTitle>
+          <DialogTitle>Paste Graph</DialogTitle>
         </DialogHeader>
         <Input
-          value={regionName}
-          onChange={(e) => setRegionName(e.target.value)}
-          placeholder="Enter new name"
+          value={graphName}
+          onChange={(e) => setGraphName(e.target.value)}
+          placeholder="Enter graph name"
         />
         <DialogFooter className="mt-4">
           <Button variant="outline" onClick={onClose}>

@@ -4,10 +4,10 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
-import type { TrackRegion } from "@/Domain/Region/TrackRegion";
+import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
 
 export interface PasteRegionModalProps {
-  regionToCopy: TrackRegion | null; // 👈 allow null
+  regionToCopy: TrackRegionViewModel | null; // 👈 allow null
   destRegionSetId:string,
   open: boolean;
   onClose: () => void;
@@ -21,20 +21,18 @@ export function PasteRegionModal({
   onClose,
   onSubmit,
 }: PasteRegionModalProps) {
-  
-
-  const [copyRegionName, setCopyRegionName] = useState(regionToCopy?.name);
+  const [copyRegionName, setCopyRegionName] = useState(regionToCopy?.name ?? "");
 
   useEffect(() => {
     setCopyRegionName(regionToCopy?.name ?? "");
     }, [regionToCopy?.name, open]);
 
   const handleSubmit = () => {
-    if (copyRegionName?.trim() && regionToCopy?.region_set_id) {
-    onSubmit(destRegionSetId,regionToCopy.region_id, copyRegionName.trim());
-    onClose();
+    if (regionToCopy && copyRegionName.trim()) {
+      onSubmit(destRegionSetId, regionToCopy.region_id, copyRegionName.trim());
+      onClose();
     }
-};
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

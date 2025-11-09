@@ -6,8 +6,8 @@ import type { CreateGraphResult } from "@/Dtos/Graphs/CreateGraphResult";
 import type { EditGraphParams } from "@/Dtos/Graphs/EditGraphParams";
 import type { EditGraphResult } from "@/Dtos/Graphs/EditGraphResult";
 import type { RemoveGraphParams } from "@/Dtos/Graphs/RemoveGraphParams";
-import type { CopyRegionSetParams } from "@/Dtos/RegionSets/CoyRegionSetParams";
-import type { CreateRegionSetResult } from "@/Dtos/RegionSets/CreateRegionSetResult";
+import type { CopyGraphParams } from "@/Dtos/Graphs/CopyGraphParams";
+import type { CopyGraphResult } from "@/Dtos/Graphs/CopyGraphResult";
 
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -63,7 +63,7 @@ export async function apiUpdateGraph(params: EditGraphParams): Promise<EditGraph
 }
 
 export async function apiRemoveGraph(params: RemoveGraphParams): Promise<void> {
-  const res = await fetch(`${BASE_URL}/region-sets/remove?region_set_id=${params.graph_id}`, {
+  const res = await fetch(`${BASE_URL}/graphs/remove?graph_id=${params.graph_id}`, {
     method: 'DELETE',
     credentials: 'include'
   });
@@ -71,9 +71,8 @@ export async function apiRemoveGraph(params: RemoveGraphParams): Promise<void> {
   if (!res.ok) throw new Error('Refresh token failed');
 }
 
-export async function apiCopyGraph(params: CopyRegionSetParams): Promise<CreateRegionSetResult> {
-  console.log("a");
-  const res = await fetch(`${BASE_URL}/region-sets/create`, {
+export async function apiCopyGraph(params: CopyGraphParams): Promise<CopyGraphResult> {
+  const res = await fetch(`${BASE_URL}/graphs/copy`, {
     method: 'POST', // ✅ must be POST to send body
     credentials: 'include',
     headers: {
@@ -81,9 +80,8 @@ export async function apiCopyGraph(params: CopyRegionSetParams): Promise<CreateR
     },
     body: JSON.stringify(params),
   });
-  console.log(res.status);
   if (!res.ok) {
-    throw new Error(`Failed to update track: ${res.statusText}`);
+    throw new Error(`Failed to copy graph: ${res.statusText}`);
   }
   return await res.json();
 }

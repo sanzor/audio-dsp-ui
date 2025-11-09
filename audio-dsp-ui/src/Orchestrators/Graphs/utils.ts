@@ -7,7 +7,17 @@ type GraphWithChildren = Graph & {
   edges?: Array<{ id: string }>;
 };
 
-export const normalizeGraph = (graphApi: GraphWithChildren): NormalizedGraph => {
+type GraphLike = GraphWithChildren | NormalizedGraph | undefined | null;
+
+export const normalizeGraph = (graphApi: GraphLike): NormalizedGraph => {
+  if (!graphApi) {
+    throw new Error("Cannot normalize empty graph payload");
+  }
+
+  if ("nodes_ids" in graphApi || "edges_ids" in graphApi) {
+    return graphApi as NormalizedGraph;
+  }
+
   const { nodes, edges, ...rest } = graphApi;
 
   return {

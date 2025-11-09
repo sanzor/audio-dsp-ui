@@ -10,6 +10,8 @@ interface TrackContextMenuProps{
   onRename: (id: string) => void
   onCopy: (id: string) => void
   onDetails:(id:string)=>void
+  onPasteRegionSet:(id:string)=>void
+  canPasteRegionSet:boolean
 }
 
 export function TrackContextMenu({
@@ -22,6 +24,8 @@ export function TrackContextMenu({
   onRemove,
   onRename,
   onCopy,
+  onPasteRegionSet,
+  canPasteRegionSet,
 }: TrackContextMenuProps) {
   return (
     <ContextMenu>
@@ -34,6 +38,17 @@ export function TrackContextMenu({
         <ContextMenuItem onClick={() => {onDetails(trackId);onClose()}}>Details</ContextMenuItem>
         <ContextMenuItem onClick={() => {onRename(trackId);onClose();}}>Rename</ContextMenuItem>
         <ContextMenuItem onClick={() => {onCopy(trackId);onClose();}}>Copy</ContextMenuItem>
+        <ContextMenuItem 
+          disabled={!canPasteRegionSet}
+          onClick={() => {
+            if (canPasteRegionSet) {
+              onPasteRegionSet(trackId);
+            }
+            onClose();
+          }}
+        >
+          Paste Region Set
+        </ContextMenuItem>
         <ContextMenuItem onClick={() => {onRemove(trackId);onClose();}}>Delete</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

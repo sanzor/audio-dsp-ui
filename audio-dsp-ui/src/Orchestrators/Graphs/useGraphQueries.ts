@@ -39,9 +39,7 @@ export const useGetGraph = (graphId: string) => {
              addGraph(normalizedGraph); 
         },
 
-        initialData: cachedGraph,
-
         // Data that leaves the hook is NormalizedGraph | undefined
-        select: (data) => data ? normalizeGraph(data) : cachedGraph,
+        select: (data) => (data ? normalizeGraph(data) : cachedGraph),
     });
 };

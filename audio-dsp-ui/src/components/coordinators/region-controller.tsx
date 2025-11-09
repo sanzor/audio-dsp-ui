@@ -1,26 +1,26 @@
-
-// RegionSetController.tsx
-import {  useState } from "react";
-
-import { RegionSetContextMenu } from "../region-set-context-menu";
-import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
-import { useRegionSets } from "@/Providers/UseRegionSets";
-import { error } from "console";
+import { useMemo, useState } from "react";
 import type { RightClickContext } from "../dashboard";
-import { DetailsRegionSetModal } from "../modals/details-region-set-modal";
-import { useTracks } from "@/Providers/UseTracks";
-import { RegionSetRenameModal } from "../modals/rename-region-set-modal";
-import { PasteRegionModal } from "../modals/paste-region-modal";
-import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
-import { CreateRegionModal } from "../modals/create-region-modal";
+import { RegionContextMenu } from "../region-context-menu";
+import { DetailsRegionModal } from "../modals/details-region-modal";
+import { RegionRenameModal } from "../modals/rename-region-modal";
+import { CopyGraphModal } from "../modals/copy-graph-modal";
 import { useUIState } from "@/Providers/UseUIStateProvider";
-import type { TrackRegion } from "@/Domain/Region/TrackRegion";
-import type { CreateGraphParams } from "@/Dtos/Graphs/CreateGraphParams";
+import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
+import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
+import { useCopyRegion, useDeleteRegion, useEditRegion } from "@/Orchestrators/Regions/useRegionMutations";
+import { useCopyGraph } from "@/Orchestrators/Graphs/useGraphMutations";
+import { useGraphStore } from "@/Stores/GraphStore";
+import { useRegionStore } from "@/Stores/RegionStore";
 
 type RegionControllerProps = {
   rightClickContext: RightClickContext;
-  setRightClickContext: (ctx: RightClickContext) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setRightClickContext: (ctx: RightClickContext | null) => void;
+};
+
+type RegionSelection = {
+  region: TrackRegionViewModel;
+  trackId: string;
+  regionSetId: string;
 };
 
 export function RegionController({
@@ -28,233 +28,165 @@ export function RegionController({
   setRightClickContext,
 }: RegionControllerProps) {
   const { clipboard, setClipboard } = useUIState();
+  const trackMap = useTrackViewModelMap();
+  const copyRegion = useCopyRegion();
+  const deleteRegion = useDeleteRegion();
+  const editRegion = useEditRegion();
+  const copyGraph = useCopyGraph();
+  const updateRegionStore = useRegionStore(state => state.updateRegion);
 
-  const { 
-    removeRegion,
-    trackRegionSetsMap,updateRegion ,copyRegion,createRegion} = useRegionSets();
-  const { tracks } = useTracks();
-
-  const [regionForCreateGraph,setRegionForCreateGraph]=useState<{trackId:string,regionSetId:string,regionId:string}|null>(null);
-  const [detailedRegion, setDetailedRegion] = useState<TrackRegion | null>(null);
-  const [regionToRename,setRegionToRename]=useState<TrackRegionSet|null>(null);
-  const [regionForPasteGraph, setRegionForPasteGraph] = useState<{
+  const [regionForDetails, setRegionForDetails] = useState<RegionSelection | null>(null);
+  const [regionForRename, setRegionForRename] = useState<RegionSelection | null>(null);
+  const [graphPasteContext, setGraphPasteContext] = useState<{
+    region: TrackRegionViewModel;
     trackId: string;
     regionSetId: string;
-    regionId:string
+    graphId: string;
   } | null>(null);
 
+  const clipboardGraphId = clipboard?.type === "graph" ? clipboard.graphId : null;
+  const clipboardGraph = useGraphStore(state =>
+    clipboardGraphId ? state.getGraph(clipboardGraphId) ?? null : null
+  );
 
- 
-  // handlers
-  const findRegion=(trackId:string,regionSetId:string,regionId:string):TrackRegion|null=>{
-     const track = tracks.find((x) => x.track_id === trackId);
-    if (!track) {
-      error(`Could not find track ${trackId}`);
-      return null;
-    }
-    const regionSets = trackRegionSetsMap.get(track.track_id);
-    if (!regionSets) {
-      error("Could not find region sets");
-      return null;
-    }
-    const regionSet = regionSets.find((x) => x.id === regionSetId);
-    if (!regionSet) {
-      error(`Could not find region set ${regionSetId}`);
-      return null;
-    }
-    const region = regionSet.regions.find((x) => x.region_id === regionId);
-    if (!region) {
-      error(`Could not find region  ${region}`);
-      return null;
-    }
-    return region;
-  }
-  //create
-  const onCreateGraphClick = (trackId: string,regionSetId:string,regionId:string) => {
-    const region=findRegion(trackId,regionSetId,regionId);
-    if(!region){
-      return;
-    }
-    setRegionForCreateGraph({regionSetId:region?.region_set_id,trackId:trackId,regionId:regionId});
+  const findRegion = (trackId: string, regionSetId: string, regionId: string): RegionSelection | null => {
+    const track = trackMap.get(trackId);
+    if (!track) return null;
+    const regionSet = track.regionSets.find(set => set.id === regionSetId);
+    if (!regionSet) return null;
+    const region = regionSet.regions.find(region => region.region_id === regionId);
+    if (!region) return null;
+    return { region, trackId, regionSetId: regionSet.id };
   };
 
-  const onSubmitCreateGraphModal = async (params: CreateGraphParams) => {
-    await createRegion({ 
-      name: params.name, 
-      trackId:params.trackId,
-      region_set_id:params.region_set_id,
-      start_time:params.start_time,
-      end_time:params.end_time });
+  const handleCopyRegion = (trackId: string, regionSetId: string, regionId: string) => {
+    setClipboard({ type: "region", trackId, regionSetId, regionId });
   };
 
-  const onCloseCreateRegionSetModal = () => {
-    setRightClickContext(null);
-    setRegionForCreateGraph(null);
+  const handleCopyGraph = (trackId: string, regionSetId: string, regionId: string) => {
+    const selection = findRegion(trackId, regionSetId, regionId);
+    if (!selection?.region.graph?.id) return;
+    setClipboard({
+      type: "graph",
+      trackId,
+      regionSetId,
+      regionId,
+      graphId: selection.region.graph.id,
+    });
   };
 
-
-  //details
-  const onDetailsRegionSetClick = (regionSetId: string, trackId: string) => {
-    const track = tracks.find((x) => x.track_id === trackId);
-    if (!track) {
-      error(`Could not find track ${trackId}`);
-      return;
-    }
-    const regionSets = trackRegionSetsMap.get(track.track_id);
-    if (!regionSets) {
-      error("Could not find region sets");
-      return;
-    }
-    const regionSet = regionSets.find((x) => x.id === regionSetId);
-    if (!regionSet) {
-      error(`Could not find region set ${regionSetId}`);
-      return;
-    }
-    setDetailedRegion(regionSet);
+  const handlePasteGraph = (trackId: string, regionSetId: string, regionId: string) => {
+    if (clipboard?.type !== "graph") return;
+    const selection = findRegion(trackId, regionSetId, regionId);
+    if (!selection) return;
+    setGraphPasteContext({
+      region: selection.region,
+      trackId: selection.trackId,
+      regionSetId: selection.regionSetId,
+      graphId: clipboard.graphId,
+    });
   };
 
-  const onCloseDetailsRegionSetModal=()=>{
-    setDetailedRegion(null);
-    setRightClickContext(null);
-  }
-///
-
-
- //rename
-  const onRemoveRegionSetClick = async (regionSetId: string) => {
-    await removeRegionSet({ region_set_id: regionSetId });
-  };
-  const onRenameRegionSetClick=(regionSetId:string,trackId:string)=>{
-    const targetRegionSet=findRegion(trackId,regionSetId);
-    if(!targetRegionSet){
-      console.log("could not find region set");
-      return;
-    }
-     setRegionToRename(targetRegionSet);
-  }
-  // (you can add rename handlers here later)
-  const onSubmitRegionSetRenameModal=async(trackId:string,regionSetId:string,newRegionSetName:string)=>{
-    if(!regionToRename){
-      return;
-    }
-    
-    const result=await updateRegionSet({name:newRegionSetName,region_set_id:regionSetId,trackId:trackId});
-    onCloseRenameRegionSetModal();
-
-    return result;
+  const handleRenameRegion = (selection: RegionSelection | null, newName: string) => {
+    if (!selection) return;
+    const { region, trackId, regionSetId } = selection;
+    editRegion.mutate({
+      id: region.region_id,
+      regionId: region.region_id,
+      regionSetId: regionSetId,
+      trackId,
+      name: newName,
+    });
   };
 
-  const onCloseRenameRegionSetModal=()=>{
-    setRightClickContext(null);
-    setRegionToRename(null);
-  }
-
-
-  const onCopyRegionSetClick = (regionSetId: string, trackId: string) => {
-    const regionSet = findRegion(trackId, regionSetId);
-    if (!regionSet) return;
-
-    setClipboard({ type: "regionSet", trackId, regionSetId }); // 🔑 store in global clipboard
-    console.log("Copied region set:", regionSet.name);
+  const handleDeleteRegion = (selection: RegionSelection | null) => {
+    if (!selection) return;
+    const { region, trackId, regionSetId } = selection;
+    deleteRegion.mutate({
+      regionId: region.region_id,
+      regionSetId,
+      trackId,
+    });
   };
 
-
-  const onPasteRegionClick=(destTrackId:string,destRegionSetId:string)=>{
-    if (clipboard?.type !== "region" || !clipboard){
-      console.error("Nothing to paste");
-      return;
-    }
-
-    const sourceRegionSet = findRegion(clipboard.trackId, clipboard.regionSetId);
-    if (!sourceRegionSet){
-       console.error("Clipboard region set not found anymore");
-       return;
-    }
-    const sourceRegion=sourceRegionSet.regions.find(x=>x.region_id===clipboard.regionId);
-    if(!sourceRegion){
-       console.error("Clipboard region  not found anymore");
-       return;
-    }
-    const destRegionSet=findRegion(destTrackId,destRegionSetId);
-    if(!destRegionSet){
-       console.error("Destination region set  not found");
-       return;
-    }
-    setRegionForPasteGraph({ trackId: destTrackId, regionSetId: destRegionSetId });
-  }
-
-  const onPasteRegionSubmit=async(regionSetId:string,regionId:string,copyRegionName:string)=>{
-    const result=await copyRegion({regionId:regionId,regionSetId:regionSetId,copyName:copyRegionName}); 
-    onClosePasteRegionSetModal();
-    return result;
-  };
-  const onClosePasteRegionSetModal=()=>{
-      setRegionForPasteGraph(null); // ✅ Clear parent = close modal
-      setRightClickContext(null);
+  const handleCopyGraphSubmit = (context: { region: TrackRegionViewModel; graphId: string }, copyName: string) => {
+    copyGraph.mutate({
+      destinationRegionId: context.region.region_id,
+      graphId: context.graphId,
+      copyName,
+    }, {
+      onSuccess: (result) => {
+        updateRegionStore(context.region.region_id, { graphId: result.graph.id });
+      },
+      onSettled: () => setGraphPasteContext(null),
+    });
   };
 
-  const pasteSourceRegion = clipboard?.type === "region" 
-    ? findRegion(clipboard.trackId, clipboard.regionSetId)
-        ?.regions.find(r => r.region_id === clipboard.regionId)
-    : null;
+  const selectedRegion =
+    rightClickContext?.type === "region"
+      ? findRegion(rightClickContext.trackId, rightClickContext.regionSetId, rightClickContext.regionId)
+      : null;
+
   return (
     <>
-      {/* Context menu */}
-      {rightClickContext?.type === "regionSet" && (
-        <RegionSetContextMenu
-          trackId={rightClickContext.trackId}
-          regionSetId={rightClickContext.regionSetId}
-          onClose={() => setRightClickContext(null)}
+      {rightClickContext?.type === "region" && selectedRegion && (
+        <RegionContextMenu
           x={rightClickContext.x}
           y={rightClickContext.y}
-          onCreateRegion={onCreateGraphClick}
-          onDetails={onDetailsRegionSetClick}
-          onCopy={onCopyRegionSetClick}
-          onPaste={onPasteRegionClick}
-          canPaste={clipboard?.type==="region"}
-          onRemove={onRemoveRegionSetClick}
-          onRename={onRenameRegionSetClick}
+          trackId={rightClickContext.trackId}
+          regionSetId={rightClickContext.regionSetId}
+          regionId={rightClickContext.regionId}
+          onClose={() => setRightClickContext(null)}
+          onDetails={(regionId, regionSetId, trackId) => {
+            const region = findRegion(trackId, regionSetId, regionId);
+            if (region) {
+              setRegionForDetails(region);
+            }
+          }}
+          onRename={(regionId, regionSetId, trackId) => {
+            const region = findRegion(trackId, regionSetId, regionId);
+            if (region) {
+              setRegionForRename(region);
+            }
+          }}
+          onCopyRegion={(regionId, regionSetId, trackId) => handleCopyRegion(trackId, regionSetId, regionId)}
+          onCopyGraph={(regionId, regionSetId, trackId) => handleCopyGraph(trackId, regionSetId, regionId)}
+          onPasteGraph={(regionId, regionSetId, trackId) => handlePasteGraph(trackId, regionSetId, regionId)}
+          canCopyGraph={Boolean(selectedRegion.region.graph)}
+          canPasteGraph={clipboard?.type === "graph"}
+          onRemove={(regionId, regionSetId, trackId) => {
+            const region = findRegion(trackId, regionSetId, regionId);
+            handleDeleteRegion(region);
+          }}
         />
       )}
 
-      {/* Modals */}
-      {rightClickContext?.type === "regionSet" && regionForCreateGraph && (
-        <CreateRegionModal
-          trackId={regionForCreateGraph?.trackId}
-          regionSetId={regionForCreateGraph?.regionSetId}
-          startTime={null}
-          endTime={null}
-          open={Boolean(regionForCreateGraph)}
-          onClose={onCloseCreateRegionSetModal}
-          onSubmit={async(e)=>await onSubmitCreateGraphModal(e)}
+      {regionForDetails && (
+        <DetailsRegionModal
+          region={regionForDetails.region}
+          open
+          onClose={() => setRegionForDetails(null)}
         />
       )}
-       { detailedRegion && (rightClickContext?.type === "regionSet") &&
-        <DetailsRegionSetModal
-          regionSet={detailedRegion}
-          open={Boolean(detailedRegion)}
-          onClose={onCloseDetailsRegionSetModal}
-        />
-      }
 
-        {regionToRename &&  (rightClickContext?.type === "regionSet") &&
-        <RegionSetRenameModal 
-                regionSetToRename={regionToRename}
-                onClose={()=>onCloseRenameRegionSetModal()}
-                open={Boolean(regionToRename)}
-                onSubmit={onSubmitRegionSetRenameModal}
-              >
-        </RegionSetRenameModal>}
-      
-       {clipboard?.type === "region" && 
-       pasteSourceRegion && 
-       regionForPasteGraph && (
-        <PasteRegionModal 
-          destRegionSetId={regionForPasteGraph.regionSetId}
-          regionToCopy={pasteSourceRegion}
-          open={Boolean(regionForPasteGraph)}
-          onSubmit={onPasteRegionSubmit}
-          onClose={onClosePasteRegionSetModal}
+      {regionForRename && (
+        <RegionRenameModal
+          regionToRename={regionForRename.region}
+          open
+          onClose={() => setRegionForRename(null)}
+          onSubmit={(_, newName) => {
+            handleRenameRegion(regionForRename, newName);
+            setRegionForRename(null);
+          }}
+        />
+      )}
+
+      {graphPasteContext && clipboardGraph && (
+        <CopyGraphModal
+          sourceGraphName={clipboardGraph.name}
+          open
+          onClose={() => setGraphPasteContext(null)}
+          onSubmit={copyName => handleCopyGraphSubmit(graphPasteContext, copyName)}
         />
       )}
     </>

@@ -1,15 +1,15 @@
 
-import type { TrackRegion } from "@/Domain/Region/TrackRegion";
+import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
+import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
 
 export interface DetailsRegionSetModalProps {
   open: boolean;
-  regionSet: TrackRegionSet;
+  regionSet: TrackRegionSetViewModel;
   onClose: () => void;
 }
 
@@ -51,7 +51,7 @@ export function DetailsRegionSetModal({ regionSet, open, onClose }: DetailsRegio
 }
 
 // 🔹 Extracted for cleanliness
-function RegionTable({ regions }: { regions: TrackRegion[] }) {
+function RegionTable({ regions }: { regions: TrackRegionViewModel[] }) {
   if (regions.length === 0) return <p className="text-muted-foreground">No regions available.</p>;
 
   return (

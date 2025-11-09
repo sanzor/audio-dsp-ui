@@ -1,18 +1,17 @@
 
-import type { TrackRegion } from "@/Domain/Region/TrackRegion";
+import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
-
 export interface DetailsRegionProps {
   open: boolean;
-  region: TrackRegion;
+  region: TrackRegionViewModel;
   onClose: () => void;
 }
 
-export function DetailsTrackModal({ region, open, onClose }: DetailsRegionProps) {
+export function DetailsRegionModal({ region, open, onClose }: DetailsRegionProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="space-y-6">

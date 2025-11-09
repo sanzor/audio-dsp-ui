@@ -1,15 +1,18 @@
 import { useMemo, useState } from "react";
 import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
+import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
 import type { RightClickContext } from "../dashboard";
 import { TrackContextMenu } from "../track-context-menu";
 import { CreateRegionSetModal } from "../modals/create-region-set-modal";
 import { DetailsTrackModal } from "../modals/details-track-modal";
 import { TrackRenameModal } from "../modals/rename-track-modal";
 import { CopyTrackModal } from "../modals/copy-track-modal";
+import { CopyRegionSetModal } from "../modals/copy-region-set-modal";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
 import { useCopyTrack, useDeleteTrack, useRenameTrack } from "@/Orchestrators/Tracks/useTrackMutations";
-import { useCreateRegionSet } from "@/Orchestrators/RegionSets/useRegionSetsMutations";
-import { useTrackMetaWithRegionsList } from "@/Selectors/trackViewModels";
+import { useCopyRegionSet, useCreateRegionSet } from "@/Orchestrators/RegionSets/useRegionSetsMutations";
+import { useTrackMetaWithRegionsList, useTrackViewModelMap } from "@/Selectors/trackViewModels";
+import { useUIState } from "@/Providers/UseUIStateProvider";
 
 type TrackControllerProps = {
   rightClickContext: RightClickContext | null;
@@ -18,18 +21,32 @@ type TrackControllerProps = {
 
 export function TrackController({ rightClickContext, setRightClickContext }: TrackControllerProps) {
   const tracks = useTrackMetaWithRegionsList();
+  const trackViewModelMap = useTrackViewModelMap();
+  const { clipboard } = useUIState();
   const deleteTrack = useDeleteTrack();
   const copyTrack = useCopyTrack();
   const renameTrack = useRenameTrack();
   const createRegionSet = useCreateRegionSet();
+  const copyRegionSet = useCopyRegionSet();
 
   const [trackForDetails, setTrackForDetails] = useState<TrackMetaWithRegions | null>(null);
   const [trackForRename, setTrackForRename] = useState<{ trackId: string; trackInitialName: string } | null>(null);
   const [trackToCopy, setTrackToCopy] = useState<{ trackId: string; sourceTrackNname: string } | null>(null);
   const [trackIdForRegionSet, setTrackIdForRegionSet] = useState<string | null>(null);
+  const [regionSetPasteContext, setRegionSetPasteContext] = useState<{
+    targetTrackId: string;
+    sourceRegionSet: TrackRegionSetViewModel;
+  } | null>(null);
 
   const trackMap = useMemo(() => new Map(tracks.map(track => [track.track_id, track])), [tracks]);
   const selectedTrackId = rightClickContext?.type === "track" ? rightClickContext.trackId : null;
+
+  const clipboardRegionSet = useMemo(() => {
+    if (clipboard?.type !== "regionSet") return null;
+    const sourceTrack = trackViewModelMap.get(clipboard.trackId);
+    if (!sourceTrack) return null;
+    return sourceTrack.regionSets.find(set => set.id === clipboard.regionSetId) ?? null;
+  }, [clipboard, trackViewModelMap]);
 
   const closeContextMenu = () => setRightClickContext(null);
 
@@ -102,6 +119,29 @@ export function TrackController({ rightClickContext, setRightClickContext }: Tra
     });
   };
 
+  const handlePasteRegionSet = (targetTrackId: string) => {
+    if (!clipboardRegionSet) return;
+    setRegionSetPasteContext({
+      targetTrackId,
+      sourceRegionSet: clipboardRegionSet,
+    });
+  };
+
+  const submitPasteRegionSet = (targetTrackId: string, regionSetId: string, newName: string) => {
+    copyRegionSet.mutate(
+      {
+        trackId: targetTrackId,
+        regionSetId,
+        copy_region_set_name: newName,
+      },
+      {
+        onSettled: () => {
+          setRegionSetPasteContext(null);
+        },
+      }
+    );
+  };
+
   const closeCreateRegionSetModal = () => {
     setTrackIdForRegionSet(null);
     closeContextMenu();
@@ -125,6 +165,8 @@ export function TrackController({ rightClickContext, setRightClickContext }: Tra
           onCopy={handleCopyTrack}
           onRename={handleRenameTrack}
           onRemove={handleDeleteTrack}
+          onPasteRegionSet={handlePasteRegionSet}
+          canPasteRegionSet={Boolean(clipboardRegionSet)}
         />
       )}
 
@@ -156,6 +198,16 @@ export function TrackController({ rightClickContext, setRightClickContext }: Tra
           open
           onClose={() => setTrackToCopy(null)}
           onSubmit={submitCopy}
+        />
+      )}
+
+      {regionSetPasteContext && (
+        <CopyRegionSetModal
+          targetTrackId={regionSetPasteContext.targetTrackId}
+          regionSetToCopy={regionSetPasteContext.sourceRegionSet}
+          open
+          onClose={() => setRegionSetPasteContext(null)}
+          onPaste={submitPasteRegionSet}
         />
       )}
     </>

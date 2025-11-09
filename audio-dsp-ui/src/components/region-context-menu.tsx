@@ -9,7 +9,11 @@ interface RegionContextMenuProps{
   onClose:()=>void;
   onRemove: (regionId: string,regionSetId:string,trackId:string) => void
   onRename: (regionId: string,regionSetId:string,trackId:string) => void
-  onCopy: (regionId: string,regionSetId:string,trackId:string) => void
+  onCopyRegion: (regionId: string,regionSetId:string,trackId:string) => void
+  onCopyGraph?: (regionId: string,regionSetId:string,trackId:string) => void
+  onPasteGraph?: (regionId: string,regionSetId:string,trackId:string) => void
+  canCopyGraph?: boolean
+  canPasteGraph?: boolean
   onDetails:(regionId: string,regionSetId:string,trackId:string)=>void
 }
 
@@ -23,15 +27,41 @@ export function RegionContextMenu({
   onDetails,
   onRemove,
   onRename,
-  onCopy,
+  onCopyRegion,
+  onCopyGraph,
+  onPasteGraph,
+  canCopyGraph = false,
+  canPasteGraph = false,
 }: RegionContextMenuProps) {
   return (
     <ContextMenu>
       <ContextMenuTrigger></ContextMenuTrigger>
        <ContextMenuContent style={{ position: "absolute", top: y, left: x, zIndex: 1000 }} onClick={onClose}>   
-         <ContextMenuItem onClick={() => {onDetails(regionId,regionSetId,trackId);onClose()}}>Details</ContextMenuItem>
-        <ContextMenuItem onClick={() => {onRename(regionId,regionSetId,trackId);onClose();}}>Rename</ContextMenuItem>
-         <ContextMenuItem onClick={() => {onCopy(regionId,regionSetId,trackId);onClose();}}>Copy</ContextMenuItem>
+        <ContextMenuItem onClick={() => {onDetails(regionId,regionSetId,trackId);onClose()}}>Details</ContextMenuItem>
+       <ContextMenuItem onClick={() => {onRename(regionId,regionSetId,trackId);onClose();}}>Rename</ContextMenuItem>
+         <ContextMenuItem onClick={() => {onCopyRegion(regionId,regionSetId,trackId);onClose();}}>Copy Region</ContextMenuItem>
+         <ContextMenuItem 
+          disabled={!canCopyGraph}
+          onClick={() => {
+            if (canCopyGraph && onCopyGraph) {
+              onCopyGraph(regionId, regionSetId, trackId);
+            }
+            onClose();
+          }}
+        >
+          Copy Graph
+        </ContextMenuItem>
+         <ContextMenuItem
+          disabled={!canPasteGraph}
+          onClick={() => {
+            if (canPasteGraph && onPasteGraph) {
+              onPasteGraph(regionId, regionSetId, trackId);
+            }
+            onClose();
+          }}
+        >
+          Paste Graph
+        </ContextMenuItem>
          <ContextMenuItem onClick={() => {onRemove(regionId,regionSetId,trackId);onClose();}}>Delete</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

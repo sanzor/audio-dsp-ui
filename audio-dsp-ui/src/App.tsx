@@ -1,7 +1,7 @@
 import './App.css'
 import { AuthCallback } from './Auth/AuthCallback';
 import { useTokenAutoRefresh } from './Auth/UseAuthAutoRefreshOptions'
-import { Dashboard } from './components/dashboard';
+import { Dashboard } from './components/dashboard/dashboard';
 import { LoginForm } from './components/login-form'
 import { useAuth } from './Auth/UseAuth';
 import {

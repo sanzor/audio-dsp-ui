@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import type { RightClickContext } from "../dashboard";
+import {  useState } from "react";
+import type { RightClickContext } from "../dashboard/dashboard";
 import { RegionContextMenu } from "../region-context-menu";
 import { DetailsRegionModal } from "../modals/details-region-modal";
 import { RegionRenameModal } from "../modals/rename-region-modal";
@@ -7,7 +7,7 @@ import { CopyGraphModal } from "../modals/copy-graph-modal";
 import { useUIState } from "@/Providers/UseUIStateProvider";
 import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
 import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
-import { useCopyRegion, useDeleteRegion, useEditRegion } from "@/Orchestrators/Regions/useRegionMutations";
+import {useDeleteRegion, useEditRegion } from "@/Orchestrators/Regions/useRegionMutations";
 import { useCopyGraph } from "@/Orchestrators/Graphs/useGraphMutations";
 import { useGraphStore } from "@/Stores/GraphStore";
 import { useRegionStore } from "@/Stores/RegionStore";
@@ -29,7 +29,6 @@ export function RegionController({
 }: RegionControllerProps) {
   const { clipboard, setClipboard } = useUIState();
   const trackMap = useTrackViewModelMap();
-  const copyRegion = useCopyRegion();
   const deleteRegion = useDeleteRegion();
   const editRegion = useEditRegion();
   const copyGraph = useCopyGraph();

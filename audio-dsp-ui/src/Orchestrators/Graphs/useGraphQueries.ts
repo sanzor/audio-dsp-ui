@@ -20,26 +20,12 @@ export const useGetGraph = (graphId: string) => {
     return useQuery<Graph, string, NormalizedGraph | undefined, string[]>({
         queryKey: ['graph', graphId],
         queryFn: () => apiGetGraph(graphId),
-        
         enabled: !!graphId && !!user,
-        
-        // FIX: The type signature is forcing onSuccess to accept TData. 
-        // We need to use the data *before* the select transformation for the store update.
-        // Let's use the explicit signature to make onSuccess accept the raw data type (Graph).
-        
-        // To force onSuccess to use the TQueryFnData (Graph) type:
-        // We cast the options object to ensure the type checker is satisfied.
-        // NOTE: This approach is often required when using both select and onSuccess.
-        
-        onSuccess: (graphApi) => {
-             // TypeScript can infer graphApi is Graph because it's the raw data type (TQueryFnData)
-             // This is the cleanest approach, but sometimes requires the full generic
-             // signature to align correctly.
-             const normalizedGraph = normalizeGraph(graphApi);
-             addGraph(normalizedGraph); 
-        },
-
-        // Data that leaves the hook is NormalizedGraph | undefined
         select: (data) => (data ? normalizeGraph(data) : cachedGraph),
+        onSuccess: (normalizedGraph) => {
+            if (normalizedGraph) {
+                addGraph(normalizedGraph);
+            }
+        },
     });
 };

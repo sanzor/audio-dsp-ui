@@ -16,19 +16,19 @@ import type { ABuffer } from "@/Domain/ABuffer"
 import { toAudioBuffer, interleave, encodeWav } from "@/Audio/Utils"
 import { getFileExtension } from "@/Utils/AudioUtils"
 
-interface TrackCreateModalProps {
+interface CreateTrackModalProps {
   open: boolean
   onClose: () => void
   onSubmit: (track: AddTrackParams) => void
   canonicalAudio?: CanonicalAudio | null
 }
 
-export function TrackCreateModal({
+export function CreateTrackModal({
   open,
   onClose,
   onSubmit,
   canonicalAudio,
-}: TrackCreateModalProps) {
+}: CreateTrackModalProps) {
   const [trackName, setTrackName] = useState("");
   const [duration, setDuration] = useState(0);
   const [audioBufferPayload, setAudioBufferPayload] = useState<ABuffer | null>(null);

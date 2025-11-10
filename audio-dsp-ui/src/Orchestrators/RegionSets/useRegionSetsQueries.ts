@@ -6,76 +6,39 @@ import { useRegionSetStore } from "@/Stores/RegionSetStore";
 import { useQuery } from "react-query";
 import { normalizeRegionSet } from "./utils";
 
-
-
 export const useGetRegionSet = (regionSetId: string) => {
-    const addRegionSet = useRegionSetStore(state => state.addRegionSet);
+  const addRegionSet = useRegionSetStore(state => state.addRegionSet);
+  const { user } = useAuth();
 
-    // 🚨 FIX 1: Get cache from the correct store (RegionSetStore), 
-    // and use the correct accessor (getRegionSet).
-    const cachedRegionSet = useRegionSetStore(state => state.getRegionSet(regionSetId)); 
-    const { user } = useAuth();
+  return useQuery<TrackRegionSet, string, NormalizedTrackRegionSet | undefined>({
+    queryKey: ['regionSet', regionSetId],
+    queryFn: () => apiGetRegionSet(regionSetId),
+    enabled: !!regionSetId && !!user,
 
-    // The generic types specify:
-    // TQueryFnData: TrackRegionSet (Raw API data)
-    // TError: string
-    // TData: NormalizedTrackRegionSet | undefined (Data returned after 'select')
-    // TQueryKey: string[]
-    return useQuery<TrackRegionSet, string, NormalizedTrackRegionSet | undefined, string[]>({
-        queryKey: ['regionSet', regionSetId],
-        queryFn: () => apiGetRegionSet(regionSetId),
-        
-        enabled: !!regionSetId && !!user,
-        // 🚨 FIX 2: onSuccess should accept the TQueryFnData type (TrackRegionSet).
-        // React Query allows this when select is also present.
-        onSuccess: (regionSetApi: TrackRegionSet) => {
-             // 1. Orchestration: Normalize the data and update all child stores (cascade)
-             const normalizedSet = normalizeRegionSet(regionSetApi);
-             
-             // 2. Update the current entity's store (RegionSetStore)
-             addRegionSet(normalizedSet); 
-        },
+    select: (data) => data ? normalizeRegionSet(data) : undefined,
 
-        initialData: cachedRegionSet,
-
-        // Data leaving the hook is the Normalized Model (Type 2)
-        select: (data) => data ? normalizeRegionSet(data) : cachedRegionSet,
-    });
+    onSuccess: (normalized) => {
+      if (normalized) addRegionSet(normalized);
+    },
+  });
 };
 
 export const useGetAllRegionSetsForTrack = (trackId: string) => {
-    const setAllRegionSets = useRegionSetStore(state => state.setAllRegionSets);
-    const { user } = useAuth();
-    
-    // 1. Define the separate query key
-    const queryKey = ['regionSets', 'track', trackId];
-    
-    // 2. Define the separate query function
-    const queryFunction = async() => {
-        const rez=await apiGetRegionSetsForTrack(trackId);
-        return rez.sets
-    };
+  const setAllRegionSets = useRegionSetStore(state => state.setAllRegionSets);
+  const { user } = useAuth();
 
-    // 🚨 FIX: Pass queryKey, queryFn, and the remaining options as THREE arguments.
-    return useQuery<
-        TrackRegionSet[], 
-        string, 
-        NormalizedTrackRegionSet[], 
-        string[]
-    >(
-        queryKey, // ARGUMENT 1: queryKey
-        queryFunction, // ARGUMENT 2: queryFn
-        {
-            // ARGUMENT 3: options object (must NOT contain queryKey or queryFn)
-            enabled: !!trackId && !!user,
-            
-           onSuccess: (regionSetsApiList: TrackRegionSet[]) => { 
-                // 1. Orchestration: Normalize the data and update all child stores (cascade)
-                const normalizedSetsList = regionSetsApiList.map(normalizeRegionSet);
-                
-                // 2. Update the current entity's store (RegionSetStore)
-                setAllRegionSets(normalizedSetsList);
-            },
-        }
-    );
+  return useQuery<TrackRegionSet[], string, NormalizedTrackRegionSet[]>({
+    queryKey: ['regionSets', 'track', trackId],
+    queryFn: async () => {
+      const response = await apiGetRegionSetsForTrack(trackId);
+      return response.sets;
+    },
+    enabled: !!trackId && !!user,
+
+    select: (regionSets) => regionSets.map(normalizeRegionSet),
+
+    onSuccess: (normalizedList) => {
+      setAllRegionSets(normalizedList);
+    },
+  });
 };

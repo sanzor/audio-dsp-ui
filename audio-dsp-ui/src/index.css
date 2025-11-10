@@ -1,4 +1,29 @@
 @import "tailwindcss";
+/* Add this to your global CSS or create a new CSS file and import it */
+
+/* Force sidebar to respect custom width */
+[data-sidebar="sidebar"] {
+  width: var(--sidebar-width) !important;
+}
+
+/* Ensure the sidebar group takes exact width */
+.group[data-sidebar="sidebar"] {
+  width: var(--sidebar-width) !important;
+  min-width: var(--sidebar-width) !important;
+  max-width: var(--sidebar-width) !important;
+}
+
+/* Remove any extra spacing/padding from sidebar wrapper */
+[data-sidebar="sidebar-wrapper"] {
+  width: var(--sidebar-width) !important;
+}
+
+/* When collapsed to icon mode */
+.group[data-sidebar="sidebar"][data-state="collapsed"] {
+  width: var(--sidebar-width-icon) !important;
+  min-width: var(--sidebar-width-icon) !important;
+  max-width: var(--sidebar-width-icon) !important;
+}
 
 @custom-variant dark (&:is(.dark *));
 :root {

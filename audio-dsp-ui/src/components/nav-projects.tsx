@@ -6,17 +6,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
+import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
 import { useEffect } from "react";
 
 
 export interface NaveProjectsProps{
-  tracks:TrackMetaWithRegions[],
+  tracks:TrackMetaViewModel[],
   onRemoveTrack:(trackId:number)=>void
 
 }
 export function NavProjects({tracks}:NaveProjectsProps) {
-  function TrackSidebarItem({track}:{track:TrackMetaWithRegions}){
+  function TrackSidebarItem({track}:{track:TrackMetaViewModel}){
   return(
      <SidebarMenuItem key={track.track_id}>
       <SidebarMenuButton asChild>
@@ -55,5 +55,4 @@ export function NavProjects({tracks}:NaveProjectsProps) {
     </SidebarGroup>
   );
 }
-
 

@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
 import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
 import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
@@ -17,8 +16,8 @@ const buildGraphViewModel = (graph?: NormalizedGraph | null): GraphViewModel | n
   if (!graph) return null;
   return {
     ...graph,
-    nodes: null,
-    edges: null,
+    nodes: [],
+    edges: [],
   };
 };
 
@@ -26,7 +25,7 @@ const buildRegionViewModel = (
   region: NormalizedTrackRegion,
   graphMap: Map<string, NormalizedGraph>
 ): TrackRegionViewModel => {
-  const { graphId, graph: _ignored, ...rest } = region;
+  const { graphId, ...rest } = region;
   return {
     ...rest,
     graph: graphId ? buildGraphViewModel(graphMap.get(graphId)) : null,
@@ -70,14 +69,6 @@ const buildTrackViewModel = (
   };
 };
 
-const toTrackMetaWithRegions = (track: TrackMetaViewModel): TrackMetaWithRegions => {
-  const regions = track.regionSets.flatMap(regionSet => regionSet.regions);
-  return {
-    ...track,
-    regions,
-  };
-};
-
 const buildTrackViewModelMap = (
   tracks: Map<string, NormalizedTrackMeta>,
   regionSets: Map<string, NormalizedTrackRegionSet>,
@@ -107,20 +98,6 @@ export const useTrackViewModelMap = () => {
 export const useTrackViewModels = (): TrackMetaViewModel[] => {
   const map = useTrackViewModelMap();
   return useMemo(() => Array.from(map.values()), [map]);
-};
-
-export const useTrackMetaWithRegionsList = (): TrackMetaWithRegions[] => {
-  const viewModels = useTrackViewModels();
-  return useMemo(() => viewModels.map(toTrackMetaWithRegions), [viewModels]);
-};
-
-export const useTrackMetaWithRegionsById = (trackId: string | null | undefined): TrackMetaWithRegions | null => {
-  const map = useTrackViewModelMap();
-  return useMemo(() => {
-    if (!trackId) return null;
-    const track = map.get(trackId);
-    return track ? toTrackMetaWithRegions(track) : null;
-  }, [map, trackId]);
 };
 
 export const useTrackViewModelById = (trackId: string | null | undefined): TrackMetaViewModel | null => {

@@ -3,18 +3,25 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { AddTrackParams } from "@/Dtos/Tracks/AddTrackParams";
 import type { AddTrackResult } from "@/Dtos/Tracks/AddTrackResult";
-import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
-import { AppSidebar } from "./app-sidebar";
-import { SidebarProvider } from "./ui/sidebar-provider";
-import { TrackCreateModal } from "./create-track-modal";
+import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
+import { AppSidebar } from "./sidebar/app-sidebar";
+import { SidebarProvider } from "../ui/sidebar-provider";
+
 import { useTracks } from "@/Providers/UseTracks";
 import { useAudioPlaybackCache } from "@/Providers/UsePlaybackCache";
-import { WaveformPlayer } from "./waveform-player";
+import { WaveformPlayer } from "../waveform-player";
 import { apiGetStoredTrack } from "@/Services/TracksService";
 import type { SelectedContext } from "@/Providers/UIStateProvider";
 import { useUIState } from "@/Providers/UseUIStateProvider";
-import { TrackController } from "./coordinators/track-controller";
-import { useTrackMetaWithRegionsById, useTrackMetaWithRegionsList } from "@/Selectors/trackViewModels";
+import { TrackController } from "../coordinators/track-controller";
+import { useTrackViewModelById, useTrackViewModels } from "@/Selectors/trackViewModels";
+import { CreateTrackModal } from "../modals/create-track-modal";
+import { RegionSetController } from "../coordinators/region-set-controller";
+import { RegionController } from "../coordinators/region-controller";
+import { DashboardLayout } from "./dashboard-layout";
+import { TransformStorePanel } from "./store/transform-store-panel";
+import { CanvasPanel } from "./graph/canvas-panel";
+import { SidebarInset } from "../ui/sidebar";
 
 export type RightClickContext =
   | { type: "track"; trackId: string; x: number; y: number }
@@ -30,12 +37,12 @@ export function Dashboard() {
 
   const [rightClickContext, setRightClickContext] = useState<RightClickContext>(null);
   const [addTrackModalOpen, setAddTrackModalOpen] = useState(false);
-  const [selectedTrack, setSelectedTrack] = useState<TrackMetaWithRegions | null>(null);
+  const [selectedTrack, setSelectedTrack] = useState<TrackMetaViewModel | null>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
   const { setBlob, getBlob } = useAudioPlaybackCache();
-  const sidebarTracks = useTrackMetaWithRegionsList();
-  const activeTrack = useTrackMetaWithRegionsById(
+  const sidebarTracks = useTrackViewModels();
+  const activeTrack = useTrackViewModelById(
     selectedContext?.type === "track" ? selectedContext.trackId : null
   );
 
@@ -46,7 +53,7 @@ export function Dashboard() {
   }, [loading, navigate, user]);
 
   const hydrateTrack = useCallback(
-    async (track: TrackMetaWithRegions) => {
+    async (track: TrackMetaViewModel) => {
       setSelectedTrack(track);
 
       let blob = getBlob(track.track_id);
@@ -96,43 +103,50 @@ export function Dashboard() {
   const onCloseAddTrackModal = () => setAddTrackModalOpen(false);
 
   return (
-    <SidebarProvider>
-      <div className="flex">
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex h-screen w-full overflow-hidden">
+        {/* Sidebar - fixed width */}
         <AppSidebar
           tracks={sidebarTracks}
           onAddTrackClick={() => setAddTrackModalOpen(true)}
           onRightClick={setRightClickContext}
           onSelect={handleSelect}
+          user={{
+            name: user?.name ?? "Unknown User",
+            email: user?.email ?? "",
+            avatar: user?.photo ?? "/default-avatar.png",
+          }}
+          teams={[
+            { name: "My Workspace", logo: () => null, plan: "Free" },
+          ]}
         />
 
-        <div className="grid grid-cols-[1fr_3fr] grid-rows-[1fr_auto] w-full h-screen">
-          <div className="row-start-1 col-start-1 border-r bg-gray-50 p-4">
-            <div className="font-semibold text-sm text-gray-700">Transform Store</div>
-          </div>
-
-          <div className="row-start-1 col-start-2 p-4 overflow-auto bg-white">
-            <main>Main content here</main>
-          </div>
-
-          <div className="row-start-2 col-span-2 border-t p-4 bg-white shadow-inner">
-            {selectedTrack && objectUrl && (
-              <WaveformPlayer
-                track={selectedTrack}
-                url={objectUrl}
-                onCreateRegionClick={() => null}
-                onCreateRegionDrag={() => null}
-                onRegionDetails={() => null}
-                onEditRegion={() => null}
-                onDeleteRegion={() => null}
-              />
-            )}
-          </div>
-        </div>
-
-        <TrackCreateModal open={addTrackModalOpen} onClose={onCloseAddTrackModal} onSubmit={onSubmitAddTrackModal} />
-
-        <TrackController rightClickContext={rightClickContext} setRightClickContext={setRightClickContext} />
+        {/* Main content - takes remaining space */}
+        <SidebarInset className="flex-1 overflow-hidden">
+          <DashboardLayout
+            store={<TransformStorePanel />}
+            canvas={<CanvasPanel />}
+            waveform={
+              selectedTrack && objectUrl ? (
+                <WaveformPlayer
+                  track={selectedTrack}
+                  url={objectUrl}
+                  onCreateRegionClick={() => null}
+                  onCreateRegionDrag={() => null}
+                  onRegionDetails={() => null}
+                  onEditRegion={() => null}
+                  onDeleteRegion={() => null}
+                />
+              ) : null
+            }
+          />
+        </SidebarInset>
       </div>
+
+      <CreateTrackModal open={addTrackModalOpen} onClose={onCloseAddTrackModal} onSubmit={onSubmitAddTrackModal} />
+      <TrackController rightClickContext={rightClickContext} setRightClickContext={setRightClickContext} />
+      <RegionSetController rightClickContext={rightClickContext} setRightClickContext={setRightClickContext} />
+      <RegionController rightClickContext={rightClickContext} setRightClickContext={setRightClickContext} />
     </SidebarProvider>
   );
 }

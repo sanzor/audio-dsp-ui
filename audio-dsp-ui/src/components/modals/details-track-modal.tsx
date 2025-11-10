@@ -1,5 +1,5 @@
 
-import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
+import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -8,7 +8,7 @@ import { Button } from "../ui/button";
 
 export interface DetailsTrackModalProps {
   open: boolean;
-  track: TrackMetaWithRegions;
+  track: TrackMetaViewModel;
   onClose: () => void;
 }
 
@@ -39,4 +39,3 @@ export function DetailsTrackModal({ track, open, onClose }: DetailsTrackModalPro
     </Dialog>
   );
 }
-

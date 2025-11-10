@@ -1,8 +1,8 @@
-import type { Edge } from "./Edge";
-import type { Graph } from "./Graph";
+import type { NormalizedGraph } from "./NormalizedGraph";
 import type { Node } from "./Node";
+import type { Edge } from "./Edge";
 
-export interface GraphViewModel extends Graph {
-    nodes: Node[] | null;
-    edges: Edge[] | null;
+export interface GraphViewModel extends NormalizedGraph {
+    nodes: Node[];
+    edges: Edge[];
 }

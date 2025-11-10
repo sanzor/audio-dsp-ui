@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { RegionSetContextMenu } from "../region-set-context-menu";
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
-import type { RightClickContext } from "../dashboard";
+import type { RightClickContext } from "../dashboard/dashboard";
 import { DetailsRegionSetModal } from "../modals/details-region-set-modal";
 import { RegionSetRenameModal } from "../modals/rename-region-set-modal";
 import { PasteRegionModal } from "../modals/paste-region-modal";

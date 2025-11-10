@@ -1,6 +1,5 @@
 import type { TrackRegion } from "./TrackRegion";
 
-export interface NormalizedTrackRegion extends TrackRegion {
-    region_set_id: string;
+export interface NormalizedTrackRegion extends Omit<TrackRegion, 'graph'> {
     graphId: string | null;
 }

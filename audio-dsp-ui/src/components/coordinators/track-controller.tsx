@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
+import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
-import type { RightClickContext } from "../dashboard";
+import type { RightClickContext } from "../dashboard/dashboard";
 import { TrackContextMenu } from "../track-context-menu";
 import { CreateRegionSetModal } from "../modals/create-region-set-modal";
 import { DetailsTrackModal } from "../modals/details-track-modal";
@@ -11,7 +11,7 @@ import { CopyRegionSetModal } from "../modals/copy-region-set-modal";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
 import { useCopyTrack, useDeleteTrack, useRenameTrack } from "@/Orchestrators/Tracks/useTrackMutations";
 import { useCopyRegionSet, useCreateRegionSet } from "@/Orchestrators/RegionSets/useRegionSetsMutations";
-import { useTrackMetaWithRegionsList, useTrackViewModelMap } from "@/Selectors/trackViewModels";
+import {  useTrackViewModelMap } from "@/Selectors/trackViewModels";
 import { useUIState } from "@/Providers/UseUIStateProvider";
 
 type TrackControllerProps = {
@@ -20,7 +20,6 @@ type TrackControllerProps = {
 };
 
 export function TrackController({ rightClickContext, setRightClickContext }: TrackControllerProps) {
-  const tracks = useTrackMetaWithRegionsList();
   const trackViewModelMap = useTrackViewModelMap();
   const { clipboard } = useUIState();
   const deleteTrack = useDeleteTrack();
@@ -29,7 +28,7 @@ export function TrackController({ rightClickContext, setRightClickContext }: Tra
   const createRegionSet = useCreateRegionSet();
   const copyRegionSet = useCopyRegionSet();
 
-  const [trackForDetails, setTrackForDetails] = useState<TrackMetaWithRegions | null>(null);
+  const [trackForDetails, setTrackForDetails] = useState<TrackMetaViewModel | null>(null);
   const [trackForRename, setTrackForRename] = useState<{ trackId: string; trackInitialName: string } | null>(null);
   const [trackToCopy, setTrackToCopy] = useState<{ trackId: string; sourceTrackNname: string } | null>(null);
   const [trackIdForRegionSet, setTrackIdForRegionSet] = useState<string | null>(null);
@@ -38,7 +37,7 @@ export function TrackController({ rightClickContext, setRightClickContext }: Tra
     sourceRegionSet: TrackRegionSetViewModel;
   } | null>(null);
 
-  const trackMap = useMemo(() => new Map(tracks.map(track => [track.track_id, track])), [tracks]);
+  const trackMap = useTrackViewModelMap();
   const selectedTrackId = rightClickContext?.type === "track" ? rightClickContext.trackId : null;
 
   const clipboardRegionSet = useMemo(() => {

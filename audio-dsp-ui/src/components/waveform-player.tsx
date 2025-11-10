@@ -1,4 +1,4 @@
-import type { TrackMetaWithRegions } from "@/Domain/TrackMetaWithRegions";
+import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
 import {  useEffect, useRef, useState } from "react"
 import WaveSurfer from "wavesurfer.js"
 import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.esm.js'
@@ -6,6 +6,10 @@ import Minimap from 'wavesurfer.js/dist/plugins/minimap.esm.js'
 import type { TrackRegion } from "@/Domain/Region/TrackRegion";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "./ui/context-menu";
 export interface WaveformPlayerProps{
+      
+    trackId: string
+    regionSetId: string,
+    url:string|null
     onRegionDetails:(regionId:string)=>void,
     onDeleteRegion:(regionId:string)=>void,
     onEditRegion:(regionId:string)=>void,
@@ -13,10 +17,6 @@ export interface WaveformPlayerProps{
 
     onCreateRegionClick:(time:number)=>void,
     onCreateRegionDrag:(start:number,end:number)=>void,
-
-    
-    track:TrackMetaWithRegions|null,
-    url:string|null
 }
 
 type ContextMenuContext =
@@ -24,7 +24,7 @@ type ContextMenuContext =
   | { type: 'waveform'; time: number }
   | null;
 
-export function WaveformPlayer({track,url,onRegionDetails: onDetails,onEditRegion,onDeleteRegion,onCreateRegionClick,onCreateRegionDrag}:WaveformPlayerProps){
+export function WaveformPlayer({trackId:trackId,regionSetId:regionSetId,url,onRegionDetails: onDetails,onEditRegion,onDeleteRegion,onCreateRegionClick,onCreateRegionDrag}:WaveformPlayerProps){
     const waveRef = useRef<WaveSurfer | null>(null);
     const waveformRef = useRef<HTMLDivElement | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -58,8 +58,8 @@ export function WaveformPlayer({track,url,onRegionDetails: onDetails,onEditRegio
 
         waveformElement.addEventListener('contextmenu', onContextMenu);
 
-        console.log("inside effect", { waveformElement, url, track });
-
+        console.log("inside effect", { waveformElement, url, trackId,regionSetId });
+        
         if (!track || !url) {
             setError("Missing track or URL");
          return;
@@ -196,7 +196,7 @@ export function WaveformPlayer({track,url,onRegionDetails: onDetails,onEditRegio
 // eslint-disable-next-line react-refresh/only-export-components
 export function createWaveFormPlayer(
     url:string,
-    track:TrackMetaWithRegions,
+    track:TrackMetaViewModel,
     container:HTMLElement,
     setContextMenu:React.Dispatch<React.SetStateAction<ContextMenuContext>>,
     setContextMenuPosition: React.Dispatch<React.SetStateAction<{
@@ -275,5 +275,3 @@ function addRegion(regionsObj:RegionsPlugin,elem:TrackRegion):RegionsPlugin{
         });
     return regionsObj;
 }
-
-

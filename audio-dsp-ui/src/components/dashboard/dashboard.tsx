@@ -9,9 +9,9 @@ import { SidebarProvider } from "../ui/sidebar-provider";
 
 import { useTracks } from "@/Providers/UseTracks";
 import { useAudioPlaybackCache } from "@/Providers/UsePlaybackCache";
-import { WaveformPlayer } from "../waveform-player";
+import { WaveformRenderer } from "./waveform/WaveformPlayer";
 import { apiGetStoredTrack } from "@/Services/TracksService";
-import type { SelectedContext } from "@/Providers/UIStateProvider";
+import type { OpenedContext, SelectedContext } from "@/Providers/UIStateProvider";
 import { useUIState } from "@/Providers/UseUIStateProvider";
 import { TrackController } from "../coordinators/track-controller";
 import { useTrackViewModelById, useTrackViewModels } from "@/Selectors/trackViewModels";
@@ -22,6 +22,7 @@ import { DashboardLayout } from "./dashboard-layout";
 import { TransformStorePanel } from "./store/transform-store-panel";
 import { CanvasPanel } from "./graph/canvas-panel";
 import { SidebarInset } from "../ui/sidebar";
+import { useWaveformAudio } from "./waveform/WaveformAudio";
 
 export type RightClickContext =
   | { type: "track"; trackId: string; x: number; y: number }
@@ -29,22 +30,36 @@ export type RightClickContext =
   | { type: "regionSet"; trackId: string; regionSetId: string; x: number; y: number }
   | null;
 
+
 export function Dashboard() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { addTrack } = useTracks();
-  const { selectedContext, setSelectedContext } = useUIState();
+  const {
+    setSelectedContext,
+    openedContext,
+    setOpenedContext
+  } = useUIState();
+
+  const openedTrackId =
+  openedContext ? openedContext.trackId : null;
+
+  const openedRegionSetId =
+    openedContext && openedContext.type !== "track"
+      ? openedContext.regionSetId
+      : null;
+
+  // const openedRegionId =
+  //   openedContext && openedContext.type === "region"
+  //     ? openedContext.regionId
+  //     : null;
 
   const [rightClickContext, setRightClickContext] = useState<RightClickContext>(null);
   const [addTrackModalOpen, setAddTrackModalOpen] = useState(false);
-  const [selectedTrack, setSelectedTrack] = useState<TrackMetaViewModel | null>(null);
-  const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  const {objectUrl} =useWaveformAudio()
 
-  const { setBlob, getBlob } = useAudioPlaybackCache();
+
   const sidebarTracks = useTrackViewModels();
-  const activeTrack = useTrackViewModelById(
-    selectedContext?.type === "track" ? selectedContext.trackId : null
-  );
 
   useEffect(() => {
     if (!loading && !user) {
@@ -52,47 +67,17 @@ export function Dashboard() {
     }
   }, [loading, navigate, user]);
 
-  const hydrateTrack = useCallback(
-    async (track: TrackMetaViewModel) => {
-      setSelectedTrack(track);
 
-      let blob = getBlob(track.track_id);
-      if (!blob) {
-        try {
-          const response = await apiGetStoredTrack({ track_id: track.track_id });
-          blob = response.blob;
-          setBlob(track.track_id, blob);
-        } catch (error) {
-          console.error("Failed to fetch audio blob", error);
-          return;
-        }
-      }
 
-      const url = URL.createObjectURL(blob);
-      setObjectUrl(current => {
-        if (current) URL.revokeObjectURL(current);
-        return url;
-      });
-    },
-    [getBlob, setBlob]
-  );
 
-  useEffect(() => {
-    if (!selectedContext || selectedContext.type !== "track" || !activeTrack) return;
-    hydrateTrack(activeTrack).catch(() => null);
-  }, [activeTrack, hydrateTrack, selectedContext]);
 
-  useEffect(() => {
-    return () => {
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
-  }, [objectUrl]);
 
   const handleSelect = (ctx: SelectedContext) => {
     setSelectedContext(ctx);
   };
+  const handleOpen=(ctx:OpenedContext)=>{
+    setOpenedContext(ctx);
+  }
 
   const onSubmitAddTrackModal = async (data: AddTrackParams): Promise<AddTrackResult> => {
     const result = await addTrack(data);
@@ -111,6 +96,7 @@ export function Dashboard() {
           onAddTrackClick={() => setAddTrackModalOpen(true)}
           onRightClick={setRightClickContext}
           onSelect={handleSelect}
+          onOpen={handleOpen}
           user={{
             name: user?.name ?? "Unknown User",
             email: user?.email ?? "",
@@ -127,9 +113,10 @@ export function Dashboard() {
             store={<TransformStorePanel />}
             canvas={<CanvasPanel />}
             waveform={
-              selectedTrack && objectUrl ? (
-                <WaveformPlayer
-                  track={selectedTrack}
+               objectUrl &&openedTrackId && openedRegionSetId ? (
+                <WaveformRenderer
+                  trackId={openedTrackId}
+                  regionSetId={openedRegionSetId}
                   url={objectUrl}
                   onCreateRegionClick={() => null}
                   onCreateRegionDrag={() => null}
@@ -150,3 +137,5 @@ export function Dashboard() {
     </SidebarProvider>
   );
 }
+
+

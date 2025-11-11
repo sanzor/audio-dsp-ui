@@ -15,7 +15,7 @@ import {
 
 import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel"
 import type { RightClickContext } from "../dashboard"
-import type { SelectedContext } from "@/Providers/UIStateProvider"
+import type { OpenedContext, SelectedContext } from "@/Providers/UIStateProvider"
 import { Button } from "../../ui/button"
 
 export interface AppSidebarProps {
@@ -23,6 +23,7 @@ export interface AppSidebarProps {
   onAddTrackClick: () => void
   onRightClick: (context: RightClickContext) => void
   onSelect: (ctx: SelectedContext) => void
+  onOpen: (ctx: OpenedContext) => void;
   user: {
     name: string
     email: string
@@ -40,6 +41,7 @@ export function AppSidebar({
   onAddTrackClick,
   onRightClick,
   onSelect,
+  onOpen,
   user,
   teams
 }: AppSidebarProps) {
@@ -70,6 +72,7 @@ export function AppSidebar({
           tracks={tracks}
           onRightClick={onRightClick}
           onSelect={onSelect}
+          onOpen={onOpen}
         />
       </SidebarContent>
 

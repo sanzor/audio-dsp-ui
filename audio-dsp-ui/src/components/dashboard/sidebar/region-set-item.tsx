@@ -7,7 +7,7 @@ import {
 import { SidebarMenuItem, SidebarMenuButton, SidebarMenuSub } from "@/components/ui/sidebar";
 import { RegionItem } from "./region-item";
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
-import type { SelectedContext } from "@/Providers/UIStateProvider";
+import type { OpenedContext, SelectedContext } from "@/Providers/UIStateProvider";
 import type { RightClickContext } from "../dashboard";
 
 interface Props {
@@ -15,15 +15,17 @@ interface Props {
   trackId: string;
   onRightClick: (ctx: RightClickContext) => void;
   onSelect: (ctx: SelectedContext) => void;
+  onOpen:(ctx:OpenedContext)=>void;
 }
 
-export function RegionSetItem({ regionSet, trackId, onRightClick, onSelect }: Props) {
+export function RegionSetItem({ regionSet, trackId, onRightClick, onSelect, onOpen}: Props) {
   return (
     <Collapsible defaultOpen className="group/collapsible">
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton
             onClick={() => onSelect({ type: "regionSet", trackId, regionSetId: regionSet.id })}
+            onDoubleClick={() => onOpen({ type: "regionSet", trackId, regionSetId: regionSet.id })}
             onContextMenu={e => {
               e.preventDefault();
               onRightClick({ type: "regionSet", trackId, regionSetId: regionSet.id, x: e.clientX, y: e.clientY });
@@ -42,6 +44,8 @@ export function RegionSetItem({ regionSet, trackId, onRightClick, onSelect }: Pr
                 region={region}
                 trackId={trackId}
                 onRightClick={onRightClick}
+                onSelect={onSelect}
+                onOpen={onOpen}
               />
             ))}
           </SidebarMenuSub>

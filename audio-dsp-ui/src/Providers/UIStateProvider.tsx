@@ -6,6 +6,13 @@ export type SelectedContext =
   | { type: "region"; trackId: string; regionSetId: string; regionId: string }
   | null;
 
+/** This is the NEW type for double-click / open actions */
+export type OpenedContext =
+  | { type: "track"; trackId: string }
+  | { type: "regionSet"; trackId: string; regionSetId: string }
+  | { type: "region"; trackId: string; regionSetId: string; regionId: string }
+  |null;
+
 export type Clipboard =
   | { type: "track"; trackId: string }
   | { type: "regionSet"; trackId: string; regionSetId: string }
@@ -18,8 +25,12 @@ export type Clipboard =
 type UIStateContextValue = {
   selectedContext: SelectedContext;
   setSelectedContext: React.Dispatch<React.SetStateAction<SelectedContext>>;
+
   clipboard: Clipboard;
   setClipboard: React.Dispatch<React.SetStateAction<Clipboard>>;
+
+  openedContext:OpenedContext;
+  setOpenedContext:React.Dispatch<React.SetStateAction<OpenedContext>>
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -28,9 +39,19 @@ export const UIStateContext = createContext<UIStateContextValue | undefined>(und
 export function UIStateProvider({ children }: { children: React.ReactNode }) {
   const [selectedContext, setSelectedContext] = useState<SelectedContext>(null);
   const [clipboard, setClipboard] = useState<Clipboard>(null);
+  const [openedContext, setOpenedContext] = useState<OpenedContext>(null);
 
   return (
-    <UIStateContext.Provider value={{ selectedContext, setSelectedContext, clipboard, setClipboard }}>
+    <UIStateContext.Provider
+      value={{
+        selectedContext,
+        setSelectedContext,
+        clipboard,
+        setClipboard,
+        openedContext,
+        setOpenedContext
+      }}
+    >
       {children}
     </UIStateContext.Provider>
   );

@@ -6,18 +6,20 @@ import {
   SidebarMenu,
 } from "@/components/ui/sidebar"
 import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel"
-import type { SelectedContext } from "@/Providers/UIStateProvider"
+import type { OpenedContext, SelectedContext } from "@/Providers/UIStateProvider"
 import type { RightClickContext } from "./dashboard/dashboard"
 import { TrackItem } from "./dashboard/sidebar/track-item"
 
 export interface NavMainProps{
    tracks:TrackMetaViewModel[],
    onSelect:(ctx: SelectedContext)=>void,
+   onOpen:(ctx:OpenedContext)=>void,
    onRightClick: (ctx: RightClickContext) => void
 }
 export function NavMain({
   tracks,
   onSelect,
+  onOpen,
   onRightClick
 
 }:NavMainProps) {
@@ -32,6 +34,7 @@ export function NavMain({
             key={item.track_id}
             track={item}
             onSelect={onSelect}
+            onOpen={onOpen}
             onRightClick={onRightClick}
           />
         ))}

@@ -1,20 +1,16 @@
 import { useAuth } from "@/Auth/UseAuth";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { AddTrackParams } from "@/Dtos/Tracks/AddTrackParams";
 import type { AddTrackResult } from "@/Dtos/Tracks/AddTrackResult";
-import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
 import { AppSidebar } from "./sidebar/app-sidebar";
 import { SidebarProvider } from "../ui/sidebar-provider";
 
 import { useTracks } from "@/Providers/UseTracks";
-import { useAudioPlaybackCache } from "@/Providers/UsePlaybackCache";
-import { WaveformRenderer } from "./waveform/WaveformPlayer";
-import { apiGetStoredTrack } from "@/Services/TracksService";
+
 import type { OpenedContext, SelectedContext } from "@/Providers/UIStateProvider";
 import { useUIState } from "@/Providers/UseUIStateProvider";
 import { TrackController } from "../coordinators/track-controller";
-import { useTrackViewModelById, useTrackViewModels } from "@/Selectors/trackViewModels";
 import { CreateTrackModal } from "../modals/create-track-modal";
 import { RegionSetController } from "../coordinators/region-set-controller";
 import { RegionController } from "../coordinators/region-controller";
@@ -22,7 +18,8 @@ import { DashboardLayout } from "./dashboard-layout";
 import { TransformStorePanel } from "./store/transform-store-panel";
 import { CanvasPanel } from "./graph/canvas-panel";
 import { SidebarInset } from "../ui/sidebar";
-import { useWaveformAudio } from "./waveform/WaveformAudio";
+import { useTrackViewModels } from "@/Selectors/trackViewModels";
+import { WaveformPlayer } from "./waveform/WaveformPlayer";
 
 export type RightClickContext =
   | { type: "track"; trackId: string; x: number; y: number }
@@ -41,13 +38,6 @@ export function Dashboard() {
     setOpenedContext
   } = useUIState();
 
-  const openedTrackId =
-  openedContext ? openedContext.trackId : null;
-
-  const openedRegionSetId =
-    openedContext && openedContext.type !== "track"
-      ? openedContext.regionSetId
-      : null;
 
   // const openedRegionId =
   //   openedContext && openedContext.type === "region"
@@ -56,7 +46,6 @@ export function Dashboard() {
 
   const [rightClickContext, setRightClickContext] = useState<RightClickContext>(null);
   const [addTrackModalOpen, setAddTrackModalOpen] = useState(false);
-  const {objectUrl} =useWaveformAudio()
 
 
   const sidebarTracks = useTrackViewModels();
@@ -113,18 +102,10 @@ export function Dashboard() {
             store={<TransformStorePanel />}
             canvas={<CanvasPanel />}
             waveform={
-               objectUrl &&openedTrackId && openedRegionSetId ? (
-                <WaveformRenderer
-                  trackId={openedTrackId}
-                  regionSetId={openedRegionSetId}
-                  url={objectUrl}
-                  onCreateRegionClick={() => null}
-                  onCreateRegionDrag={() => null}
-                  onRegionDetails={() => null}
-                  onEditRegion={() => null}
-                  onDeleteRegion={() => null}
-                />
-              ) : null
+                (openedContext &&
+                <WaveformPlayer 
+                openedContext={openedContext}>
+                </WaveformPlayer>)
             }
           />
         </SidebarInset>

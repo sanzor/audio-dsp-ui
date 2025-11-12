@@ -4,6 +4,8 @@ import WaveSurfer from "wavesurfer.js"
 import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.esm.js'
 import Minimap from 'wavesurfer.js/dist/plugins/minimap.esm.js'
 import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
+import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 
 
 export interface WaveformRendererProps{
@@ -14,8 +16,6 @@ export interface WaveformRendererProps{
     onRegionDetails:(regionId:string)=>void,
     onDeleteRegion:(regionId:string)=>void,
     onEditRegion:(regionId:string)=>void,
-   
-
     onCreateRegionClick:(time:number)=>void,
     onCreateRegionDrag:(start:number,end:number)=>void,
 }
@@ -25,11 +25,19 @@ type ContextMenuContext =
   | { type: 'waveform'; time: number }
   | null;
 
-export function WaveformRenderer({trackId:trackId,regionSetId:regionSetId,url,onRegionDetails: onDetails,onEditRegion,onDeleteRegion,onCreateRegionClick,onCreateRegionDrag}:WaveformPlayerProps){
+export function WaveformRenderer({
+    trackId,
+    regionSetId,
+    url,
+    onRegionDetails: onDetails,
+    onEditRegion,
+    onDeleteRegion,
+    onCreateRegionClick,
+    onCreateRegionDrag
+  }:WaveformRendererProps
+  ){
     const waveRef = useRef<WaveSurfer | null>(null);
     const waveformRef = useRef<HTMLDivElement | null>(null);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const [waveObject,setWaveObject]=useState<WaveSurfer|null>(null);
     const [regionsPlugin, setRegionsPlugin] = useState<RegionsPlugin | null>(null);
     const renderedRegionIds = useRef<Set<string>>(new Set());
 
@@ -197,7 +205,7 @@ export function WaveformRenderer({trackId:trackId,regionSetId:regionSetId,url,on
 // eslint-disable-next-line react-refresh/only-export-components
 export function createWaveFormPlayer(
     url:string,
-    track:TrackMetaViewModel,
+    trackRegions:TrackRegionViewModel[],
     container:HTMLElement,
     setContextMenu:React.Dispatch<React.SetStateAction<ContextMenuContext>>,
     setContextMenuPosition: React.Dispatch<React.SetStateAction<{
@@ -248,7 +256,7 @@ export function createWaveFormPlayer(
         activeRegion=null;
     });
     wave.once('ready',()=>{
-        addRegions(track.regions,regions);
+        addRegions(trackRegions,regions);
     });
 
     return {wave:wave,regions:regions}
@@ -257,14 +265,14 @@ const random = (min:number, max:number) => Math.random() * (max - min) + min
 const randomColor = () => `rgba(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)}, 0.5)`
 
 
-function addRegions(regions:TrackRegion[],regionsObj:RegionsPlugin):RegionsPlugin{
+function addRegions(regions:TrackRegionViewModel[],regionsObj:RegionsPlugin):RegionsPlugin{
     for(const elem of regions){
         addRegion(regionsObj,elem);
     }
     return regionsObj;
 }
 
-function addRegion(regionsObj:RegionsPlugin,elem:TrackRegion):RegionsPlugin{
+function addRegion(regionsObj:RegionsPlugin,elem:TrackRegionViewModel):RegionsPlugin{
     regionsObj.addRegion({
             id:elem.region_id,
             start:elem.start,

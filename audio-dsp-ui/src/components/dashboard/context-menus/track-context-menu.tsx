@@ -1,4 +1,5 @@
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "./ui/context-menu"
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
+
 
 interface TrackContextMenuProps{
   x: number;
@@ -8,7 +9,7 @@ interface TrackContextMenuProps{
   onCreateRegionSet:(id:string)=>void
   onRemove: (id: string) => void
   onRename: (id: string) => void
-  onCopy: (id: string) => void
+  onCopyTrack: (id: string) => void
   onDetails:(id:string)=>void
   onPasteRegionSet:(id:string)=>void
   canPasteRegionSet:boolean
@@ -23,7 +24,7 @@ export function TrackContextMenu({
   onDetails,
   onRemove,
   onRename,
-  onCopy,
+  onCopyTrack,
   onPasteRegionSet,
   canPasteRegionSet,
 }: TrackContextMenuProps) {
@@ -37,7 +38,7 @@ export function TrackContextMenu({
         <ContextMenuItem onClick={() => {onCreateRegionSet(trackId); onClose()}}>Create Region Set</ContextMenuItem>
         <ContextMenuItem onClick={() => {onDetails(trackId);onClose()}}>Details</ContextMenuItem>
         <ContextMenuItem onClick={() => {onRename(trackId);onClose();}}>Rename</ContextMenuItem>
-        <ContextMenuItem onClick={() => {onCopy(trackId);onClose();}}>Copy</ContextMenuItem>
+        <ContextMenuItem onClick={() => {onCopyTrack(trackId);onClose();}}>Copy</ContextMenuItem>
         <ContextMenuItem 
           disabled={!canPasteRegionSet}
           onClick={() => {

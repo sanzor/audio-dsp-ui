@@ -1,5 +1,12 @@
 import { createContext, useState } from "react";
 
+export type RightClickContext =
+  | { type: "track"; trackId: string; x: number; y: number }
+  | { type: "region"; trackId: string; regionSetId: string; regionId: string; x: number; y: number }
+  | { type: "regionSet"; trackId: string; regionSetId: string; x: number; y: number }
+  | null;
+
+
 export type SelectedContext =
   | { type: "track"; trackId: string }
   | { type: "regionSet"; trackId: string; regionSetId: string }
@@ -31,6 +38,9 @@ type UIStateContextValue = {
 
   openedContext:OpenedContext;
   setOpenedContext:React.Dispatch<React.SetStateAction<OpenedContext>>
+
+  rightClickContext:RightClickContext;
+  setRightClickContext:React.Dispatch<React.SetStateAction<RightClickContext>>
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -40,6 +50,7 @@ export function UIStateProvider({ children }: { children: React.ReactNode }) {
   const [selectedContext, setSelectedContext] = useState<SelectedContext>(null);
   const [clipboard, setClipboard] = useState<Clipboard>(null);
   const [openedContext, setOpenedContext] = useState<OpenedContext>(null);
+  const [rightClickContext,setRightClickContext]=useState<RightClickContext>(null);
 
   return (
     <UIStateContext.Provider
@@ -49,7 +60,9 @@ export function UIStateProvider({ children }: { children: React.ReactNode }) {
         clipboard,
         setClipboard,
         openedContext,
-        setOpenedContext
+        setOpenedContext,
+        rightClickContext,
+        setRightClickContext
       }}
     >
       {children}

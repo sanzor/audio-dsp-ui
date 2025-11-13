@@ -1,9 +1,9 @@
 import {  useState } from "react";
 import type { RightClickContext } from "../dashboard/dashboard";
 import { RegionContextMenu } from "../region-context-menu";
-import { DetailsRegionModal } from "../modals/details-region-modal";
-import { RegionRenameModal } from "../modals/rename-region-modal";
-import { CopyGraphModal } from "../modals/copy-graph-modal";
+import { DetailsRegionModal } from "../dashboard/modals/region/details-region-modal";
+import { RegionRenameModal } from "../dashboard/modals/region/rename-region-modal";
+import { CopyGraphModal } from "../dashboard/modals/graph/copy-graph-modal";
 import { useUIState } from "@/Providers/UseUIStateProvider";
 import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
 import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";

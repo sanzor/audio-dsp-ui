@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog"
+} from "../../../ui/dialog"
 import type { AddTrackParams } from "@/Dtos/Tracks/AddTrackParams"
 import type { CanonicalAudio } from "@/Audio/CanonicalAudio"
 import type { ABuffer } from "@/Domain/ABuffer"

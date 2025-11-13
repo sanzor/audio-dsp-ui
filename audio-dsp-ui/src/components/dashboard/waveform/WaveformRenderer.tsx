@@ -3,21 +3,20 @@ import {  useEffect, useRef, useState } from "react"
 import WaveSurfer from "wavesurfer.js"
 import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.esm.js'
 import Minimap from 'wavesurfer.js/dist/plugins/minimap.esm.js'
-import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
 import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
+import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
 
 
 export interface WaveformRendererProps{
-    track:TrackMetaViewModel 
-    trackId: string
-    regionSetId: string,
+    regionSet:TrackRegionSetViewModel 
     url:string|null
     onRegionDetails:(regionId:string)=>void,
     onDeleteRegion:(regionId:string)=>void,
     onEditRegion:(regionId:string)=>void,
     onCreateRegionClick:(time:number)=>void,
     onCreateRegionDrag:(start:number,end:number)=>void,
+    onCopyRegion:(regionId:string)=>void
 }
 
 type ContextMenuContext =
@@ -26,14 +25,14 @@ type ContextMenuContext =
   | null;
 
 export function WaveformRenderer({
-    trackId,
-    regionSetId,
+    regionSet,
     url,
     onRegionDetails: onDetails,
     onEditRegion,
     onDeleteRegion,
     onCreateRegionClick,
-    onCreateRegionDrag
+    onCreateRegionDrag,
+    onCopyRegion
   }:WaveformRendererProps
   ){
     const waveRef = useRef<WaveSurfer | null>(null);
@@ -67,10 +66,10 @@ export function WaveformRenderer({
 
         waveformElement.addEventListener('contextmenu', onContextMenu);
 
-        console.log("inside effect", { waveformElement, url, trackId,regionSetId });
+        console.log("inside effect", { waveformElement, url, regionSet });
         
-        if (!track || !url) {
-            setError("Missing track or URL");
+        if (!regionSet || !url) {
+            setError("Missing region set or URL");
          return;
         }
 
@@ -79,7 +78,7 @@ export function WaveformRenderer({
 
         const { wave: waveform, regions } = createWaveFormPlayer(
             url,
-             track,
+             regionSet.regions,
             waveformElement,
             setContextMenu,
             setContextMenuPosition
@@ -105,11 +104,11 @@ export function WaveformRenderer({
             waveform.destroy();
             waveRef.current = null;
         };
-    }, [url, track]);
+    }, [url, regionSet]);
 
     useEffect(()=>{
-        if(!regionsPlugin||!track)return;
-        const currentIds=new Set(track.regions.map(r=>r.region_id.toString()));
+        if(!regionsPlugin||!regionSet)return;
+        const currentIds=new Set(regionSet.regions.map(r=>r.region_id.toString()));
         const existingIds=renderedRegionIds.current;
 
          // Remove regions that no longer exist
@@ -121,7 +120,7 @@ export function WaveformRenderer({
             
         }
         //add new regions
-        for(const region of track.regions){
+        for(const region of regionSet.regions){
             const id=region.region_id.toString();
             const existing=regionsPlugin.getRegions().find(x=>x.id===id);
             if(existing){
@@ -135,7 +134,7 @@ export function WaveformRenderer({
            
         }
         renderedRegionIds.current=currentIds;
-    },[track,track?.regions,regionsPlugin]);
+    },[regionSet,regionSet.regions,regionsPlugin]);
 
 
     if (error) {
@@ -145,7 +144,7 @@ export function WaveformRenderer({
                 <div className="mt-2 text-sm">
                     <p>Debug info:</p>
                     <p>• URL: {url ? 'Present' : 'Missing'}</p>
-                    <p>• Track: {track?.track_info?.name || 'Unknown'}</p>
+                    <p>• Region Set: {regionSet.name || 'Unknown'}</p>
                 </div>
             </div>
         );
@@ -181,6 +180,7 @@ export function WaveformRenderer({
           <ContextMenuItem onClick={() => onEditRegion(contextMenu.regionId)}>Edit</ContextMenuItem>
           <ContextMenuItem onClick={() => onDetails(contextMenu.regionId)}>Details</ContextMenuItem>
           <ContextMenuItem onClick={() => onDeleteRegion(contextMenu.regionId)}>Delete</ContextMenuItem>
+          <ContextMenuItem onClick={()=>  onCopyRegion(contextMenu.regionId)}>Copy</ContextMenuItem>
         </>
       ) : (
         <>

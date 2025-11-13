@@ -11,7 +11,7 @@ import { useTracks } from "@/Providers/UseTracks";
 import type { OpenedContext, SelectedContext } from "@/Providers/UIStateProvider";
 import { useUIState } from "@/Providers/UseUIStateProvider";
 import { TrackController } from "../coordinators/track-controller";
-import { CreateTrackModal } from "../modals/create-track-modal";
+import { CreateTrackModal } from "./modals/track/create-track-modal";
 import { RegionSetController } from "../coordinators/region-set-controller";
 import { RegionController } from "../coordinators/region-controller";
 import { DashboardLayout } from "./dashboard-layout";
@@ -21,11 +21,6 @@ import { SidebarInset } from "../ui/sidebar";
 import { useTrackViewModels } from "@/Selectors/trackViewModels";
 import { WaveformPlayer } from "./waveform/WaveformPlayer";
 
-export type RightClickContext =
-  | { type: "track"; trackId: string; x: number; y: number }
-  | { type: "region"; trackId: string; regionSetId: string; regionId: string; x: number; y: number }
-  | { type: "regionSet"; trackId: string; regionSetId: string; x: number; y: number }
-  | null;
 
 
 export function Dashboard() {
@@ -44,7 +39,7 @@ export function Dashboard() {
   //     ? openedContext.regionId
   //     : null;
 
-  const [rightClickContext, setRightClickContext] = useState<RightClickContext>(null);
+  const {rightClickContext, setRightClickContext} = useUIState();
   const [addTrackModalOpen, setAddTrackModalOpen] = useState(false);
 
 
@@ -55,11 +50,6 @@ export function Dashboard() {
       navigate("/login");
     }
   }, [loading, navigate, user]);
-
-
-
-
-
 
   const handleSelect = (ctx: SelectedContext) => {
     setSelectedContext(ctx);
@@ -104,6 +94,10 @@ export function Dashboard() {
             waveform={
                 (openedContext &&
                 <WaveformPlayer 
+                onCopyRegion={(id)=>}
+                onEditRegion={}
+                onCreateRegionClick={}
+                onCreateRegionDrag={}
                 openedContext={openedContext}>
                 </WaveformPlayer>)
             }

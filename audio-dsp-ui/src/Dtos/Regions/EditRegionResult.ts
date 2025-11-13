@@ -1,5 +1,5 @@
-import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
+import type { TrackRegion } from "@/Domain/Region/TrackRegion";
 
 export interface EditRegionResult{
-    region_set:TrackRegionSet
+    region:TrackRegion
 }

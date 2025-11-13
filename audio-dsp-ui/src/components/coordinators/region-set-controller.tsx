@@ -2,14 +2,14 @@
 // RegionSetController.tsx
 import { useState } from "react";
 
-import { RegionSetContextMenu } from "../region-set-context-menu";
+import { RegionSetContextMenu } from "../dashboard/context-menus/region-set-context-menu";
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
 import type { RightClickContext } from "../dashboard/dashboard";
-import { DetailsRegionSetModal } from "../modals/details-region-set-modal";
-import { RegionSetRenameModal } from "../modals/rename-region-set-modal";
-import { PasteRegionModal } from "../modals/paste-region-modal";
+import { DetailsRegionSetModal } from "../dashboard/modals/region-set/details-region-set-modal";
+import { RegionSetRenameModal } from "../dashboard/modals/region-set/rename-region-set-modal";
+import { PasteRegionModal } from "../dashboard/modals/region/paste-region-modal";
 import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
-import { CreateRegionModal } from "../modals/create-region-modal";
+import { CreateRegionModal } from "../dashboard/modals/region/create-region-modal";
 import { useUIState } from "@/Providers/UseUIStateProvider";
 import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
 import { useCopyRegion, useCreateRegion } from "@/Orchestrators/Regions/useRegionMutations";
@@ -168,8 +168,8 @@ export function RegionSetController({
           onCreateRegion={onCreateRegionClick}
           onDetails={onDetailsRegionSetClick}
           onCopy={onCopyRegionSetClick}
-          onPaste={onPasteRegionClick}
-          canPaste={clipboard?.type==="region"}
+          onPasteRegion={onPasteRegionClick}
+          canPasteRegion={clipboard?.type==="region"}
           onRemove={onRemoveRegionSetClick}
           onRename={onRenameRegionSetClick}
         />

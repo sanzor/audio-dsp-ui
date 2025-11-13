@@ -1,4 +1,4 @@
-import {  ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "./ui/context-menu"
+import {  ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "../../ui/context-menu"
 
 interface RegionContextMenuProps{
   x: number;
@@ -10,9 +10,8 @@ interface RegionContextMenuProps{
   onRemove: (regionId: string,regionSetId:string,trackId:string) => void
   onRename: (regionId: string,regionSetId:string,trackId:string) => void
   onCopyRegion: (regionId: string,regionSetId:string,trackId:string) => void
-  onCopyGraph?: (regionId: string,regionSetId:string,trackId:string) => void
+  onCreateGraph:(regionId:string,regionSetId:string,trackId:string)=>void
   onPasteGraph?: (regionId: string,regionSetId:string,trackId:string) => void
-  canCopyGraph?: boolean
   canPasteGraph?: boolean
   onDetails:(regionId: string,regionSetId:string,trackId:string)=>void
 }
@@ -28,9 +27,8 @@ export function RegionContextMenu({
   onRemove,
   onRename,
   onCopyRegion,
-  onCopyGraph,
+  onCreateGraph,
   onPasteGraph,
-  canCopyGraph = false,
   canPasteGraph = false,
 }: RegionContextMenuProps) {
   return (
@@ -40,17 +38,7 @@ export function RegionContextMenu({
         <ContextMenuItem onClick={() => {onDetails(regionId,regionSetId,trackId);onClose()}}>Details</ContextMenuItem>
        <ContextMenuItem onClick={() => {onRename(regionId,regionSetId,trackId);onClose();}}>Rename</ContextMenuItem>
          <ContextMenuItem onClick={() => {onCopyRegion(regionId,regionSetId,trackId);onClose();}}>Copy Region</ContextMenuItem>
-         <ContextMenuItem 
-          disabled={!canCopyGraph}
-          onClick={() => {
-            if (canCopyGraph && onCopyGraph) {
-              onCopyGraph(regionId, regionSetId, trackId);
-            }
-            onClose();
-          }}
-        >
-          Copy Graph
-        </ContextMenuItem>
+         <ContextMenuItem onClick={() => {onCreateGraph(regionId,regionSetId,trackId);onClose();}}>Create Graph</ContextMenuItem>
          <ContextMenuItem
           disabled={!canPasteGraph}
           onClick={() => {

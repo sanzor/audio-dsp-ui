@@ -1,10 +1,10 @@
 // /src/Domain/Region/mappers.ts
 
 import type { NormalizedTrackRegion } from "./NormalizedTrackRegion";
-import type { TrackRegionViewModel } from "./TrackRegionViewModel";
+import type { TrackRegion } from "./TrackRegion";
 
 
-export function normalizeRegion(region: TrackRegionViewModel): NormalizedTrackRegion {
+export function normalizeRegion(region: TrackRegion): NormalizedTrackRegion {
   return {
     region_id: region.region_id,
     region_set_id: region.region_set_id,

@@ -5,13 +5,28 @@ import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
 import type { CreateRegionResult } from "@/Dtos/Regions/CreateRegionResult";
 import type { EditRegionParams } from "@/Dtos/Regions/EditRegionParams";
 import type { EditRegionResult } from "@/Dtos/Regions/EditRegionResult";
+import type { GetRegionsForRegionSetResult } from "@/Dtos/Regions/GetRegionsForSetResult";
 import type { RemoveRegionParams } from "@/Dtos/Regions/RemoveRegionParams";
 import type { RemoveRegionResult } from "@/Dtos/Regions/RemoveRegionResult";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export async function apiGetRegions(trackId:string):Promise<TrackRegion[]>{
-    const res = await fetch(`${BASE_URL}/regions/get-regions?track_id=${trackId}`, {
+export async function apiGetRegion(regionId:string):Promise<TrackRegion>{
+    const res = await fetch(`${BASE_URL}/region-sets/get-region?region_set_id=${regionId}`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Failed to fetch session');
+
+  const json = await res.json(); // ✅ await here
+  console.log(json);
+  return json.tracks;
+}
+
+
+export async function apiGetRegionsForRegionSet(regionSetId:string):Promise<GetRegionsForRegionSetResult>{
+    const res = await fetch(`${BASE_URL}/regions/get-regions?region-set-id=${regionSetId}`, {
     method: 'GET',
     credentials: 'include',
   });

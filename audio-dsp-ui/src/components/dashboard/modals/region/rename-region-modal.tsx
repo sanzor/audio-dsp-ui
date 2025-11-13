@@ -1,6 +1,6 @@
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../../ui/dialog";
+import { Input } from "../../../ui/input";
+import { Button } from "../../../ui/button";
 import { useEffect, useState } from "react";
 import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
 

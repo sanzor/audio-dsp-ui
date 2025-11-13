@@ -1,4 +1,4 @@
-import {  ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "./ui/context-menu"
+import {  ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "../../ui/context-menu"
 
 interface RegionSetContextMenuProps{
   x: number;
@@ -9,9 +9,9 @@ interface RegionSetContextMenuProps{
   onCreateRegion:(regionSetId:string,trackId:string)=>void
   onRemove: (regionSetId: string,trackId:string) => void
   onRename: (regionSetId: string,trackId:string) => void
-  onCopy: (regionSetId: string,trackId:string) => void
-  onPaste:(destTrackId:string,destRegionSetId:string)=>void
-  canPaste:boolean
+  onCopyRegionSet: (regionSetId: string,trackId:string) => void
+  onPasteRegion:(destTrackId:string,destRegionSetId:string)=>void
+  canPasteRegion:boolean
   onDetails:(regionSetId:string,trackId:string)=>void
 }
 
@@ -25,9 +25,9 @@ export function RegionSetContextMenu({
   onDetails,
   onRemove,
   onRename,
-  onCopy,
-  onPaste,
-  canPaste
+  onCopyRegionSet,
+  onPasteRegion,
+  canPasteRegion
 }: RegionSetContextMenuProps) {
    
   return (
@@ -37,9 +37,9 @@ export function RegionSetContextMenu({
         <ContextMenuItem onClick={() => {onCreateRegion(regionSetId,trackId); onClose()}}>Create Region</ContextMenuItem>
          <ContextMenuItem onClick={() => {onDetails(regionSetId,trackId);onClose()}}>Details</ContextMenuItem>
         <ContextMenuItem onClick={() => {onRename(regionSetId,trackId);onClose();}}>Rename</ContextMenuItem>
-         <ContextMenuItem onClick={() => {onCopy(regionSetId,trackId);onClose();}}>Copy</ContextMenuItem>
+         <ContextMenuItem onClick={() => {onCopyRegionSet(regionSetId,trackId);onClose();}}>Copy</ContextMenuItem>
          <ContextMenuItem onClick={() => {onRemove(regionSetId,trackId);onClose();}}>Delete</ContextMenuItem>
-         <ContextMenuItem disabled={!canPaste} onClick={()=>onPaste(regionSetId,trackId)}>Paste</ContextMenuItem>
+         <ContextMenuItem disabled={!canPasteRegion} onClick={()=>onPasteRegion(regionSetId,trackId)}>Paste</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

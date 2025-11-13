@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog"
+} from "../../../ui/dialog"
 
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams"
 import { useState } from "react"

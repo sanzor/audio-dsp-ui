@@ -1,11 +1,11 @@
 
 
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../../ui/dialog";
+import { Input } from "../../../ui/input";
+import { Button } from "../../../ui/button";
 import { useEffect, useState } from "react";
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
-import { Label } from "../ui/label";
+import { Label } from "../../../ui/label";
 
 export interface CopyRegionSetModalProps {
   targetTrackId:string,

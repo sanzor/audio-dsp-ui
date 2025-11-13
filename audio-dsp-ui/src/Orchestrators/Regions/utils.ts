@@ -1,19 +1,13 @@
 import type { NormalizedTrackRegion } from "@/Domain/Region/NormalizedTrackRegion";
-import type { TrackRegion } from "@/Domain/Region/TrackRegion";
 import { useRegionStore } from "@/Stores/RegionStore";
 import { useRegionSetStore } from "@/Stores/RegionSetStore";
 import { useGraphStore } from "@/Stores/GraphStore";
 import { cascadeDeleteGraph, normalizeGraph } from "../Graphs/utils";
+import type { TrackRegion } from "@/Domain/Region/TrackRegion";
 
-type TrackRegionWithGraph = TrackRegion & {
-  graph?: TrackRegion["graph"] & {
-    nodes?: Array<{ id: string }>;
-    edges?: Array<{ id: string }>;
-  };
-};
 
 export const normalizeRegionWithCascade = (
-  regionApi: TrackRegionWithGraph
+  regionApi: TrackRegion
 ): NormalizedTrackRegion => {
   const addGraph = useGraphStore.getState().addGraph;
   const { graph, ...rest } = regionApi;
@@ -25,7 +19,6 @@ export const normalizeRegionWithCascade = (
 
   return {
     ...rest,
-    graph: undefined,
     graphId: graph ? graph.id : null,
   };
 };

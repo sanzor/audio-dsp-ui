@@ -1,3 +1,4 @@
 export interface RemoveRegionSetParams{
-    region_set_id:string
+    regionSetId:string,
+    track_id:string
 }

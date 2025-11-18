@@ -2,7 +2,7 @@
 
 import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
 import { useGraphStore } from "@/Stores/GraphStore";
-import { useUIState } from "@/Providers/UseUIStateProvider";
+import { useUIState } from "@/Providers/UIStore/UseUIStateProvider";
 
 import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
 import { useRegionModals } from "@/Providers/Modals/UseRegionModals";

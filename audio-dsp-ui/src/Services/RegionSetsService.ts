@@ -87,7 +87,7 @@ export async function apiUpdateRegionSet(params: EditRegionSetParams): Promise<E
 }
 
 export async function apiRemoveRegionSet(params: RemoveRegionSetParams): Promise<void> {
-  const res = await fetch(`${BASE_URL}/region-sets/remove?region_set_id=${params.region_set_id}`, {
+  const res = await fetch(`${BASE_URL}/region-sets/remove?region_set_id=${params.regionSetId}`, {
     method: 'DELETE',
     credentials: 'include'
   });

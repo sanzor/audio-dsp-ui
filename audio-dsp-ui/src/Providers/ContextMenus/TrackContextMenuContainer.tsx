@@ -1,7 +1,7 @@
 // RegionContextMenuContainer.tsx - Updated
 
 import { useRegionActions } from "@/Actions/region-actions";
-import { useUIState } from "@/Providers/UseUIStateProvider";
+import { useUIState } from "@/Providers/UIStore/UseUIStateProvider";
 import { useRegionModals } from "../Modals/UseRegionModals";
 import { TrackContextMenu } from "@/components/dashboard/context-menus/track-context-menu";
 

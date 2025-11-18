@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/sidebar";
 import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
 import type { RightClickContext } from "../dashboard";
-import type { OpenedContext, SelectedContext } from "@/Providers/UIStateProvider";
+import type { OpenedContext, SelectedContext } from "@/Providers/UIStore/UIStateProvider";
 
 
 interface RegionItemProps {

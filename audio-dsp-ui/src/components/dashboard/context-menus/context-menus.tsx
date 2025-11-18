@@ -1,4 +1,4 @@
-import { useUIState } from "@/Providers/UseUIStateProvider";
+import { useUIState } from "@/Providers/UIStore/UseUIStateProvider";
 import { RegionContextMenu } from "./region-context-menu";
 import { RegionSetContextMenu } from "./region-set-context-menu";
 import { TrackContextMenu } from "./track-context-menu";

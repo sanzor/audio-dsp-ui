@@ -95,7 +95,7 @@ export const useDeleteRegionSet = () => {
     {
       // Optimistic update: remove from store immediately
       onMutate: async (removeSetParams: RemoveRegionSetParams) => {
-        const setId = removeSetParams.region_set_id; // Adjust based on your params structure
+        const setId = removeSetParams.regionSetId; // Adjust based on your params structure
         
         // Cancel outgoing refetches
         await queryClient.cancelQueries(['regionSet', setId]);
@@ -117,7 +117,7 @@ export const useDeleteRegionSet = () => {
       },
       
       onSuccess: (_, removeSetParams, context) => {
-        const setId = removeSetParams.region_set_id;
+        const setId = removeSetParams.regionSetId;
         
         // Invalidate parent track's region sets list
         if (context?.previousSet) {
@@ -146,7 +146,7 @@ export const useDeleteRegionSet = () => {
 
           context.previousRegions.forEach(region => addRegion(region));
         }
-        queryClient.invalidateQueries(['regionSet', removeSetParams.region_set_id]);
+        queryClient.invalidateQueries(['regionSet', removeSetParams.regionSetId]);
       },
     }
   );

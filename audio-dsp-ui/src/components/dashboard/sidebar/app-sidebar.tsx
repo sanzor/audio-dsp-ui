@@ -15,7 +15,7 @@ import {
 
 import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel"
 import type { RightClickContext } from "../dashboard"
-import type { OpenedContext, SelectedContext } from "@/Providers/UIStateProvider"
+import type { OpenedContext, SelectedContext } from "@/Providers/UIStore/UIStateProvider"
 import { Button } from "../../ui/button"
 
 export interface AppSidebarProps {

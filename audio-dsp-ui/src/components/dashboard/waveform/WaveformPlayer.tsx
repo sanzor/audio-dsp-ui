@@ -1,6 +1,6 @@
 import { useRegionSetViewModel, useTrackViewModelById } from "@/Selectors/trackViewModels";
 import { useWaveformAudio } from "./WaveformAudio";
-import type { OpenedContext } from "@/Providers/UIStateProvider";
+import type { OpenedContext } from "@/Providers/UIStore/UIStateProvider";
 import { WaveformRenderer } from "./WaveformRenderer";
 
 export interface WaveformPlayerProps {

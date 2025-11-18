@@ -1,12 +1,12 @@
 // RegionContextMenuContainer.tsx - Updated
 
 import { useRegionActions } from "@/Actions/region-actions";
-import { useUIState } from "@/Providers/UseUIStateProvider";
 import { useRegionModals } from "../Modals/UseRegionModals";
 import { RegionContextMenu } from "@/components/dashboard/context-menus/region-context-menu";
+import { useUIStore } from "@/Stores/UIStore";
 
 export function RegionContextMenuContainer() {
-  const { rightClickContext, setRightClickContext, clipboard, setClipboard } = useUIState();
+  const { rightClickContext, openContextMenu: setRightClickContext, clipboard, copyToClipboard: setClipboard } = useUIStore();
   const { openDetailsModal, openRenameModal, openCopyGraphModal,openCreateGraphModal } = useRegionModals();
   const actions = useRegionActions();
 

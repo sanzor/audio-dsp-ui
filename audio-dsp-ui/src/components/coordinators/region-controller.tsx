@@ -4,7 +4,7 @@ import { RegionContextMenu } from "../region-context-menu";
 import { DetailsRegionModal } from "../dashboard/modals/region/details-region-modal";
 import { RegionRenameModal } from "../dashboard/modals/region/rename-region-modal";
 import { CopyGraphModal } from "../dashboard/modals/graph/copy-graph-modal";
-import { useUIState } from "@/Providers/UseUIStateProvider";
+import { useUIState } from "@/Providers/UIStore/UseUIStateProvider";
 import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
 import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
 import {useDeleteRegion, useEditRegion } from "@/Orchestrators/Regions/useRegionMutations";
@@ -90,7 +90,6 @@ export function RegionController({
     if (!selection) return;
     const { region, trackId, regionSetId } = selection;
     editRegion.mutate({
-      id: region.region_id,
       regionId: region.region_id,
       regionSetId: regionSetId,
       trackId,

@@ -12,7 +12,7 @@ import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetPar
 import { useCopyTrack, useDeleteTrack, useRenameTrack } from "@/Orchestrators/Tracks/useTrackMutations";
 import { useCopyRegionSet, useCreateRegionSet } from "@/Orchestrators/RegionSets/useRegionSetsMutations";
 import {  useTrackViewModelMap } from "@/Selectors/trackViewModels";
-import { useUIState } from "@/Providers/UseUIStateProvider";
+import { useUIState } from "@/Providers/UIStore/UseUIStateProvider";
 
 type TrackControllerProps = {
   rightClickContext: RightClickContext | null;

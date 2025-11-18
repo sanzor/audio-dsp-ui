@@ -8,8 +8,8 @@ import { SidebarProvider } from "../ui/sidebar-provider";
 
 import { useTracks } from "@/Providers/UseTracks";
 
-import type { OpenedContext, SelectedContext } from "@/Providers/UIStateProvider";
-import { useUIState } from "@/Providers/UseUIStateProvider";
+import type { OpenedContext, SelectedContext } from "@/Providers/UIStore/UIStateProvider";
+import { useUIState } from "@/Providers/UIStore/UseUIStateProvider";
 import { TrackController } from "../coordinators/track-controller";
 import { CreateTrackModal } from "./modals/track/create-track-modal";
 import { RegionSetController } from "../coordinators/region-set-controller";

@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/collapsible";
 import { SidebarMenuItem, SidebarMenuButton, SidebarMenuSub } from "@/components/ui/sidebar";
 import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
-import type { OpenedContext, SelectedContext } from "@/Providers/UIStateProvider";
+import type { OpenedContext, SelectedContext } from "@/Providers/UIStore/UIStateProvider";
 import type { RightClickContext } from "../dashboard";
 import { RegionSetItem } from "./region-set-item";
 

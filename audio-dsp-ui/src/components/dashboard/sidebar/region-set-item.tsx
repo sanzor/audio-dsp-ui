@@ -7,7 +7,7 @@ import {
 import { SidebarMenuItem, SidebarMenuButton, SidebarMenuSub } from "@/components/ui/sidebar";
 import { RegionItem } from "./region-item";
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
-import type { OpenedContext, SelectedContext } from "@/Providers/UIStateProvider";
+import type { OpenedContext, SelectedContext } from "@/Providers/UIStore/UIStateProvider";
 import type { RightClickContext } from "../dashboard";
 
 interface Props {

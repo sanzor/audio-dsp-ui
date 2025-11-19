@@ -10,10 +10,10 @@ import { useTracks } from "@/Providers/UseTracks";
 
 import type { OpenedContext, SelectedContext } from "@/Providers/UIStore/UIStateProvider";
 import { useUIState } from "@/Providers/UIStore/UseUIStateProvider";
-import { TrackController } from "../coordinators/track-controller";
+import { TrackController } from "../controllers/track-controller";
 import { CreateTrackModal } from "./modals/track/create-track-modal";
-import { RegionSetController } from "../coordinators/region-set-controller";
-import { RegionController } from "../coordinators/region-controller";
+import { RegionSetController } from "../controllers/RegionSetController";
+import { RegionController } from "../controllers/region-controller";
 import { DashboardLayout } from "./dashboard-layout";
 import { TransformStorePanel } from "./store/transform-store-panel";
 import { CanvasPanel } from "./graph/canvas-panel";

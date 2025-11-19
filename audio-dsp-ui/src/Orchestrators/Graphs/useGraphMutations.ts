@@ -4,6 +4,7 @@ import { useGraphStore } from "@/Stores/GraphStore";
 import { normalizeGraph } from "./utils";
 import type { CopyGraphParams } from "@/Dtos/Graphs/CopyGraphParams";
 import type { CopyGraphResult } from "@/Dtos/Graphs/CopyGraphResult";
+import { useRegionStore } from "@/Stores/RegionStore";
 
 export const useCopyGraph = () => {
   const queryClient = useQueryClient();
@@ -21,3 +22,23 @@ export const useCopyGraph = () => {
     },
   });
 };
+
+
+export const useCreateGraph = () => {
+  const addRegion=useGraphStore(state=>state.addGraph);
+  const attachGraph=useRegionStore(state=>state.att);
+  return useMutation<CreateRegionResult, Error, CreateRegionParams>({
+    mutationFn: (params) => apiAddRegion(params),
+    onSuccess: (data) => {
+      //update region set , attach region
+      const region=data.region;
+      const normalizedRegion=normalizeRegionWithCascade(region);
+      addRegion(normalizedRegion);
+      attachRegion(region.region_set_id,region.region_id);
+    },
+    onError: (error) => {
+      console.error('Failed to create region', error);
+    },
+  });
+};
+

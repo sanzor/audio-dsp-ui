@@ -10,7 +10,7 @@ import type { PasteRegionParams } from "@/Stores/PasteParams";
 export function useRegionSetController() {
   // Zustand selectors
   const clipboard = useUIStore(state => state.clipboard);
-  const setClipboard = useUIStore(state => state.copyToClipboard);
+  const copyToClipboard = useUIStore(state => state.copyToClipboard);
   const closeModal = useUIStore(state => state.closeModal);
   const openModal = useUIStore(state => state.openModal);
   const closeContextMenu = useUIStore(state => state.closeContextMenu);
@@ -123,7 +123,7 @@ export function useRegionSetController() {
         return;
       }
       
-      setClipboard({ type: "regionSet", trackId, regionSetId });
+      copyToClipboard({ type: "regionSet", trackId, regionSetId });
       closeContextMenu(); // ✅ Close context menu after action
       
       // Optional: Show success toast

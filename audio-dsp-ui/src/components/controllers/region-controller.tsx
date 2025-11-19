@@ -1,54 +1,39 @@
-import {  useState } from "react";
-import type { RightClickContext } from "../dashboard/dashboard";
-import { RegionContextMenu } from "../region-context-menu";
+
 import { DetailsRegionModal } from "../dashboard/modals/region/details-region-modal";
 import { RegionRenameModal } from "../dashboard/modals/region/rename-region-modal";
 import { CopyGraphModal } from "../dashboard/modals/graph/copy-graph-modal";
-import { useUIState } from "@/Providers/UIStore/UseUIStateProvider";
 import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
 import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
 import {useDeleteRegion, useEditRegion } from "@/Orchestrators/Regions/useRegionMutations";
 import { useCopyGraph } from "@/Orchestrators/Graphs/useGraphMutations";
 import { useGraphStore } from "@/Stores/GraphStore";
 import { useRegionStore } from "@/Stores/RegionStore";
+import { useUIStore } from "@/Stores/UIStore";
 
-type RegionControllerProps = {
-  rightClickContext: RightClickContext;
-  setRightClickContext: (ctx: RightClickContext | null) => void;
-};
 
-type RegionSelection = {
-  region: TrackRegionViewModel;
-  trackId: string;
-  regionSetId: string;
-};
-
-export function RegionController({
-  rightClickContext,
-  setRightClickContext,
-}: RegionControllerProps) {
-  const { clipboard, setClipboard } = useUIState();
+export function useRegionController() {
+  const  clipboard = useUIStore(state=>state.clipboard);
+  const copyToClipboard=useUIStore(state=>state.copyToClipboard);
+  const closeModal=useUIStore(state=>state.closeModal);
+  const openModal = useUIStore(state => state.openModal);
+  const closeContextMenu = useUIStore(state => state.closeContextMenu);
+  
   const trackMap = useTrackViewModelMap();
   const deleteRegion = useDeleteRegion();
   const editRegion = useEditRegion();
   const copyGraph = useCopyGraph();
-  const updateRegionStore = useRegionStore(state => state.updateRegion);
+  const createGraphMutation = useCreateGraph();
+  const copyRegionMutation = useCopyRegion();
+  const deleteRegionSetMutation = useDeleteRegionSet();
+  const renameRegionSetMutation = useRenameRegionSet();
 
-  const [regionForDetails, setRegionForDetails] = useState<RegionSelection | null>(null);
-  const [regionForRename, setRegionForRename] = useState<RegionSelection | null>(null);
-  const [graphPasteContext, setGraphPasteContext] = useState<{
-    region: TrackRegionViewModel;
-    trackId: string;
-    regionSetId: string;
-    graphId: string;
-  } | null>(null);
 
   const clipboardGraphId = clipboard?.type === "graph" ? clipboard.graphId : null;
   const clipboardGraph = useGraphStore(state =>
     clipboardGraphId ? state.getGraph(clipboardGraphId) ?? null : null
   );
 
-  const findRegion = (trackId: string, regionSetId: string, regionId: string): RegionSelection | null => {
+  const findRegion = (trackId: string, regionSetId: string, regionId: string): TrackRegionViewModel | null => {
     const track = trackMap.get(trackId);
     if (!track) return null;
     const regionSet = track.regionSets.find(set => set.id === regionSetId);

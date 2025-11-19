@@ -14,6 +14,8 @@ interface RegionState {
 interface TrackActions {
     getRegion: (regionId: string) => NormalizedTrackRegion | undefined;
     addRegion: (region: NormalizedTrackRegion) => void;
+    attachGraph: (setId: string, regionId: string,graphId:string) => void;
+    detachGraph: (setId: string, regionId: string,graphId:string) => void;
     removeRegion: (regionId: string) => void;
     updateRegion: (regionId: string, region: Partial<NormalizedTrackRegion>) => void;
     setAllRegions: (regions: NormalizedTrackRegion[]) => void;
@@ -93,4 +95,29 @@ export const useRegionStore = create<RegionStore>((set, get) => ({
             return { regions: newMap };
         });
     },
+    attachGraph: (setId, regionId,graphId) =>
+        set((state) => {
+            const setEntity = state.regionSets.get(setId);
+            if (!setEntity) return state;
+
+            const updated = updateRegionIds(setEntity, (ids) =>
+                ids.includes(regionId) ? ids : [...ids, regionId]
+            );
+
+            const newMap = new Map(state.regionSets);
+            newMap.set(setId, updated);
+            return { regionSets: newMap };
+        }),
+
+    detachGraph: (setId, regionId,graphId) =>
+        set((state) => {
+            const setEntity = state.regionSets.get(setId);
+            if (!setEntity) return state;
+
+            const updated = updateRegionIds(setEntity, (ids) => ids.filter((id) => id !== regionId));
+
+            const newMap = new Map(state.regionSets);
+            newMap.set(setId, updated);
+            return { regionSets: newMap };
+        }),
 }));

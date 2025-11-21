@@ -2,14 +2,16 @@
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
 import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
 import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
-import { useCopyRegion, useCreateRegion } from "@/Orchestrators/Regions/useRegionMutations";
-import { useDeleteRegionSet, useRenameRegionSet } from "@/Orchestrators/RegionSets/useRegionSetsMutations";
 import { useUIStore } from "@/Stores/UIStore";
 import type { PasteRegionParams } from "@/Stores/PasteParams";
+import { useCopyGraph, useCreateGraph } from "@/Orchestrators/Graphs/useGraphMutations";
+import { useDeleteRegion, useEditRegion } from "@/Orchestrators/Regions/useRegionMutations";
+import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
+import type { CreateGraphParams } from "@/Dtos/Graphs/CreateGraphParams";
 
-export function useRegionSetController() {
+
+export function useRegionController() {
   // Zustand selectors
-  const clipboard = useUIStore(state => state.clipboard);
   const copyToClipboard = useUIStore(state => state.copyToClipboard);
   const closeModal = useUIStore(state => state.closeModal);
   const openModal = useUIStore(state => state.openModal);
@@ -17,40 +19,43 @@ export function useRegionSetController() {
   
   // Data and mutations
   const trackMap = useTrackViewModelMap();
-  const createRegionMutation = useCreateRegion();
-  const copyRegionMutation = useCopyRegion();
-  const deleteRegionSetMutation = useDeleteRegionSet();
-  const renameRegionSetMutation = useRenameRegionSet();
+  const createGraphMutation = useCreateGraph();
+  const copyGraphMutation = useCopyGraph();
+  const deleteRegionMutation = useDeleteRegion();
+  const renameRegionMutation = useEditRegion();
 
   // Helper function
-  const findRegionSet = (trackId: string, regionSetId: string): TrackRegionSetViewModel | null => {
+  const findRegion = (trackId: string, regionSetId: string,regionId:string): TrackRegionViewModel | null => {
     const track = trackMap.get(trackId);
     if (!track) return null;
-    return track.regionSets.find(set => set.id === regionSetId) ?? null;
+    const set= track.regionSets.find(set => set.id === regionSetId);
+    if(!set) return null;
+    const region=set.regions.find(region=>region.region_id===regionId);
+    if(!region) return null;
   };
 
   return {
     // ============================================
     // CREATE REGION
     // ============================================
-    handleCreateRegion: (trackId: string, regionSetId: string) => {
-      const regionSet = findRegionSet(trackId, regionSetId);
-      if (!regionSet) {
+    handleCreateGraph: (trackId: string, regionSetId: string,regionId:string) => {
+      const region = findRegion(trackId, regionSetId,regionId);
+      if (!region) {
         console.error('Region set not found:', { trackId, regionSetId });
         return;
       }
       
-      openModal({ type: 'createRegion', trackId, regionSetId });
+      openModal({ type: 'createGraph', trackId, regionSetId,regionId });
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
 
-    handleSubmitCreateRegion: async (params: CreateRegionParams) => {
+    handleSubmitCreateGraph: async (params: CreateGraphParams) => {
       try {
-        await createRegionMutation.mutateAsync(params);
+        await createGraphMutation.mutateAsync(params);
         closeModal(); // ✅ Close modal on success
         // Optional: Show success toast
       } catch (error) {
-        console.error('Failed to create region:', error);
+        console.error('Failed to create graph:', error);
         // ❌ Don't close modal on error - let user fix/retry
         // Optional: Show error toast or inline error
         throw error; // Re-throw so modal can handle it
@@ -60,53 +65,53 @@ export function useRegionSetController() {
     // ============================================
     // DETAILS REGION SET
     // ============================================
-    handleDetailsRegionSet: (trackId: string, regionSetId: string) => {
-      const regionSet = findRegionSet(trackId, regionSetId);
-      if (!regionSet) {
-        console.error('Region set not found:', { trackId, regionSetId });
+    handleDetailsRegion: (trackId: string, regionSetId: string,regionId:string) => {
+      const region = findRegion(trackId, regionSetId,regionId);
+      if (!region) {
+        console.error('Region not found:', { trackId, regionSetId });
         return;
       }
       
-      openModal({ type: 'detailsRegionSet', trackId, regionSetId });
+      openModal({ type: 'detailsRegion', trackId, regionSetId,regionId });
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
 
     // ============================================
     // RENAME REGION SET
     // ============================================
-    handleRenameRegionSet: (trackId: string, regionSetId: string) => {
-      const regionSet = findRegionSet(trackId, regionSetId);
-      if (!regionSet) {
-        console.error('Region set not found:', { trackId, regionSetId });
+    handleEditRegion: (trackId: string, regionSetId: string,regionId:string) => {
+      const region = findRegion(trackId, regionSetId,regionId);
+      if (!region) {
+        console.error('Region  not found:', { trackId, regionSetId,regionId });
         return;
       }
       
-      openModal({ type: "renameRegionSet", trackId, regionSetId });
+      openModal({ type: "renameRegion", trackId, regionSetId,regionId });
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
 
-    handleSubmitRenameRegionSet: async (trackId: string, regionSetId: string, newName: string) => {
+    handleSubmitRenameRegion: async (trackId: string, regionSetId: string,regionId:string, newName: string) => {
       try {
-        await renameRegionSetMutation.mutateAsync({ setId: regionSetId, newName });
+        await renameRegionMutation.mutateAsync({ regionSetId: regionSetId,regionId:regionId,name: newName,trackId:trackId });
         closeModal(); // ✅ Close modal on success
         // Optional: Show success toast
       } catch (error) {
-        console.error('Failed to rename region set:', error);
+        console.error('Failed to rename region:', error);
         // ❌ Don't close modal on error
         throw error;
       }
     },
 
     // ============================================
-    // DELETE REGION SET
+    // DELETE REGION 
     // ============================================
-    handleDeleteRegionSet: async (regionSetId: string, trackId: string) => {
+    handleDeleteRegion: async (regionId:string,regionSetId: string, trackId: string) => {
       try {
-        await deleteRegionSetMutation.mutateAsync({ track_id: trackId, regionSetId });
+        await deleteRegionMutation.mutateAsync({ trackId: trackId, regionId:regionId,regionSetId:regionSetId });
         closeContextMenu(); // ✅ Close context menu after successful action
         // Optional: Show success toast
       } catch (error) {
-        console.error('Failed to delete region set:', error);
+        console.error('Failed to delete region:', error);
         closeContextMenu(); // ✅ Still close context menu on error
         // Optional: Show error toast
         throw error;
@@ -116,59 +121,67 @@ export function useRegionSetController() {
     // ============================================
     // COPY REGION SET
     // ============================================
-    handleCopyRegionSet: (trackId: string, regionSetId: string) => {
-      const regionSet = findRegionSet(trackId, regionSetId);
-      if (!regionSet) {
-        console.error('Region set not found:', { trackId, regionSetId });
+    handleCopyRegion: (trackId: string, regionSetId: string,regionId:string) => {
+      const region = findRegion(trackId, regionSetId,regionId);
+      if (!region) {
+        console.error('Region not found:', { trackId, regionSetId });
         return;
       }
       
-      copyToClipboard({ type: "regionSet", trackId, regionSetId });
+      copyToClipboard({ type: "region", trackId, regionSetId ,regionId});
       closeContextMenu(); // ✅ Close context menu after action
       
       // Optional: Show success toast
-      console.log("Copied region set:", regionSet.name);
+      console.log("Copied region:", region.name);
     },
 
     // ============================================
     // PASTE REGION
     // ============================================
-    handlePasteRegion: (destTrackId: string, destRegionSetId: string) => {
-      // Quick validation
-      if (clipboard?.type !== 'region') {
-        console.warn('Cannot paste: clipboard does not contain a region');
-        return;
-      }
-      
-      // Validate destination exists
-      const destRegionSet = findRegionSet(destTrackId, destRegionSetId);
-      if (!destRegionSet) {
-        console.error('Cannot paste: destination region set not found');
-        // Optional: Show error toast
-        return;
-      }
+    handlePasteGraph(destTrackId:string, destRegionSetId:string,destRegionId:string) {
+      // 1. Validate source type
+      const clipboard = useUIStore.getState().clipboard;
+      if (!clipboard || clipboard.type !== "graph") return;
 
-      // Open modal - modal will validate source
+      // 2. Validate destination existence
+      const destRegion = findRegion(destTrackId, destRegionSetId,destRegionId);
+      if (!destRegion) return;
+
+      // 3. (Optional but recommended) Validate source existence
+      const sourceTrack = trackMap.get(clipboard.trackId);
+      if (!sourceTrack) return;
+
+      const sourceRegion = findRegion(sourceTrack.track_id, clipboard.regionSetId,clipboard.regionId);
+      if (!sourceRegion) return;
+
+      const sourceGraph = sourceRegion.graph;
+      if (!sourceGraph) return;
+
+      // 4. Everything valid → open modal
       openModal({
-        type: "pasteRegion",
+        type: "pasteGraph",
         params: {
           source: {
             regionId: clipboard.regionId,
             regionSetId: clipboard.regionSetId,
+            graphId:clipboard.graphId,
             trackId: clipboard.trackId
           },
           destination: {
+            regionId:destRegionId,
+            
             regionSetId: destRegionSetId,
             trackId: destTrackId
           }
         }
       });
-      closeContextMenu(); // ✅ Close context menu when opening modal
+
+      closeContextMenu();
     },
 
     handleSubmitPasteRegion: async (params: PasteRegionParams, regionName: string) => {
       try {
-        await copyRegionMutation.mutateAsync({
+        await copyGraphMutation.mutateAsync({
           copyName: regionName,
           destinationRegionSetId: params.destination.regionSetId,
           destinationTrackId: params.destination.trackId,

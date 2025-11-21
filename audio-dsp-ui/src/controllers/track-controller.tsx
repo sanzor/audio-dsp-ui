@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
 import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
-import type { RightClickContext } from "../dashboard/dashboard";
+import type { RightClickContext } from "../components/dashboard/dashboard";
 import { TrackContextMenu } from "../track-context-menu";
-import { CreateRegionSetModal } from "../dashboard/modals/region-set/create-region-set-modal";
-import { DetailsTrackModal } from "../dashboard/modals/track/details-track-modal";
-import { TrackRenameModal } from "../dashboard/modals/track/rename-track-modal";
-import { CopyTrackModal } from "../dashboard/modals/track/copy-track-modal";
-import { CopyRegionSetModal } from "../dashboard/modals/region-set/copy-region-set-modal";
+import { CreateRegionSetModal } from "../components/dashboard/modals/region-set/create-region-set-modal";
+import { DetailsTrackModal } from "../components/dashboard/modals/track/details-track-modal";
+import { TrackRenameModal } from "../components/dashboard/modals/track/rename-track-modal";
+import { CopyTrackModal } from "../components/dashboard/modals/track/copy-track-modal";
+import { CopyRegionSetModal } from "../components/dashboard/modals/region-set/copy-region-set-modal";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
 import { useCopyTrack, useDeleteTrack, useRenameTrack } from "@/Orchestrators/Tracks/useTrackMutations";
 import { useCopyRegionSet, useCreateRegionSet } from "@/Orchestrators/RegionSets/useRegionSetsMutations";
@@ -129,8 +129,8 @@ export function TrackController({ rightClickContext, setRightClickContext }: Tra
   const submitPasteRegionSet = (targetTrackId: string, regionSetId: string, newName: string) => {
     copyRegionSet.mutate(
       {
-        trackId: targetTrackId,
-        regionSetId,
+        sourceTrackId: targetTrackId,
+        sourceRegionSetId: regionSetId,
         copy_region_set_name: newName,
       },
       {

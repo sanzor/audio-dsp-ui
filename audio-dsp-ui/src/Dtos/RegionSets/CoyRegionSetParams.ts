@@ -1,5 +1,7 @@
 export interface CopyRegionSetParams{
-    trackId:string,
-    regionSetId:string,
+    sourceTrackId:string,
+    sourceRegionSetId:string,
+    destTrackId:string,
+    
     copy_region_set_name:string
 }

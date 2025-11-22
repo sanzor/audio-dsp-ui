@@ -1,5 +1,5 @@
 
-import { normalizeRegion } from '@/Domain/Region/Mappers';
+
 import type { NormalizedTrackRegion } from '@/Domain/Region/NormalizedTrackRegion';
 import type { TrackRegionSetViewModel } from '@/Domain/RegionSet/TrackRegionSetViewModel';
 import { create } from 'zustand';
@@ -11,11 +11,11 @@ interface RegionState {
     loading: boolean;
 }
 
-interface TrackActions {
+interface RegionActions {
     getRegion: (regionId: string) => NormalizedTrackRegion | undefined;
     addRegion: (region: NormalizedTrackRegion) => void;
-    attachGraph: (setId: string, regionId: string,graphId:string) => void;
-    detachGraph: (setId: string, regionId: string,graphId:string) => void;
+    attachGraph: (regionId: string,graphId:string) => void;
+    detachGraph: (regionId: string,graphId:string) => void;
     removeRegion: (regionId: string) => void;
     updateRegion: (regionId: string, region: Partial<NormalizedTrackRegion>) => void;
     setAllRegions: (regions: NormalizedTrackRegion[]) => void;
@@ -23,7 +23,7 @@ interface TrackActions {
     addRegionsFromSet: (set: TrackRegionSetViewModel) => void;
 }
 
-type RegionStore = RegionState & TrackActions;
+type RegionStore = RegionState & RegionActions;
 
 export const useRegionStore = create<RegionStore>((set, get) => ({
     regions: new Map(),
@@ -48,14 +48,14 @@ export const useRegionStore = create<RegionStore>((set, get) => ({
             newMap.set(region.region_id, region);
             return { regions: newMap };
         });
-    },
+    },  
 
     addRegionsFromSet: (regionSet: TrackRegionSetViewModel): void => {
         set((state) => {
             const newMap = new Map(state.regions);
             for (const region of regionSet.regions) {
-                const normalizedRegion = normalizeRegion(region);
-                newMap.set(region.region_id, normalizedRegion);
+                
+                newMap.set(region.region_id, region);
             }
             return { regions: newMap };
         });

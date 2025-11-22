@@ -1,14 +1,15 @@
 // hooks/useRegionSetController.ts
+
 import { useUIStore } from "@/Stores/UIStore";
 import type { PasteGraphParams } from "@/Stores/PasteParams";
-import { useCopyGraph, useCreateGraph } from "@/Orchestrators/Graphs/useGraphMutations";
-import { useDeleteRegion, useEditRegion } from "@/Orchestrators/Regions/useRegionMutations";
+
 import type { CreateGraphParams } from "@/Dtos/Graphs/CreateGraphParams";
 import { useRegionStore } from "@/Stores/RegionStore";
+import { useCreateGraph } from "@/Orchestrators/Graphs/useGraphMutations";
 import { useGraphStore } from "@/Stores/GraphStore";
 
 
-export function useRegionController() {
+export function useGraphController() {
   // Zustand selectors
   const copyToClipboard = useUIStore(state => state.copyToClipboard);
   const closeModal = useUIStore(state => state.closeModal);
@@ -18,11 +19,13 @@ export function useRegionController() {
   // Data and mutations
   const regionMap = useRegionStore(x=>x.regions);
   const graphMap = useGraphStore(x=>x.graphs);
-  const createGraphMutation = useCreateGraph();
-  const copyGraphMutation = useCopyGraph();
-  const deleteRegionMutation = useDeleteRegion();
-  const renameRegionMutation = useEditRegion();
+  // const createNodeMutation = useCreateGraph();
+  // const copyGraphMutation = useCopyGraph();
+  const deleteGraphMutation = useDeleteGraph();
+  const createGraphMutation=useCreateGraph();
+  const renameRegionMutation = useEditGraph();
 
+  // Helper function
 
 
   return {
@@ -30,13 +33,13 @@ export function useRegionController() {
     // CREATE REGION
     // ============================================
     handleCreateGraph: (regionId:string) => {
-      const region =regionMap.get(regionId);
+      const region = regionMap.get(regionId);
       if (!region) {
-        console.error('Region  not found:', { regionId });
+        console.error('Region  not found:', { regionId});
         return;
       }
       
-      openModal({ type: 'createGraph', regionId });
+      openModal({ type: 'createGraph',regionId });
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
 
@@ -56,38 +59,39 @@ export function useRegionController() {
     // ============================================
     // DETAILS REGION SET
     // ============================================
-    handleDetailsRegion: (regionId:string) => {
-      const region =regionMap.get(regionId);
-      if (!region) {
-        console.error('Region not found:', { regionId });
+    handleDetailsGraph: (graphId:string) => {
+       const graph = graphMap.get(graphId);
+      if (!graph) {
+        console.error('Graph  not found:', { regionId: graphId});
         return;
       }
       
-      openModal({ type: 'detailsRegion', regionId });
+      
+      openModal({ type: 'detailsRegion',regionId: graphId });
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
 
     // ============================================
     // RENAME REGION SET
     // ============================================
-    handleEditRegion: (regionId:string) => {
-      const region =regionMap.get(regionId);
-      if (!region) {
-        console.error('Region  not found:', { regionId });
+    handleRenameGraph: (graphId:string) => {
+      const graph = graphMap.get(graphId);
+      if (!graph) {
+        console.error('Graph  not found:', { graphId});
         return;
       }
       
-      openModal({ type: "renameRegion", regionId });
+      openModal({ type: "renameGraph", graphId});
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
 
-    handleSubmitRenameRegion: async (regionId:string, newName: string) => {
+    handleSubmitRenameGraph: async (graphId:string,newName: string) => {
       try {
-        await renameRegionMutation.mutateAsync({ regionId:regionId,name:newName });
+        await renameRegionMutation.mutateAsync({ graphId:graphId,name: newName});
         closeModal(); // ✅ Close modal on success
         // Optional: Show success toast
       } catch (error) {
-        console.error('Failed to rename region:', error);
+        console.error('Failed to rename graph:', error);
         // ❌ Don't close modal on error
         throw error;
       }
@@ -96,13 +100,13 @@ export function useRegionController() {
     // ============================================
     // DELETE REGION 
     // ============================================
-    handleDeleteRegion: async (regionId:string) => {
+    handleDeleteGraph: async (graphId:string) => {
       try {
-        await deleteRegionMutation.mutateAsync({ regionId:regionId });
+        await deleteRegionMutation.mutateAsync({graphId:graphId });
         closeContextMenu(); // ✅ Close context menu after successful action
         // Optional: Show success toast
       } catch (error) {
-        console.error('Failed to delete region:', error);
+        console.error('Failed to delete graph:', error);
         closeContextMenu(); // ✅ Still close context menu on error
         // Optional: Show error toast
         throw error;
@@ -112,73 +116,39 @@ export function useRegionController() {
     // ============================================
     // COPY REGION SET
     // ============================================
-    handleCopyRegion: (regionId:string) => {
-      const region =regionMap.get(regionId);
-      if (!region) {
-        console.error('Region  not found:', { regionId });
+    handleCopyGraph: (graphId:string) => {
+      const graph = graphMap.get(graphId);
+      if (!graph) {
+        console.error('Graph  not found:', { graphId});
         return;
       }
       
-      copyToClipboard({ type: "region", regionId});
+      copyToClipboard({ type: "graph", graphId});
       closeContextMenu(); // ✅ Close context menu after action
       
       // Optional: Show success toast
-      console.log("Copied region:", region.name);
+      console.log("Copied graph:", graph.id);
     },
 
     // ============================================
     // PASTE REGION
     // ============================================
-    handlePasteGraph(destRegionId:string) {
+    handlePasteNode(destGraphId:string) {
       // 1. Validate source type
-      const clipboard = useUIStore.getState().clipboard;
-      if (!clipboard || clipboard.type !== "graph") return;
-
-      // 2. Validate destination existence
-      const destRegion =regionMap.get(destRegionId);
-      if (!destRegion) {
-        console.error('Region  not found:', { destRegionId });
-        return;
-      }
-      // 2. Validate destination existence
       
-
-      // 3. (Optional but recommended) Validate source existence
-     
-
-      const sourceGraph = graphMap.get(clipboard.graphId);
-      if (!sourceGraph) return;
-
-      // 4. Everything valid → open modal
-      openModal({
-        type: "pasteGraph",
-        params: {
-          source: {
-            graphId:sourceGraph.id
-          },
-          destination: {
-            regionId:destRegionId
-          }
-        }
-      });
-
+      closeContextMenu();
+    },
+    handlePasteEdge(destGraphId:string) {
+      // 1. Validate source type
+      
       closeContextMenu();
     },
 
-    handleSubmitPasteGraph: async (params: PasteGraphParams, graphName: string) => {
-      try {
-        await copyGraphMutation.mutateAsync({
-            copyName:graphName,
-            destinationRegionId:params.destination.regionId,
-            sourceGraphId:params.source.graphId
-        });
-        closeModal(); // ✅ Close modal on success
-        // Optional: Show success toast
-      } catch (error) {
-        console.error('Failed to paste region:', error);
-        // ❌ Don't close modal on error
-        throw error;
-      }
+    handleSubmitPasteNode: async (params: PasteGraphParams, nodeId: string) => {
+     
     },
-  };
+    handleSubmitPasteEdge: async (params: PasteGraphParams, edgeId: string) => {
+     
+    }
+  }
 }

@@ -6,14 +6,14 @@ import type { PasteGraphParams, PasteRegionParams, PasteRegionSetParams } from '
 // Your existing types
 export type RightClickContext =
   | { type: "track"; trackId: string; x: number; y: number }
-  | { type: "region"; trackId: string; regionSetId: string; regionId: string; x: number; y: number }
-  | { type: "regionSet"; trackId: string; regionSetId: string; x: number; y: number }
+  | { type: "region"; regionId: string; x: number; y: number }
+  | { type: "regionSet";regionSetId: string; x: number; y: number }
   | null;
 
 export type SelectedContext =
   | { type: "track"; trackId: string }
-  | { type: "regionSet"; trackId: string; regionSetId: string }
-  | { type: "region"; trackId: string; regionSetId: string; regionId: string }
+  | { type: "regionSet"; regionSetId: string }
+  | { type: "region"; regionId: string }
   | null;
 
 export type OpenedContext =
@@ -24,11 +24,11 @@ export type OpenedContext =
 
 export type Clipboard =
   | { type: "track"; trackId: string }
-  | { type: "regionSet"; trackId: string; regionSetId: string }
-  | { type: "region"; trackId: string; regionSetId: string; regionId: string }
-  | { type: "graph"; trackId: string; regionSetId: string; regionId: string; graphId: string }
-  | { type: "node"; trackId: string; regionSetId: string; regionId: string; graphId: string; nodeId: string }
-  | { type: "edge"; trackId: string; regionSetId: string; regionId: string; graphId: string; edgeId: string }
+  | { type: "regionSet"; regionSetId: string }
+  | { type: "region"; regionId: string }
+  | { type: "graph"; graphId: string }
+  | { type: "node"; nodeId: string }
+  | { type: "edge"; edgeId: string }
   | null;
 
 // Modal state for ALL your modals
@@ -41,23 +41,23 @@ export type ModalState =
   
   // RegionSet modals
   | { type: "createRegionSet"; trackId: string }
-  | { type: "renameRegionSet"; trackId: string; regionSetId: string }
-  | { type: "detailsRegionSet"; trackId: string; regionSetId: string }
-  | { type: "deleteRegionSet"; trackId: string; regionSetId: string }
+  | { type: "renameRegionSet";  regionSetId: string }
+  | { type: "detailsRegionSet"; regionSetId: string }
+  | { type: "deleteRegionSet"; regionSetId: string }
   | {type:  "pasteRegionSet"; params:PasteRegionSetParams }
   
   // Region modals
-  | { type: "createRegion"; trackId: string; regionSetId: string; startTime?: number; endTime?: number }
-  | { type: "renameRegion"; trackId: string; regionSetId: string; regionId: string }
-  | { type: "detailsRegion"; trackId: string; regionSetId: string; regionId: string }
+  | { type: "createRegion"; regionSetId: string; startTime?: number; endTime?: number }
+  | { type: "renameRegion"; regionId: string }
+  | { type: "detailsRegion"; regionId: string }
   | { type: "pasteRegion"; params:PasteRegionParams }
-  | { type: "deleteRegion"; trackId: string; regionSetId: string; regionId: string }
+  | { type: "deleteRegion"; regionId: string }
   
   // Graph modals
-  | { type: "createGraph"; trackId: string; regionSetId: string; regionId: string }
-  | { type: "renameGraph"; trackId: string; regionSetId: string; regionId: string; graphId: string }
-  | { type: "detailsGraph"; trackId: string; regionSetId: string; regionId: string; graphId: string }
-  | { type: "deleteGraph"; trackId:string;  regionSetId:string; regionId:string;  graphId:string  }
+  | { type: "createGraph"; regionId: string }
+  | { type: "renameGraph"; graphId: string }
+  | { type: "detailsGraph";graphId: string }
+  | { type: "deleteGraph"; graphId:string  }
   | {type: "pasteGraph"; params:PasteGraphParams}
   
   // ... add more as needed

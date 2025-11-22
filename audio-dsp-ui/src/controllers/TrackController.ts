@@ -1,11 +1,11 @@
 // hooks/useRegionSetController.ts
-import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
 import { useCopyRegionSet, useCreateRegionSet} from "@/Orchestrators/RegionSets/useRegionSetsMutations";
 import { useUIStore } from "@/Stores/UIStore";
 import type {  PasteRegionSetParams } from "@/Stores/PasteParams";
-import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
 import { useDeleteTrack, useRenameTrack } from "@/Orchestrators/Tracks/useTrackMutations";
+import { useTrackStore } from "@/Stores/TrackStore";
+import { useRegionSetStore } from "@/Stores/RegionSetStore";
 
 
 export function useTrackController() {
@@ -16,25 +16,21 @@ export function useTrackController() {
   const closeContextMenu = useUIStore(state => state.closeContextMenu);
   
   // Data and mutations
-  const trackMap = useTrackViewModelMap();
+  const trackMap = useTrackStore(x=>x.tracks);
+  const regionSetMap = useRegionSetStore(x=>x.regionSets);
   const createRegionSetMutation = useCreateRegionSet();
   const copyRegionSetMutation = useCopyRegionSet();
   const deleteTrackMutation = useDeleteTrack();
   const renameTrackMutation = useRenameTrack();
 
-  // Helper function
-  const findTrack = (trackId: string): TrackMetaViewModel | null => {
-    const track = trackMap.get(trackId);
-    if(!track) return null;
-    return track;
-  };
+  
 
   return {
     // ============================================
     // CREATE REGION
     // ============================================
     handleCreateRegionSet: (trackId: string) => {
-      const track = findTrack(trackId);
+      const track = trackMap.get(trackId);
       if (!track) {
         console.error('Track not found:', { trackId });
         return;
@@ -61,9 +57,9 @@ export function useTrackController() {
     // DETAILS REGION SET
     // ============================================
     handleDetailsTrack: (trackId: string) => {
-      const regionSet = findTrack(trackId);
-      if (!regionSet) {
-        console.error('Track  not found:', { trackId });
+      const track = trackMap.get(trackId);
+      if (!track) {
+        console.error('Track not found:', { trackId });
         return;
       }
       
@@ -75,8 +71,8 @@ export function useTrackController() {
     // RENAME REGION SET
     // ============================================
     handleRenameTrack: (trackId: string) => {
-      const regionSet = findTrack(trackId);
-      if (!regionSet) {
+      const track = trackMap.get(trackId);
+      if (!track) {
         console.error('Track not found:', { trackId });
         return;
       }
@@ -117,7 +113,7 @@ export function useTrackController() {
     // COPY REGION SET
     // ============================================
     handleCopyTrack: (trackId: string) => {
-      const track = findTrack(trackId);
+      const track = trackMap.get(trackId);
       if (!track) {
         console.error('Track not found:', { trackId });
         return;
@@ -136,17 +132,13 @@ export function useTrackController() {
     handlePasteRegionSet(destTrackId:string) {
       // 1. Validate source type
       const clipboard = useUIStore.getState().clipboard;
-      if (!clipboard || clipboard.type !== "region") return;
+      if (!clipboard || clipboard.type !== "regionSet") return;
 
       // 2. Validate destination existence
-      const destTrack = findTrack(destTrackId);
+      const destTrack = trackMap.get(destTrackId);
       if (!destTrack) return;
 
-      // 3. (Optional but recommended) Validate source existence
-      const sourceTrack = trackMap.get(clipboard.trackId);
-      if (!sourceTrack) return;
-
-      const sourceRegionSet = sourceTrack.regionSets.find(x=>x.id===destTrackId);
+      const sourceRegionSet = regionSetMap.get(clipboard.regionSetId)
       if (!sourceRegionSet) return;
 
       
@@ -156,8 +148,7 @@ export function useTrackController() {
         type: "pasteRegionSet",
         params: {
           source: {
-            regionSetId: clipboard.regionSetId,
-            trackId: clipboard.trackId
+            regionSetId: clipboard.regionSetId
           },
           destination: {
             trackId: destTrackId
@@ -173,7 +164,6 @@ export function useTrackController() {
         await copyRegionSetMutation.mutateAsync({
             destTrackId:params.destination.trackId,
             sourceRegionSetId:params.source.regionSetId,
-            sourceTrackId:params.source.trackId,
             copy_region_set_name:regionSetName
         });
         closeModal(); // ✅ Close modal on success

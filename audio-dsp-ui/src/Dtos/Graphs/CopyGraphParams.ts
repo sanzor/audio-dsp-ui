@@ -1,5 +1,5 @@
 export interface CopyGraphParams{
     destinationRegionId:string,
-    graphId:string,
+    sourceGraphId:string,
     copyName:string
 }

@@ -149,7 +149,7 @@ export function useRegionSetController() {
       const sourceRegionSet = findRegionSet(sourceTrack.track_id, clipboard.regionSetId);
       if (!sourceRegionSet) return;
 
-      const sourceRegion = sourceRegionSet.regions.find(r => r.region_id === clipboard.regionId);
+      const sourceRegion = sourceRegionSet.regions.find(r => r.regionId === clipboard.regionId);
       if (!sourceRegion) return;
 
       // 4. Everything valid → open modal

@@ -1,11 +1,10 @@
 // hooks/useRegionSetController.ts
 
 import { useUIStore } from "@/Stores/UIStore";
-import type { PasteGraphParams } from "@/Stores/PasteParams";
 
 import type { CreateGraphParams } from "@/Dtos/Graphs/CreateGraphParams";
 import { useRegionStore } from "@/Stores/RegionStore";
-import { useCreateGraph } from "@/Orchestrators/Graphs/useGraphMutations";
+import { useCreateGraph, useDeleteGraph, useEditGraph } from "@/Orchestrators/Graphs/useGraphMutations";
 import { useGraphStore } from "@/Stores/GraphStore";
 
 
@@ -23,7 +22,7 @@ export function useGraphController() {
   // const copyGraphMutation = useCopyGraph();
   const deleteGraphMutation = useDeleteGraph();
   const createGraphMutation=useCreateGraph();
-  const renameRegionMutation = useEditGraph();
+  const renameGraphMutation = useEditGraph();
 
   // Helper function
 
@@ -87,7 +86,7 @@ export function useGraphController() {
 
     handleSubmitRenameGraph: async (graphId:string,newName: string) => {
       try {
-        await renameRegionMutation.mutateAsync({ graphId:graphId,name: newName});
+        await renameGraphMutation.mutateAsync({ id:graphId,name: newName});
         closeModal(); // ✅ Close modal on success
         // Optional: Show success toast
       } catch (error) {
@@ -102,7 +101,7 @@ export function useGraphController() {
     // ============================================
     handleDeleteGraph: async (graphId:string) => {
       try {
-        await deleteRegionMutation.mutateAsync({graphId:graphId });
+        await deleteGraphMutation.mutateAsync({graph_id:graphId });
         closeContextMenu(); // ✅ Close context menu after successful action
         // Optional: Show success toast
       } catch (error) {
@@ -133,22 +132,22 @@ export function useGraphController() {
     // ============================================
     // PASTE REGION
     // ============================================
-    handlePasteNode(destGraphId:string) {
-      // 1. Validate source type
+    // handlePasteNode(destGraphId:string) {
+    //   // 1. Validate source type
       
-      closeContextMenu();
-    },
-    handlePasteEdge(destGraphId:string) {
-      // 1. Validate source type
+    //   closeContextMenu();
+    // },
+    // handlePasteEdge(destGraphId:string) {
+    //   // 1. Validate source type
       
-      closeContextMenu();
-    },
+    //   closeContextMenu();
+    // },
 
-    handleSubmitPasteNode: async (params: PasteGraphParams, nodeId: string) => {
+    // handleSubmitPasteNode: async (params: PasteGraphParams, nodeId: string) => {
      
-    },
-    handleSubmitPasteEdge: async (params: PasteGraphParams, edgeId: string) => {
+    // },
+    // handleSubmitPasteEdge: async (params: PasteGraphParams, edgeId: string) => {
      
-    }
+    // }
   }
 }

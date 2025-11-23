@@ -20,15 +20,15 @@ interface RegionItemProps {
 export function RegionItem({ region, trackId, onRightClick,onSelect,onOpen}: RegionItemProps) {
   return (
     <SidebarMenuSubItem
-      onClick={()=>onSelect({type:"region",regionId:region.region_id,regionSetId:region.region_set_id,trackId})}
-      onDoubleClick={()=>onOpen({type:"region",regionId:region.region_id,regionSetId:region.region_set_id,trackId})}
+      onClick={()=>onSelect({type:"region",regionId:region.regionId,regionSetId:region.regionSetId,trackId})}
+      onDoubleClick={()=>onOpen({type:"region",regionId:region.regionId,regionSetId:region.regionSetId,trackId})}
       onContextMenu={e => {
         e.preventDefault();
         onRightClick({
           type: "region",
           trackId,
-          regionSetId: region.region_set_id,
-          regionId: region.region_id,
+          regionSetId: region.regionSetId,
+          regionId: region.regionId,
           x: e.clientX,
           y: e.clientY,
         });

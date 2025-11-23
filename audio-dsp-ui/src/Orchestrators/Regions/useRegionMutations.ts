@@ -25,7 +25,7 @@ export const useCreateRegion = () => {
       const region=data.region;
       const normalizedRegion=normalizeRegionWithCascade(region);
       addRegion(normalizedRegion);
-      attachRegion(region.region_set_id,region.region_id);
+      attachRegion(region.regionSetId,region.regionId);
     },
     onError: (error) => {
       console.error('Failed to create region', error);
@@ -42,7 +42,7 @@ export const useCopyRegion = () => {
       const region=data.region;
       const normalizedRegion=normalizeRegionWithCascade(region);
       addRegion(normalizedRegion);
-      attachRegion(region.region_set_id,region.region_id);
+      attachRegion(region.regionSetId,region.regionId);
     },
     onError: (error) => {
       console.error('Failed to copy region', error);
@@ -57,7 +57,7 @@ export const useEditRegion = () => {
     onSuccess: (data) => {
        const region=data.region;
        const normalizedRegion=normalizeRegionWithCascade(region);
-       editRegion(region.region_id,normalizedRegion);
+       editRegion(region.regionId,normalizedRegion);
     },
     onError: (error) => {
       console.error('Failed to edit region', error);
@@ -90,8 +90,8 @@ export const useDeleteRegion = () => {
         if (ctx?.previousRegion) {
           useRegionStore.getState().addRegion(ctx.previousRegion);
           useRegionSetStore.getState().attachRegion(
-            ctx.previousRegion.region_set_id,
-            ctx.previousRegion.region_id
+            ctx.previousRegion.regionSetId,
+            ctx.previousRegion.regionId
           );
         }
       }

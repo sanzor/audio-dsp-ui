@@ -25,7 +25,7 @@ export function RegionRenameModal({
 
   const handleSubmit = () => {
     if (regionToRename && regionName.trim()) {
-      onSubmit(regionToRename.region_id, regionName.trim());
+      onSubmit(regionToRename.regionId, regionName.trim());
       onClose();
     }
   };

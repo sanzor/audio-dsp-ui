@@ -29,7 +29,7 @@ export function PasteRegionModal({
 
   const handleSubmit = () => {
     if (regionToCopy && copyRegionName.trim()) {
-      onSubmit(destRegionSetId, regionToCopy.region_id, copyRegionName.trim());
+      onSubmit(destRegionSetId, regionToCopy.regionId, copyRegionName.trim());
       onClose();
     }
   };

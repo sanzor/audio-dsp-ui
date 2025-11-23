@@ -6,8 +6,8 @@ import type { TrackRegion } from "./TrackRegion";
 
 export function normalizeRegion(region: TrackRegion): NormalizedTrackRegion {
   return {
-    region_id: region.region_id,
-    region_set_id: region.region_set_id,
+    regionId: region.regionId,
+    regionSetId: region.regionSetId,
     name: region.name,
     // ...any scalar fields
     graphId: region.graph?.id ?? null,  // store child IDs, not objects

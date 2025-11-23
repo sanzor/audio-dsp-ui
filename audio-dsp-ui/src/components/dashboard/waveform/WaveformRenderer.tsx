@@ -108,7 +108,7 @@ export function WaveformRenderer({
 
     useEffect(()=>{
         if(!regionsPlugin||!regionSet)return;
-        const currentIds=new Set(regionSet.regions.map(r=>r.region_id.toString()));
+        const currentIds=new Set(regionSet.regions.map(r=>r.regionId.toString()));
         const existingIds=renderedRegionIds.current;
 
          // Remove regions that no longer exist
@@ -121,7 +121,7 @@ export function WaveformRenderer({
         }
         //add new regions
         for(const region of regionSet.regions){
-            const id=region.region_id.toString();
+            const id=region.regionId.toString();
             const existing=regionsPlugin.getRegions().find(x=>x.id===id);
             if(existing){
                 existing.start=region.start;
@@ -274,7 +274,7 @@ function addRegions(regions:TrackRegionViewModel[],regionsObj:RegionsPlugin):Reg
 
 function addRegion(regionsObj:RegionsPlugin,elem:TrackRegionViewModel):RegionsPlugin{
     regionsObj.addRegion({
-            id:elem.region_id,
+            id:elem.regionId,
             start:elem.start,
             end:elem.end,
             drag: true,

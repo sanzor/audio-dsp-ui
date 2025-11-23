@@ -1,38 +1,71 @@
-
-import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../../ui/dialog";
 import { Label } from "../../../ui/label";
 import { Input } from "../../../ui/input";
 import { Button } from "../../../ui/button";
 
+import { useRegionStore } from "@/Stores/RegionStore";
+import { useRegionSetStore } from "@/Stores/RegionSetStore";
+import { useTrackStore } from "@/Stores/TrackStore";
+
 export interface DetailsRegionProps {
   open: boolean;
-  region: TrackRegionViewModel;
+  regionId: string;
   onClose: () => void;
 }
 
-export function DetailsRegionModal({ region, open, onClose }: DetailsRegionProps) {
+export function DetailsRegionModal({ regionId, open, onClose }: DetailsRegionProps) {
+  // Pull the region
+  const region = useRegionStore(state => state.regions.get(regionId));
+
+  // If region exists, pull the regionSet
+  const regionSet = useRegionSetStore(state => 
+    region ? state.regionSets.get(region.regionSetId) : null
+  );
+
+  // If regionSet exists, pull the track
+  const track = useTrackStore(state => 
+    regionSet ? state.tracks.get(regionSet.track_id) : null
+  );
+
+  if (!region) {
+    return null; // Or show a fallback error UI
+  }
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="space-y-6">
         <DialogHeader>
-          <DialogTitle>Region Set Details</DialogTitle>
+          <DialogTitle>Region Details</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-2">
-          <Label htmlFor="track-id">Region Set ID</Label>
-          <Input id="track-id" value={region.region_set_id} readOnly />
-        </div>
-
-         <div className="space-y-2">
-          <Label htmlFor="track-id">Region ID</Label>
-          <Input id="track-id" value={region.region_id} readOnly />
+          <Label>Region ID</Label>
+          <Input value={region.regionId} readOnly />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="track-name">Name</Label>
-          <Input id="track-name" value={region.name} readOnly />
+          <Label>Region Name</Label>
+          <Input value={region.name} readOnly />
         </div>
+
+        <div className="space-y-2">
+          <Label>Region Set ID</Label>
+          <Input value={region.regionSetId} readOnly />
+        </div>
+
+        {regionSet && (
+          <div className="space-y-2">
+            <Label>Region Set Name</Label>
+            <Input value={regionSet.name} readOnly />
+          </div>
+        )}
+
+        {track && (
+          <div className="space-y-2">
+            <Label>Track Name</Label>
+            <Input value={track.track_info.name} readOnly />
+          </div>
+        )}
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

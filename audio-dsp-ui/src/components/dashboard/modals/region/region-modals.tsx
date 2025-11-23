@@ -1,73 +1,43 @@
-// RegionModals.tsx - Updated coordinator component
-
-import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
-import { useGraphStore } from "@/Stores/GraphStore";
-
-import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
-import { useRegionModals } from "@/Providers/Modals/UseRegionModals";
-import { DetailsRegionModal } from "./details-region-modal";
-import { RegionRenameModal } from "./rename-region-modal";
-import { CopyGraphModal } from "../graph/copy-graph-modal";
 import { useUIStore } from "@/Stores/UIStore";
+import { DetailsRegionModal } from "./details-region-modal";
 
 export function RegionModals() {
-  const { modalState, closeModal } = useRegionModals();
-  const { clipboard } = useUIStore();
-  const regionMap = useTrackViewModelMap();
-  
-  const clipboardGraphId = clipboard?.type === "graph" ? clipboard.graphId : null;
-  const clipboardGraph = useGraphStore(state =>
-    clipboardGraphId ? state.getGraph(clipboardGraphId) ?? null : null
-  );
+  const modalState = useUIStore(state => state.modalState);
+  const closeModal = useUIStore(state => state.closeModal);
 
-  const findRegion = (regionId: string): TrackRegionViewModel | null => {
-    const track = trackMap.get(trackId);
-    const rs = track?.regionSets.find(r => r.id === regionSetId);
-    return rs?.regions.find(r => r.region_id === regionId) ?? null;
-  };
+  if (!modalState) return null;
 
-  // Get current region for modals
-  const currentRegion = modalState && modalState.type !== "copyGraph"
-    ? findRegion(modalState.trackId, modalState.regionSetId, modalState.regionId)
-    : null;
+  switch (modalState.type) {
+    case "detailsRegion":
+      return <DetailsRegionModal regionId={modalState.regionId} open onClose={closeModal} />;
 
-  return (
-    <>
-      {modalState?.type === "details" && currentRegion && (
-        <DetailsRegionModal
-          region={currentRegion}
+    case "renameRegion":
+      return <RenameRegionModal regionId={modalState.regionId} open onClose={closeModal} />;
+
+    case "deleteRegion":
+      return <DeleteRegionModal regionId={modalState.regionId} open onClose={closeModal} />;
+
+    case "createRegion":
+      return (
+        <CreateRegionModal
+          regionSetId={modalState.regionSetId}
+          startTime={modalState.startTime}
+          endTime={modalState.endTime}
           open
           onClose={closeModal}
         />
-      )}
+      );
 
-      {modalState?.type === "rename" && currentRegion && (
-        <RegionRenameModal
-          regionToRename={currentRegion}
+    case "pasteRegion":
+      return (
+        <PasteRegionModal
+          params={modalState.params}
           open
           onClose={closeModal}
-          onSubmit={(_, newName) => {
-            actions.renameRegion(
-              modalState.regionId,
-              
-              newName
-            );
-            closeModal();
-          }}
         />
-      )}
+      );
 
-      {modalState?.type === "copyGraph" && clipboardGraph && (
-        <CopyGraphModal
-          sourceGraphName={clipboardGraph.name}
-          open
-          onClose={closeModal}
-          onSubmit={(copyName) => {
-            actions.pasteGraph(modalState.regionId, copyName);
-            closeModal();
-          }}
-        />
-      )}
-    </>
-  );
+    default:
+      return null;
+  }
 }

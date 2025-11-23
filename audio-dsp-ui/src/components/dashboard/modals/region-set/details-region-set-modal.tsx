@@ -66,8 +66,8 @@ function RegionTable({ regions }: { regions: TrackRegionViewModel[] }) {
         </TableHeader>
         <TableBody>
           {regions.map((region) => (
-            <TableRow key={region.region_id}>
-              <TableCell>{region.region_id}</TableCell>
+            <TableRow key={region.regionId}>
+              <TableCell>{region.regionId}</TableCell>
               <TableCell>{region.name}</TableCell>
             </TableRow>
           ))}

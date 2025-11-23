@@ -127,6 +127,6 @@ export const useRegionViewModel = (
   const regionSet = useRegionSetViewModel(trackId, regionSetId);
   return useMemo(() => {
     if (!regionSet || !regionId) return null;
-    return regionSet.regions.find(region => region.region_id === regionId) ?? null;
+    return regionSet.regions.find(region => region.regionId === regionId) ?? null;
   }, [regionSet, regionId]);
 };

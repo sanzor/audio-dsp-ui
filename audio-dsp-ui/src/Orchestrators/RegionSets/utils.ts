@@ -17,7 +17,7 @@ export const normalizeRegionSetWithCascade = (
   for (const regionApi of regionSetApi.regions) {
     const normalizedRegion = normalizeRegionWithCascade(regionApi);
     addRegion(normalizedRegion);
-    regionIds.push(normalizedRegion.region_id);
+    regionIds.push(normalizedRegion.regionId);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

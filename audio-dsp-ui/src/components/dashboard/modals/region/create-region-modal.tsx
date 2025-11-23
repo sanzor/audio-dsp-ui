@@ -1,52 +1,77 @@
 import { Slider } from "@/components/ui/slider";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+
+import { useRegionSetStore } from "@/Stores/RegionSetStore";
+import { useTrackStore } from "@/Stores/TrackStore";
+
 import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
 
 interface CreateRegionModalProps {
-  trackId: string;
   regionSetId: string;
   open: boolean;
   startTime: number | null;
   endTime: number | null;
   onClose: () => void;
   onSubmit: (params: CreateRegionParams) => void;
-  duration?: number; // total length of track in seconds (optional)
+  duration?: number; // track duration
 }
 
 export function CreateRegionModal({
-  trackId,
   regionSetId,
   open,
   startTime,
   endTime,
   onClose,
   onSubmit,
-  duration = 100, // fallback if duration unavailable
+  duration = 100,
 }: CreateRegionModalProps) {
   const [name, setName] = useState("");
+
   const [range, setRange] = useState<[number, number]>([
     startTime ?? 0,
     endTime ?? 5,
   ]);
 
+  // 🔥 Resolve RegionSet
+  const regionSet = useRegionSetStore(
+    (state) => state.regionSets.get(regionSetId)
+  );
+
+  // 🔥 Resolve Track (parent)
+  const track = useTrackStore((state) =>
+    regionSet ? state.tracks.get(regionSet.track_id) : null
+  );
+
+  // Keep slider synced when modal reopens or start/end change
   useEffect(() => {
     setRange([startTime ?? 0, endTime ?? 5]);
   }, [startTime, endTime, open]);
 
   const handleSubmit = () => {
     const [start, end] = range;
-    if (!name || start >= end) return;
+    if (!name || start >= end || !regionSet) return;
+
     onSubmit({
       name,
-      trackId,
       region_set_id: regionSetId,
       start_time: start,
       end_time: end,
     });
   };
+
+  if (!regionSet) {
+    return null; // Or show fallback if needed
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -57,6 +82,7 @@ export function CreateRegionModal({
         </DialogHeader>
 
         <div className="space-y-4">
+
           {/* Region Name */}
           <div className="grid grid-cols-4 items-center gap-4">
             <label className="text-right text-sm font-medium">Name</label>
@@ -68,7 +94,7 @@ export function CreateRegionModal({
             />
           </div>
 
-          {/* Slider for start/end selection */}
+          {/* Time slider */}
           <div className="space-y-2">
             <span className="text-sm text-muted-foreground">Time Selection</span>
             <Slider
@@ -83,10 +109,22 @@ export function CreateRegionModal({
               <span>{range[1].toFixed(2)}s</span>
             </div>
           </div>
+
+          {/* Optional: display parent hierarchy */}
+          {track && (
+            <div className="text-xs text-muted-foreground">
+              Track: {track.track_info.name}
+            </div>
+          )}
+          <div className="text-xs text-muted-foreground">
+            Region Set: {regionSet.name}
+          </div>
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
           <Button disabled={!name || range[0] >= range[1]} onClick={handleSubmit}>
             Save
           </Button>

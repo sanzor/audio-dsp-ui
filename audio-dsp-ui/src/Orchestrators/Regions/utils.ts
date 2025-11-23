@@ -35,6 +35,6 @@ export const cascadeDeleteRegion = (regionId: string): void => {
     cascadeDeleteGraph(region.graphId);
   }
 
-  detachRegionFromSet(region.region_set_id, regionId);
+  detachRegionFromSet(region.regionSetId, regionId);
   removeRegion(regionId);
 };

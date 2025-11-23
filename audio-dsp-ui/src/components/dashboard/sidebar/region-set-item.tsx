@@ -40,7 +40,7 @@ export function RegionSetItem({ regionSet, trackId, onRightClick, onSelect, onOp
           <SidebarMenuSub>
             {regionSet.regions.map(region => (
               <RegionItem
-                key={region.region_id}
+                key={region.regionId}
                 region={region}
                 trackId={trackId}
                 onRightClick={onRightClick}

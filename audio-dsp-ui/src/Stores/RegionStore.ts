@@ -31,7 +31,7 @@ export const useRegionStore = create<RegionStore>((set, get) => ({
 
     setAllRegions: (newRegions) => {
         const regionMap = new Map<string, NormalizedTrackRegion>();
-        newRegions.forEach((t) => regionMap.set(t.region_id, t));
+        newRegions.forEach((t) => regionMap.set(t.regionId, t));
         set({
             regions: regionMap,
             loading: false,
@@ -45,7 +45,7 @@ export const useRegionStore = create<RegionStore>((set, get) => ({
     addRegion: (region: NormalizedTrackRegion): void => {
         set((state) => {
             const newMap = new Map(state.regions);
-            newMap.set(region.region_id, region);
+            newMap.set(region.regionId, region);
             return { regions: newMap };
         });
     },  
@@ -55,7 +55,7 @@ export const useRegionStore = create<RegionStore>((set, get) => ({
             const newMap = new Map(state.regions);
             for (const region of regionSet.regions) {
                 
-                newMap.set(region.region_id, region);
+                newMap.set(region.regionId, region);
             }
             return { regions: newMap };
         });
@@ -73,7 +73,7 @@ export const useRegionStore = create<RegionStore>((set, get) => ({
         set((state) => {
             const newMap = new Map(state.regions);
             for (const [key, value] of newMap) {
-                if (value.region_set_id === setId) {
+                if (value.regionSetId === setId) {
                     newMap.delete(key);
                 }
             }

@@ -6,20 +6,25 @@ import { Button } from "../../../ui/button";
 import { useRegionStore } from "@/Stores/RegionStore";
 import { useRegionSetStore } from "@/Stores/RegionSetStore";
 import { useTrackStore } from "@/Stores/TrackStore";
+import { useGraphStore } from "@/Stores/GraphStore";
 
-export interface DetailsRegionProps {
+export interface DetailsGraphProps {
   open: boolean;
-  regionId: string;
+  graphId: string;
   onClose: () => void;
 }
 
-export function DetailsRegionModal({ regionId, open, onClose }: DetailsRegionProps) {
+export function DetailsGraphModal({ graphId, open, onClose }: DetailsGraphProps) {
   // Pull the region
-  const region = useRegionStore(state => state.regions.get(regionId));
+  const graph = useGraphStore(state => state.graphs.get(graphId));
 
   // If region exists, pull the regionSet
+  const region = useRegionStore(state => 
+    graph ? state.regions.get(graph.regionId) : null
+  );
+
   const regionSet = useRegionSetStore(state => 
-    region ? state.regionSets.get(region.regionSetId) : null
+    region ? state.regionSets.get(region?.regionSetId) : null
   );
 
   // If regionSet exists, pull the track
@@ -27,7 +32,7 @@ export function DetailsRegionModal({ regionId, open, onClose }: DetailsRegionPro
     regionSet ? state.tracks.get(regionSet.track_id) : null
   );
 
-  if (!region) {
+  if (!graph) {
     return null; // Or show a fallback error UI
   }
 
@@ -37,29 +42,51 @@ export function DetailsRegionModal({ regionId, open, onClose }: DetailsRegionPro
         <DialogHeader>
           <DialogTitle>Region Details</DialogTitle>
         </DialogHeader>
+         <div className="space-y-2">
+          <Label>Graph ID</Label>
+          <Input value={graph.id} readOnly />
+        </div>
+        <div className="space-y-2">
+          <Label>Region ID</Label>
+          <Input value={graph.regionId} readOnly />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Graph Name</Label>
+          <Input value={graph.name} readOnly />
+        </div>
 
         <div className="space-y-2">
           <Label>Region ID</Label>
-          <Input value={region.regionId} readOnly />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Region Name</Label>
-          <Input value={region.name} readOnly />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Region Set ID</Label>
-          <Input value={region.regionSetId} readOnly />
+          <Input value={region?.regionId} readOnly />
         </div>
 
         {regionSet && (
+          <div className="space-y-2">
+            <Label>Region Name</Label>
+            <Input value={region?.name} readOnly />
+          </div>
+        )}
+
+        {regionSet && (
+          <div className="space-y-2">
+            <Label>Region Set Id</Label>
+            <Input value={regionSet.id} readOnly />
+          </div>
+        )}
+
+         {regionSet && (
           <div className="space-y-2">
             <Label>Region Set Name</Label>
             <Input value={regionSet.name} readOnly />
           </div>
         )}
-
+         {track && (
+          <div className="space-y-2">
+            <Label>Track Id</Label>
+            <Input value={track.trackId} readOnly />
+          </div>
+        )}
         {track && (
           <div className="space-y-2">
             <Label>Track Name</Label>

@@ -78,7 +78,7 @@ const buildTrackViewModelMap = (
   const result = new Map<string, TrackMetaViewModel>();
   tracks.forEach(track => {
     const viewModel = buildTrackViewModel(track, regionSets, regions, graphs);
-    result.set(track.track_id, viewModel);
+    result.set(track.trackId, viewModel);
   });
   return result;
 };

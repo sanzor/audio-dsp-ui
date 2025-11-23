@@ -37,7 +37,7 @@ export const useTrackStore = create<TrackStore>((set, get) => ({
 
     setAllTracks: (newTracks) => {
         const trackMap = new Map<string, NormalizedTrackMeta>();
-        newTracks.forEach((t) => trackMap.set(t.track_id, t));
+        newTracks.forEach((t) => trackMap.set(t.trackId, t));
         set({
             tracks: trackMap,
             loading: false,
@@ -51,7 +51,7 @@ export const useTrackStore = create<TrackStore>((set, get) => ({
     addTrack: (track: NormalizedTrackMeta): void => {
         set((state) => {
             const newMap = new Map(state.tracks);
-            newMap.set(track.track_id, track);
+            newMap.set(track.trackId, track);
             return { tracks: newMap };
         });
     },

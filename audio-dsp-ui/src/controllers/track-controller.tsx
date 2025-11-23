@@ -69,7 +69,7 @@ export function TrackController({ rightClickContext, setRightClickContext }: Tra
     if (!track) return;
     setTrackToCopy({
       trackId,
-      sourceTrackNname: track.track_info.name,
+      sourceTrackNname: track.trackInfo.name,
     });
   };
 
@@ -78,7 +78,7 @@ export function TrackController({ rightClickContext, setRightClickContext }: Tra
     if (!track) return;
     setTrackForRename({
       trackId,
-      trackInitialName: track.track_info.name,
+      trackInitialName: track.trackInfo.name,
     });
   };
 

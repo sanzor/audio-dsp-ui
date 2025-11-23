@@ -1,11 +1,10 @@
 // RegionContextMenuContainer.tsx - Updated
 import { useUIStore } from "@/Stores/UIStore";
-import { TrackContextMenu } from "./track-context-menu";
 import { useRegionSetController } from "@/controllers/RegionSetController";
 import { RegionSetContextMenu } from "./region-set-context-menu";
 
 
-export function RegionSetContextMenus() {
+export function RegionSetContextMenuContainer() {
   const rightClickContext=useUIStore(state=>state.rightClickContext);
   const clipboard = useUIStore(state => state.clipboard);
   const closeContextMenu=useUIStore(state=>state.closeContextMenu);
@@ -25,11 +24,11 @@ export function RegionSetContextMenus() {
        onCreateRegion={()=>controller.handleCreateRegion(regionSetId)}
        onClose={closeContextMenu}
        onDetails={()=>controller.handleDetailsRegionSet(regionSetId)}
-       onRename={()=>controller.handleSubmitRenameRegionSet(regionSetId)}
-       onCopyTrack={()=>controller.handleCopyTrack(trackId)}
-       onPasteRegionSet={()=>controller.handlePasteRegionSet(trackId)}
-       canPasteRegionSet={clipboard?.type === "regionSet"}
-       onRemove={() => controller.handleDeleteTrack(trackId)}
+       onRename={()=>controller.handleEditRegionSet(regionSetId)}
+       onCopyRegionSet={()=>controller.handleCopyRegionSet(regionSetId)}
+       onPasteRegion={()=>controller.handlePasteRegion(regionSetId)}
+       canPasteRegion={clipboard?.type === "region"}
+       onRemove={() => controller.handleDeleteRegionSet(regionSetId)}
      />
    );
  

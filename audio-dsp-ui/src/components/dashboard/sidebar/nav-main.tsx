@@ -26,7 +26,7 @@ export function NavMain({ tracks, onSelect,onOpen, onRightClick }: NavMainProps)
       <SidebarMenu>
         {tracks.map(track => (
           <TrackItem
-            key={track.track_id}
+            key={track.trackId}
             track={track}
             onSelect={onSelect}
             onOpen={onOpen}

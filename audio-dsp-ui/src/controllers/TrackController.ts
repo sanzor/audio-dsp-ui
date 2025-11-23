@@ -123,7 +123,7 @@ export function useTrackController() {
       closeContextMenu(); // ✅ Close context menu after action
       
       // Optional: Show success toast
-      console.log("Copied track:", track.track_id);
+      console.log("Copied track:", track.trackId);
     },
 
     // ============================================

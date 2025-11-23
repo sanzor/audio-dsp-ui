@@ -18,7 +18,7 @@ import { CanvasPanel } from "./graph/canvas-panel";
 import { SidebarInset } from "../ui/sidebar";
 import { useTrackViewModels } from "@/Selectors/trackViewModels";
 import { WaveformPlayer } from "./waveform/WaveformPlayer";
-import { RegionSetContextMenus } from "./context-menus/RegionSetContextMenus";
+import { RegionSetContextMenuContainer } from "./context-menus/region-set-context-menu-container";
 
 
 
@@ -105,7 +105,7 @@ export function Dashboard() {
       </div>
 
       <CreateTrackModal open={addTrackModalOpen} onClose={onCloseAddTrackModal} onSubmit={onSubmitAddTrackModal} />
-      <RegionSetContextMenus></RegionSetContextMenus>
+      <RegionSetContextMenuContainer></RegionSetContextMenuContainer>
       <TrackContextMenus></TrackContextMenus>
     </SidebarProvider>
   );

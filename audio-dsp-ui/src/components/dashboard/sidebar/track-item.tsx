@@ -23,9 +23,9 @@ export function TrackItem({ track, onSelect,onOpen, onRightClick }: TrackItemPro
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton 
-              onClick={() => onSelect({ type: "track", trackId: track.track_id })} 
-              onDoubleClick={()=>onOpen({type:"track",trackId:track.track_id})}>
-            <span className="truncate">{track.track_info.name}</span>
+              onClick={() => onSelect({ type: "track", trackId: track.trackId })} 
+              onDoubleClick={()=>onOpen({type:"track",trackId:track.trackId})}>
+            <span className="truncate">{track.trackInfo.name}</span>
             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
@@ -36,7 +36,7 @@ export function TrackItem({ track, onSelect,onOpen, onRightClick }: TrackItemPro
               <RegionSetItem
                 key={regionSet.id}
                 regionSet={regionSet}
-                trackId={track.track_id}
+                trackId={track.trackId}
                 onRightClick={onRightClick}
                 onSelect={onSelect}
                 onOpen={onOpen}

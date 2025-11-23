@@ -22,12 +22,12 @@ export function DetailsTrackModal({ track, open, onClose }: DetailsTrackModalPro
 
         <div className="space-y-2">
           <Label htmlFor="track-id">Track ID</Label>
-          <Input id="track-id" value={track.track_id} readOnly />
+          <Input id="track-id" value={track.trackId} readOnly />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="track-name">Name</Label>
-          <Input id="track-name" value={track.track_info.name} readOnly />
+          <Input id="track-name" value={track.trackInfo.name} readOnly />
         </div>
 
         <DialogFooter>

@@ -3,24 +3,17 @@ import {  ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger }
 interface GraphContextMenuProps{
   x: number;
   y: number;
-  trackId:string,
-  regionSetId:string,
-  regionId: string;
   graphId:string,
   onClose:()=>void;
-  onRemove: (regionSetId: string,trackId:string,regionId:string,graphId:string) => void
-  onRename: (regionSetId: string,trackId:string,regionId:string,graphId:string) => void
-  onCopy: (regionSetId: string,trackId:string,regionId:string,graphId:string) => void
-  canPaste:boolean
-  onDetails:(regionSetId:string,trackId:string)=>void
+  onRemove: (graphId:string) => void
+  onRename: (graphId:string) => void
+  onCopy: (graphId:string) => void
+  onDetails:(graphId:string)=>void
 }
 
 export function GraphContextMenu({
   x,
   y,
-  trackId,
-  regionSetId,
-  regionId,
   graphId,
   onClose,
   onDetails,
@@ -33,11 +26,10 @@ export function GraphContextMenu({
     <ContextMenu>
       <ContextMenuTrigger></ContextMenuTrigger>
        <ContextMenuContent style={{ position: "absolute", top: y, left: x, zIndex: 1000 }} onClick={onClose}>   
-         <ContextMenuItem onClick={() => {onDetails(regionSetId,trackId);onClose()}}>Details</ContextMenuItem>
-        <ContextMenuItem onClick={() => {onRename(regionSetId,trackId,regionId,graphId);onClose();}}>Rename</ContextMenuItem>
-         <ContextMenuItem onClick={() => {onCopy(regionSetId,trackId,regionId,graphId);onClose();}}>Copy</ContextMenuItem>
-         <ContextMenuItem onClick={() => {onRemove(regionSetId,trackId,regionId,graphId);onClose();}}>Delete</ContextMenuItem>
-         
+         <ContextMenuItem onClick={() => {onDetails(graphId);onClose()}}>Details</ContextMenuItem>
+        <ContextMenuItem onClick={() => {onRename(graphId);onClose();}}>Rename</ContextMenuItem>
+         <ContextMenuItem onClick={() => {onCopy(graphId);onClose();}}>Copy</ContextMenuItem>
+         <ContextMenuItem onClick={() => {onRemove(graphId);onClose();}}>Delete</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

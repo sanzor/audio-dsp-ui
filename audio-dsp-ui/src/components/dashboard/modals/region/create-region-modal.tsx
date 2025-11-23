@@ -113,7 +113,7 @@ export function CreateRegionModal({
           {/* Optional: display parent hierarchy */}
           {track && (
             <div className="text-xs text-muted-foreground">
-              Track: {track.track_info.name}
+              Track: {track.trackInfo.name}
             </div>
           )}
           <div className="text-xs text-muted-foreground">

@@ -8,18 +8,21 @@ export type RightClickContext =
   | { type: "track"; trackId: string; x: number; y: number }
   | { type: "region"; regionId: string; x: number; y: number }
   | { type: "regionSet";regionSetId: string; x: number; y: number }
+  | {type:"graph",graphId:string,x:number;y:number}
   | null;
 
 export type SelectedContext =
   | { type: "track"; trackId: string }
   | { type: "regionSet"; regionSetId: string }
   | { type: "region"; regionId: string }
+  | {type: "graph"; graphId:string}
   | null;
 
 export type OpenedContext =
   | { type: "track"; trackId: string }
-  | { type: "regionSet"; trackId: string; regionSetId: string }
-  | { type: "region"; trackId: string; regionSetId: string; regionId: string }
+  | { type: "regionSet"; regionSetId: string }
+  | { type: "region"; regionId: string }
+  | {type:"graph"; graphId:string}
   | null;
 
 export type Clipboard =

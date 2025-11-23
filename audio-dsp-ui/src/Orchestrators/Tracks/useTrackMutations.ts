@@ -34,7 +34,7 @@ export const useCopyTrack = () => {
         
         // Optionally set the new data directly to avoid refetch
         queryClient.setQueryData(
-          ['track', normalizedCopy.track_id],
+          ['track', normalizedCopy.trackId],
           normalizedCopy
         );
       },
@@ -129,8 +129,8 @@ export const useRenameTrack = () => {
         const previousTrack = getTrack(trackId);
         if (previousTrack) {
           updateTrack(trackId, {
-            track_info: {
-              ...previousTrack.track_info,
+            trackInfo: {
+              ...previousTrack.trackInfo,
               name: newName,
             },
           });

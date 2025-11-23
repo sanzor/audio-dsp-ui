@@ -18,18 +18,18 @@ export interface NaveProjectsProps{
 export function NavProjects({tracks}:NaveProjectsProps) {
   function TrackSidebarItem({track}:{track:TrackMetaViewModel}){
   return(
-     <SidebarMenuItem key={track.track_id}>
+     <SidebarMenuItem key={track.trackId}>
       <SidebarMenuButton asChild>
         <div className="flex items-center gap-2">
           <Folder className="w-4 h-4" />
-          <span>{track.track_info.name}</span>
+          <span>{track.trackInfo.name}</span>
         </div>
       </SidebarMenuButton>
       <SidebarMenu className="ml-4">
         {track.regions.map((region) => (
           <SidebarMenuItem key={region.region_id}>
             <SidebarMenuButton asChild>
-              <a href={`/track/${track.track_id}/region/${region.region_id}`}>
+              <a href={`/track/${track.trackId}/region/${region.region_id}`}>
                 <span className="text-sm text-muted-foreground hover:text-foreground">
                   {region.name}
                 </span>
@@ -49,7 +49,7 @@ export function NavProjects({tracks}:NaveProjectsProps) {
       <SidebarMenu>
         {tracks.map((track) => {
           console.log("🎯 Rendering track:", track);
-          return <TrackSidebarItem key={track.track_id} track={track} />;
+          return <TrackSidebarItem key={track.trackId} track={track} />;
         })}
       </SidebarMenu>
     </SidebarGroup>

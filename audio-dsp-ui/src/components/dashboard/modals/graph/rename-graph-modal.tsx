@@ -2,30 +2,30 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "../../../ui/input";
 import { Button } from "../../../ui/button";
 import { useEffect, useState } from "react";
-import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
+import type { GraphViewModel } from "@/Domain/Graph/GraphViewModel";
 
-export interface RenameRegionProps {
-  regionToRename: TrackRegionViewModel | null; // 👈 allow null
+export interface RenameGraphProps {
+  graphToRename: GraphViewModel | null; // 👈 allow null
   open: boolean;
   onClose: () => void;
   onSubmit: (regionId: string, newName: string) => void;
 }
 
 export function RenameRegionModal({
-  regionToRename,
+  graphToRename,
   open,
   onClose,
   onSubmit,
-}: RenameRegionProps) {
-  const [regionName, setRegionName] = useState(regionToRename?.name ?? "");
+}: RenameGraphProps) {
+  const [graphName, setGraphName] = useState(graphToRename?.name ?? "");
 
   useEffect(() => {
-    setRegionName(regionToRename?.name ?? "");
-  }, [regionToRename?.name, open]);
+    setGraphName(graphToRename?.name ?? "");
+  }, [graphToRename?.name, open]);
 
   const handleSubmit = () => {
-    if (regionToRename && regionName.trim()) {
-      onSubmit(regionToRename.regionId, regionName.trim());
+    if (graphToRename && graphName.trim()) {
+      onSubmit(graphToRename.regionId, graphName.trim());
       onClose();
     }
   };
@@ -34,11 +34,11 @@ export function RenameRegionModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Rename Region</DialogTitle>
+          <DialogTitle>Rename Graph</DialogTitle>
         </DialogHeader>
         <Input
-          value={regionName}
-          onChange={(e) => setRegionName(e.target.value)}
+          value={graphName}
+          onChange={(e) => setGraphName(e.target.value)}
           placeholder="Enter new name"
         />
         <DialogFooter className="mt-4">

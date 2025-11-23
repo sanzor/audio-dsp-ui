@@ -1,5 +1,6 @@
 import { useUIStore } from "@/Stores/UIStore";
 import { DetailsRegionModal } from "./details-region-modal";
+import { RenameRegionModal } from "./rename-region-modal";
 
 export function RegionModals() {
   const modalState = useUIStore(state => state.modalState);

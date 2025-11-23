@@ -1,11 +1,13 @@
 // hooks/useRegionSetController.ts
-import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
-import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
-import { useTrackViewModelMap } from "@/Selectors/trackViewModels";
-import { useCopyRegion, useCreateRegion } from "@/Orchestrators/Regions/useRegionMutations";
-import { useDeleteRegionSet, useRenameRegionSet } from "@/Orchestrators/RegionSets/useRegionSetsMutations";
 import { useUIStore } from "@/Stores/UIStore";
 import type { PasteRegionParams } from "@/Stores/PasteParams";
+import { useCopyRegion, useCreateRegion, } from "@/Orchestrators/Regions/useRegionMutations";
+
+import { useRegionStore } from "@/Stores/RegionStore";
+
+import { useRegionSetStore } from "@/Stores/RegionSetStore";
+import { useDeleteRegionSet, useRenameRegionSet } from "@/Orchestrators/RegionSets/useRegionSetsMutations";
+import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
 
 
 export function useRegionSetController() {
@@ -16,31 +18,27 @@ export function useRegionSetController() {
   const closeContextMenu = useUIStore(state => state.closeContextMenu);
   
   // Data and mutations
-  const trackMap = useTrackViewModelMap();
+  const regionSetsMap = useRegionSetStore(x=>x.regionSets);
+  const regionsMap = useRegionStore(x=>x.regions);
   const createRegionMutation = useCreateRegion();
-  const copyRegionMutation = useCopyRegion();
+  const useCopyRegionMutation = useCopyRegion();
   const deleteRegionSetMutation = useDeleteRegionSet();
   const renameRegionSetMutation = useRenameRegionSet();
 
-  // Helper function
-  const findRegionSet = (trackId: string, regionSetId: string): TrackRegionSetViewModel | null => {
-    const track = trackMap.get(trackId);
-    if (!track) return null;
-    return track.regionSets.find(set => set.id === regionSetId) ?? null;
-  };
+
 
   return {
     // ============================================
     // CREATE REGION
     // ============================================
-    handleCreateRegion: (trackId: string, regionSetId: string) => {
-      const regionSet = findRegionSet(trackId, regionSetId);
+    handleCreateRegion: (regionSetId:string) => {
+      const regionSet =regionSetsMap.get(regionSetId);
       if (!regionSet) {
-        console.error('Region set not found:', { trackId, regionSetId });
+        console.error('RegionSet  not found:', { regionSetId });
         return;
       }
       
-      openModal({ type: 'createRegion', trackId, regionSetId });
+      openModal({ type: 'createRegion', regionSetId });
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
 
@@ -60,34 +58,34 @@ export function useRegionSetController() {
     // ============================================
     // DETAILS REGION SET
     // ============================================
-    handleDetailsRegionSet: (trackId: string, regionSetId: string) => {
-      const regionSet = findRegionSet(trackId, regionSetId);
-      if (!regionSet) {
-        console.error('Region set not found:', { trackId, regionSetId });
+    handleDetailsRegionSet: (regionSetId:string) => {
+      const region =regionSetsMap.get(regionSetId);
+      if (!region) {
+        console.error('RegionSet not found:', { regionId: regionSetId });
         return;
       }
       
-      openModal({ type: 'detailsRegionSet', trackId, regionSetId });
+      openModal({ type: 'detailsRegionSet', regionSetId });
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
 
     // ============================================
     // RENAME REGION SET
     // ============================================
-    handleRenameRegionSet: (trackId: string, regionSetId: string) => {
-      const regionSet = findRegionSet(trackId, regionSetId);
-      if (!regionSet) {
-        console.error('Region set not found:', { trackId, regionSetId });
+    handleEditRegionSet: (regionSetId:string) => {
+      const region =regionSetsMap.get(regionSetId);
+      if (!region) {
+        console.error('RegionSet  not found:', { regionSetId: regionSetId });
         return;
       }
       
-      openModal({ type: "renameRegionSet", trackId, regionSetId });
+      openModal({ type: "renameRegionSet", regionSetId: regionSetId });
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
 
-    handleSubmitRenameRegionSet: async (trackId: string, regionSetId: string, newName: string) => {
+    handleSubmitRenameRegionSet: async (regionSetId:string, newName: string) => {
       try {
-        await renameRegionSetMutation.mutateAsync({ setId: regionSetId, newName });
+        await renameRegionSetMutation.mutateAsync({ setId:regionSetId,newName:newName });
         closeModal(); // ✅ Close modal on success
         // Optional: Show success toast
       } catch (error) {
@@ -98,11 +96,11 @@ export function useRegionSetController() {
     },
 
     // ============================================
-    // DELETE REGION SET
+    // DELETE REGION 
     // ============================================
-    handleDeleteRegionSet: async (regionSetId: string, trackId: string) => {
+    handleDeleteRegionSet: async (regionSetId:string) => {
       try {
-        await deleteRegionSetMutation.mutateAsync({ track_id: trackId, regionSetId });
+        await deleteRegionSetMutation.mutateAsync({ regionSetId:regionSetId });
         closeContextMenu(); // ✅ Close context menu after successful action
         // Optional: Show success toast
       } catch (error) {
@@ -116,14 +114,14 @@ export function useRegionSetController() {
     // ============================================
     // COPY REGION SET
     // ============================================
-    handleCopyRegionSet: (trackId: string, regionSetId: string) => {
-      const regionSet = findRegionSet(trackId, regionSetId);
+    handleCopyRegionSet: (regionSetId:string) => {
+      const regionSet =regionSetsMap.get(regionSetId);
       if (!regionSet) {
-        console.error('Region set not found:', { trackId, regionSetId });
+        console.error('Region set not found:', { regionSetId: regionSetId });
         return;
       }
       
-      copyToClipboard({ type: "regionSet", trackId, regionSetId });
+      copyToClipboard({ type: "regionSet", regionSetId: regionSetId});
       closeContextMenu(); // ✅ Close context menu after action
       
       // Optional: Show success toast
@@ -133,37 +131,35 @@ export function useRegionSetController() {
     // ============================================
     // PASTE REGION
     // ============================================
-    handlePasteRegion(destTrackId:string, destRegionSetId:string) {
+    handlePasteRegion(destRegionSetId:string) {
       // 1. Validate source type
       const clipboard = useUIStore.getState().clipboard;
       if (!clipboard || clipboard.type !== "region") return;
 
       // 2. Validate destination existence
-      const destRegionSet = findRegionSet(destTrackId, destRegionSetId);
-      if (!destRegionSet) return;
+      const destRegionSet =regionSetsMap.get(destRegionSetId);
+      if (!destRegionSet) {
+        console.error('Region set  not found:', { destRegionSetId: destRegionSetId });
+        return;
+      }
+      // 2. Validate destination existence
+      
 
       // 3. (Optional but recommended) Validate source existence
-      const sourceTrack = trackMap.get(clipboard.trackId);
-      if (!sourceTrack) return;
+     
 
-      const sourceRegionSet = findRegionSet(sourceTrack.track_id, clipboard.regionSetId);
-      if (!sourceRegionSet) return;
-
-      const sourceRegion = sourceRegionSet.regions.find(r => r.regionId === clipboard.regionId);
+      const sourceRegion = regionsMap.get(clipboard.regionId);
       if (!sourceRegion) return;
 
       // 4. Everything valid → open modal
       openModal({
-        type: "pasteRegion",
+        type: "pasteGraph",
         params: {
           source: {
-            regionId: clipboard.regionId,
-            regionSetId: clipboard.regionSetId,
-            trackId: clipboard.trackId
+            graphId:sourceRegion.regionId
           },
           destination: {
-            regionSetId: destRegionSetId,
-            trackId: destTrackId
+            regionId:destRegionSetId
           }
         }
       });
@@ -173,13 +169,10 @@ export function useRegionSetController() {
 
     handleSubmitPasteRegion: async (params: PasteRegionParams, regionName: string) => {
       try {
-        await copyRegionMutation.mutateAsync({
-          copyName: regionName,
-          destinationRegionSetId: params.destination.regionSetId,
-          destinationTrackId: params.destination.trackId,
-          sourceRegionId: params.source.regionId,
-          sourceRegionSetId: params.source.regionSetId,
-          sourceTrackId: params.source.trackId
+        await useCopyRegionMutation.mutateAsync({
+            copyName:regionName,
+            destinationRegionSetId:params.destination.regionSetId,
+            sourceRegionId:params.source.regionId
         });
         closeModal(); // ✅ Close modal on success
         // Optional: Show success toast

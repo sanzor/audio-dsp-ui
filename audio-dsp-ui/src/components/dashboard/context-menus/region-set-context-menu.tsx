@@ -18,7 +18,6 @@ interface RegionSetContextMenuProps{
 export function RegionSetContextMenu({
   x,
   y,
-  trackId,
   regionSetId,
   onClose,
   onCreateRegion,

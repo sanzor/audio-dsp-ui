@@ -96,7 +96,7 @@ export function useTrackController() {
     // ============================================
     // DELETE REGION SET
     // ============================================
-    handleDeleteRegionSet: async ( trackId: string) => {
+    handleDeleteTrack: async ( trackId: string) => {
       try {
         await deleteTrackMutation.mutateAsync({ trackId: trackId });
         closeContextMenu(); // ✅ Close context menu after successful action

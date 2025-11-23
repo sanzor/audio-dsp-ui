@@ -10,9 +10,9 @@ export function TrackContextMenus() {
   const closeContextMenu=useUIStore(state=>state.closeContextMenu);
   const controller=useTrackController();
 
-  if (rightClickContext?.type !== "regionSet") return null;
+  if (rightClickContext?.type !== "track") return null;
  //used typed clipboards
-  const { trackId, regionSetId, x, y } = rightClickContext;
+  const { trackId, x, y } = rightClickContext;
 
  
 
@@ -28,7 +28,7 @@ export function TrackContextMenus() {
        onCopyTrack={()=>controller.handleCopyTrack(trackId)}
        onPasteRegionSet={()=>controller.handlePasteRegionSet(trackId)}
        canPasteRegionSet={clipboard?.type === "regionSet"}
-       onRemove={() => controller.handleDeleteRegionSet(regionSetId,trackId)}
+       onRemove={() => controller.handleDeleteTrack(trackId)}
      />
    );
  

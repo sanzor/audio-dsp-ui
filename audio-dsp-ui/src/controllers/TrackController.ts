@@ -3,9 +3,10 @@ import { useCopyRegionSet, useCreateRegionSet} from "@/Orchestrators/RegionSets/
 import { useUIStore } from "@/Stores/UIStore";
 import type {  PasteRegionSetParams } from "@/Stores/PasteParams";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
-import { useDeleteTrack, useRenameTrack } from "@/Orchestrators/Tracks/useTrackMutations";
+import { useCreateTrack, useDeleteTrack, useRenameTrack } from "@/Orchestrators/Tracks/useTrackMutations";
 import { useTrackStore } from "@/Stores/TrackStore";
 import { useRegionSetStore } from "@/Stores/RegionSetStore";
+import type { CreateTrackParams } from "@/Dtos/Tracks/AddTrackParams";
 
 
 export function useTrackController() {
@@ -19,6 +20,7 @@ export function useTrackController() {
   const trackMap = useTrackStore(x=>x.tracks);
   const regionSetMap = useRegionSetStore(x=>x.regionSets);
   const createRegionSetMutation = useCreateRegionSet();
+  const createTrackMutation=useCreateTrack();
   const copyRegionSetMutation = useCopyRegionSet();
   const deleteTrackMutation = useDeleteTrack();
   const renameTrackMutation = useRenameTrack();
@@ -38,6 +40,23 @@ export function useTrackController() {
       
       openModal({ type: 'createRegionSet', trackId});
       closeContextMenu(); // ✅ Close context menu when opening modal
+    },
+
+    handleCreateTrack: () => {
+      openModal({ type: 'createTrack'});
+      closeContextMenu(); // ✅ Close context menu when opening modal
+    },
+    handleSubmitCreateTrack: async (params: CreateTrackParams) => {
+      try {
+        await createTrackMutation.mutateAsync(params);
+        closeModal(); // ✅ Close modal on success
+        // Optional: Show success toast
+      } catch (error) {
+        console.error('Failed to create region:', error);
+        // ❌ Don't close modal on error - let user fix/retry
+        // Optional: Show error toast or inline error
+        throw error; // Re-throw so modal can handle it
+      }
     },
 
     handleSubmitCreateRegionSet: async (params: CreateRegionSetParams) => {

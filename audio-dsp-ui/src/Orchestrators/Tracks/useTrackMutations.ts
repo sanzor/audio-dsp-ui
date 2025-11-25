@@ -5,8 +5,10 @@ import type { CopyTrackResult } from '@/Dtos/Tracks/CopyTrackResult';
 import type { RemoveTrackParams } from '@/Dtos/Tracks/RemoveTrackParams';
 import type { RemoveTrackResult } from '@/Dtos/Tracks/RemoveTrackResult';
 import type { NormalizedTrackMeta } from '@/Domain/Track/NormalizedTrackMeta';
-import { apiCopyTrack, apiRemoveTrack } from '@/Services/TracksService';
+import { apiAddTrack as apiCreateTrack, apiCopyTrack, apiRemoveTrack } from '@/Services/TracksService';
 import { normalizeTrackWithCascade, cascadeDeleteTrack } from './utils';
+import type { CreateTrackParams } from '@/Dtos/Tracks/AddTrackParams';
+import type { CreateTrackResult } from '@/Dtos/Tracks/AddTrackResult';
 
 /**
  * Copy Track Mutation
@@ -14,6 +16,26 @@ import { normalizeTrackWithCascade, cascadeDeleteTrack } from './utils';
  * - Cascades normalization through all child stores
  * - Invalidates relevant queries
  */
+
+export const useCreateTrack = () => {
+  const queryClient = useQueryClient();
+  const addTrack = useTrackStore(state => state.addTrack);
+  
+
+  return useMutation<CreateTrackResult, Error, CreateTrackParams>({
+    mutationFn: (createParams: CreateTrackParams) => apiCreateTrack(createParams),
+    onSuccess: (data) => {
+      addTrack({trackId:data.track_id,trackInfo:data.track_info,region_sets_ids:[]})
+
+      queryClient.invalidateQueries([ 'track', data.track_id]);
+      queryClient.setQueryData(['track', data.track_id],data.track_id);
+    },
+    onError: (error: Error) => {
+      console.error('Failed to create region set:', error);
+    },
+  });
+};
+
 export const useCopyTrack = () => {
   const queryClient = useQueryClient();
   const addTrack = useTrackStore(state => state.addTrack);

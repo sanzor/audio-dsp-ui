@@ -10,8 +10,8 @@ import type { CopyTrackParams } from '@/Dtos/Tracks/CopyTrackParams';
 import type { CopyTrackResult } from '@/Dtos/Tracks/CopyTrackResult';
 import type { GetTrackRawParams } from '@/Dtos/Tracks/GetTrackRawParams';
 import type { GetTrackRawResult } from '@/Dtos/Tracks/GetTrackRawResult';
-import type { AddTrackParams } from '@/Dtos/Tracks/AddTrackParams';
-import type { AddTrackResult } from '@/Dtos/Tracks/AddTrackResult';
+import type { CreateTrackParams } from '@/Dtos/Tracks/AddTrackParams';
+import type { CreateTrackResult } from '@/Dtos/Tracks/AddTrackResult';
 import type { RemoveTrackParams } from '@/Dtos/Tracks/RemoveTrackParams';
 import type { RemoveTrackResult } from '@/Dtos/Tracks/RemoveTrackResult';
 
@@ -97,7 +97,7 @@ export async function apiGetStoredTrack(params: GetTrackRawParams): Promise<GetT
   };
 }
 
-export async function apiAddTrack(params: AddTrackParams): Promise<AddTrackResult> {
+export async function apiAddTrack(params: CreateTrackParams): Promise<CreateTrackResult> {
   console.log("Inside api add track");
   const formData = new FormData();
 

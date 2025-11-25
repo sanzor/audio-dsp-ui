@@ -1,5 +1,5 @@
 import type { RawTrack } from "./RawTrack";
 
-export interface AddTrackParams{
+export interface CreateTrackParams{
     rawTrack:RawTrack
 }

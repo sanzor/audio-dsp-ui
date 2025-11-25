@@ -1,16 +1,10 @@
 import { useAuth } from "@/Auth/UseAuth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { AddTrackParams } from "@/Dtos/Tracks/AddTrackParams";
-import type { AddTrackResult } from "@/Dtos/Tracks/AddTrackResult";
+import type { CreateTrackParams } from "@/Dtos/Tracks/AddTrackParams";
+import type { CreateTrackResult } from "@/Dtos/Tracks/AddTrackResult";
 import { AppSidebar } from "./sidebar/app-sidebar";
 import { SidebarProvider } from "../ui/sidebar-provider";
-
-import { useTracks } from "@/Providers/UseTracks";
-
-import type { OpenedContext, SelectedContext } from "@/Providers/UIStore/UIStateProvider";
-import { useUIState } from "@/Providers/UIStore/UseUIStateProvider";
-import { TrackController } from "../../controllers/track-controller";
 import { CreateTrackModal } from "./modals/track/create-track-modal";
 import { DashboardLayout } from "./dashboard-layout";
 import { TransformStorePanel } from "./store/transform-store-panel";
@@ -19,18 +13,18 @@ import { SidebarInset } from "../ui/sidebar";
 import { useTrackViewModels } from "@/Selectors/trackViewModels";
 import { WaveformPlayer } from "./waveform/WaveformPlayer";
 import { RegionSetContextMenuContainer } from "./context-menus/region-set-context-menu-container";
+import { TrackContextMenus } from "./context-menus/track-context-menu-container";
+import { useUIStore, type OpenedContext, type SelectedContext } from "@/Stores/UIStore";
+import { useTrackController } from "@/controllers/TrackController";
 
 
 
 export function Dashboard() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { addTrack } = useTracks();
-  const {
-    setSelectedContext,
-    openedContext,
-    setOpenedContext
-  } = useUIState();
+
+  const { handleCreateTrack}=useTrackController();
+  const {open,select} = useUIStore();
 
 
   // const openedRegionId =
@@ -38,7 +32,7 @@ export function Dashboard() {
   //     ? openedContext.regionId
   //     : null;
 
-  const {rightClickContext, setRightClickContext} = useUIState();
+
   const [addTrackModalOpen, setAddTrackModalOpen] = useState(false);
 
 
@@ -51,14 +45,14 @@ export function Dashboard() {
   }, [loading, navigate, user]);
 
   const handleSelect = (ctx: SelectedContext) => {
-    setSelectedContext(ctx);
+    select(ctx);
   };
   const handleOpen=(ctx:OpenedContext)=>{
-    setOpenedContext(ctx);
+    open(ctx);
   }
 
-  const onSubmitAddTrackModal = async (data: AddTrackParams): Promise<AddTrackResult> => {
-    const result = await addTrack(data);
+  const onSubmitAddTrackModal = async (data: CreateTrackParams): Promise<CreateTrackResult> => {
+    const result = await handleCreateTrack(data);
     setAddTrackModalOpen(false);
     return result;
   };

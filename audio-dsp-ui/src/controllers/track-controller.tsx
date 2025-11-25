@@ -38,14 +38,7 @@ export function TrackController({ rightClickContext, setRightClickContext }: Tra
   } | null>(null);
 
   const trackMap = useTrackViewModelMap();
-  const selectedTrackId = rightClickContext?.type === "track" ? rightClickContext.trackId : null;
-
-  const clipboardRegionSet = useMemo(() => {
-    if (clipboard?.type !== "regionSet") return null;
-    const sourceTrack = trackViewModelMap.get(clipboard.trackId);
-    if (!sourceTrack) return null;
-    return sourceTrack.regionSets.find(set => set.id === clipboard.regionSetId) ?? null;
-  }, [clipboard, trackViewModelMap]);
+  
 
   const closeContextMenu = () => setRightClickContext(null);
 
@@ -73,83 +66,13 @@ export function TrackController({ rightClickContext, setRightClickContext }: Tra
     });
   };
 
-  const handleRenameTrack = (trackId: string) => {
-    const track = trackMap.get(trackId);
-    if (!track) return;
-    setTrackForRename({
-      trackId,
-      trackInitialName: track.trackInfo.name,
-    });
-  };
 
-  const handleDetails = (trackId: string) => {
-    const track = trackMap.get(trackId);
-    if (!track) return;
-    setTrackForDetails(track);
-  };
 
-  const submitRename = (trackId: string, newName: string) => {
-    renameTrack.mutate(
-      { trackId, newName },
-      {
-        onSettled: () => {
-          setTrackForRename(null);
-        },
-      }
-    );
-  };
 
-  const submitCopy = (trackId: string, copyName: string) => {
-    copyTrack.mutate(
-      { track_id: trackId, copy_track_name: copyName },
-      {
-        onSettled: () => {
-          setTrackToCopy(null);
-        },
-      }
-    );
-  };
 
-  const submitCreateRegionSet = (payload: CreateRegionSetParams) => {
-    createRegionSet.mutate(payload, {
-      onSettled: () => {
-        setTrackIdForRegionSet(null);
-      },
-    });
-  };
 
-  const handlePasteRegionSet = (targetTrackId: string) => {
-    if (!clipboardRegionSet) return;
-    setRegionSetPasteContext({
-      targetTrackId,
-      sourceRegionSet: clipboardRegionSet,
-    });
-  };
 
-  const submitPasteRegionSet = (targetTrackId: string, regionSetId: string, newName: string) => {
-    copyRegionSet.mutate(
-      {
-        sourceTrackId: targetTrackId,
-        sourceRegionSetId: regionSetId,
-        copy_region_set_name: newName,
-      },
-      {
-        onSettled: () => {
-          setRegionSetPasteContext(null);
-        },
-      }
-    );
-  };
 
-  const closeCreateRegionSetModal = () => {
-    setTrackIdForRegionSet(null);
-    closeContextMenu();
-  };
-
-  const closeDetailsModal = () => {
-    setTrackForDetails(null);
-    closeContextMenu();
-  };
 
   return (
     <>

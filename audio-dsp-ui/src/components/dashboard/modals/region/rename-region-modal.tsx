@@ -1,33 +1,28 @@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../../ui/dialog";
-import { Input } from "../../../ui/input";
-import { Button } from "../../../ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
+import { useRegionStore } from "@/Stores/RegionStore";
 
-export interface RenameRegionProps {
-  regionToRename: TrackRegionViewModel | null; // 👈 allow null
+interface RenameRegionProps {
   open: boolean;
+  regionId: string;
   onClose: () => void;
   onSubmit: (regionId: string, newName: string) => void;
 }
 
-export function RenameRegionModal({
-  regionToRename,
-  open,
-  onClose,
-  onSubmit,
-}: RenameRegionProps) {
-  const [regionName, setRegionName] = useState(regionToRename?.name ?? "");
+export function RenameRegionModal({ open, regionId, onClose, onSubmit }: RenameRegionProps) {
+  const region = useRegionStore(state => state.regions.get(regionId));
+  const [name, setName] = useState(region?.name ?? "");
 
   useEffect(() => {
-    setRegionName(regionToRename?.name ?? "");
-  }, [regionToRename?.name, open]);
+    setName(region?.name ?? "");
+  }, [region?.name, open]);
 
-  const handleSubmit = () => {
-    if (regionToRename && regionName.trim()) {
-      onSubmit(regionToRename.regionId, regionName.trim());
-      onClose();
-    }
+  const handleSave = () => {
+    if (!name.trim()) return;
+    onSubmit(regionId, name.trim());
+    onClose();
   };
 
   return (
@@ -36,18 +31,19 @@ export function RenameRegionModal({
         <DialogHeader>
           <DialogTitle>Rename Region</DialogTitle>
         </DialogHeader>
+
         <Input
-          value={regionName}
-          onChange={(e) => setRegionName(e.target.value)}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           placeholder="Enter new name"
         />
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit}>Save</Button>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+

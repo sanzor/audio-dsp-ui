@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../ui/dialog"
-import type { AddTrackParams } from "@/Dtos/Tracks/AddTrackParams"
+import type { CreateTrackParams } from "@/Dtos/Tracks/AddTrackParams"
 import type { CanonicalAudio } from "@/Audio/CanonicalAudio"
 import type { ABuffer } from "@/Domain/ABuffer"
 
@@ -19,7 +19,7 @@ import { getFileExtension } from "@/Utils/AudioUtils"
 interface CreateTrackModalProps {
   open: boolean
   onClose: () => void
-  onSubmit: (track: AddTrackParams) => void
+  onSubmit: (track: CreateTrackParams) => void
   canonicalAudio?: CanonicalAudio | null
 }
 
@@ -42,7 +42,7 @@ export function CreateTrackModal({
       return
     }
 
-    const addTrackParams: AddTrackParams = {
+    const addTrackParams: CreateTrackParams = {
       rawTrack: {
         info: { name: trackName ,extension:audioFileExtension??undefined},
         data: audioBufferPayload,

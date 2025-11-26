@@ -9,8 +9,8 @@ import { useRegionSetController } from "@/controllers/RegionSetController";
 export function RegionModals() {
   const modalState = useUIStore(state => state.modalState);
   const closeModal = useUIStore(state => state.closeModal);
-  const controller=useRegionController();
-  const ctrl=useRegionSetController();
+  const regionController=useRegionController();
+  const regionSetController=useRegionSetController();
 
   if (!modalState) return null;
 
@@ -19,14 +19,15 @@ export function RegionModals() {
       return <DetailsRegionModal regionId={modalState.regionId} open onClose={closeModal} />;
 
     case "renameRegion":
-      return <RenameRegionModal regionId={modalState.regionId} open onClose={closeModal} onSubmit={controller.handleSubmitRenameRegion} />;
+      return <RenameRegionModal regionId={modalState.regionId} open onClose={closeModal} onSubmit={regionController.handleSubmitRenameRegion} />;
 
     case "createRegion":
       return (
         <CreateRegionModal
           regionSetId={modalState.regionSetId}
-          startTime={modalState.startTime}
-          endTime={modalState.endTime}
+          startTime={modalState.startTime??null}
+          endTime={modalState.endTime??null}
+          onSubmit={regionSetController.handleSubmitCreateRegion}
           open
           onClose={closeModal}
         />
@@ -36,7 +37,9 @@ export function RegionModals() {
       return (
         <PasteRegionModal
           params={modalState.params}
-          onSubmit={ctrl.handleSubmitPasteRegion}
+          onSubmit={(destRegionSetId,sourceRegionId,copyName)=>
+            regionSetController.handleSubmitPasteRegion(
+              {source:{regionId:sourceRegionId},destination:{regionSetId:destRegionSetId}},copyName)}
           open
           onClose={closeModal}
         />

@@ -5,33 +5,34 @@ import { useEffect, useState } from "react";
 import { Button } from "../../../ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../../ui/dialog";
 import { Input } from "../../../ui/input";
+import { useTrackStore } from "@/Stores/TrackStore";
 
 
 export interface RenameTrackModalProps {
-  trackToRename: { trackId: string; trackInitialName: string } | null; // 👈 allow null
+  trackId:string; // 👈 allow null
   open: boolean;
   onClose: () => void;
   onSubmit: (trackId: string, newName: string) => void;
 }
 
-export function TrackRenameModal({
-  trackToRename: initialName,
+export function RenameTrackModal({
+  trackId,
   open,
   onClose,
   onSubmit,
 }: RenameTrackModalProps) {
-  const [trackName, setName] = useState(initialName?.trackInitialName ?? "");
-
-  useEffect(() => {
-    setName(initialName?.trackInitialName ?? "");
-  }, [initialName?.trackInitialName, open]);
-
-  const handleSubmit = () => {
-  if (initialName && trackName?.trim()) {
-    onSubmit(initialName.trackId, trackName.trim());
-    onClose();
-  }
-};
+   const track = useTrackStore(state => state.tracks.get(trackId));
+   const [name, setName] = useState(track?.trackInfo.name ?? "");
+  
+    useEffect(() => {
+      setName(track?.trackInfo.name ?? "");
+    }, [track?.trackInfo.name, open]);
+  
+    const handleSave = () => {
+      if (!name.trim()) return;
+      onSubmit(trackId, name.trim());
+      onClose();
+    };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -40,7 +41,7 @@ export function TrackRenameModal({
           <DialogTitle>Rename Track</DialogTitle>
         </DialogHeader>
         <Input
-          value={trackName}
+          value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Enter new name"
         />
@@ -48,7 +49,7 @@ export function TrackRenameModal({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>Save</Button>
+          <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

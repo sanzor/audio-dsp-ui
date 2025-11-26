@@ -3,10 +3,12 @@ import { useCopyRegionSet, useCreateRegionSet} from "@/Orchestrators/RegionSets/
 import { useUIStore } from "@/Stores/UIStore";
 import type {  PasteRegionSetParams } from "@/Stores/PasteParams";
 import type { CreateRegionSetParams } from "@/Dtos/RegionSets/CreateRegionSetParams";
-import { useCreateTrack, useDeleteTrack, useRenameTrack } from "@/Orchestrators/Tracks/useTrackMutations";
+import { useCopyTrack, useCreateTrack, useDeleteTrack, useRenameTrack } from "@/Orchestrators/Tracks/useTrackMutations";
 import { useTrackStore } from "@/Stores/TrackStore";
 import { useRegionSetStore } from "@/Stores/RegionSetStore";
 import type { CreateTrackParams } from "@/Dtos/Tracks/AddTrackParams";
+import type { CreateTrackResult } from "@/Dtos/Tracks/AddTrackResult";
+import type { CanonicalAudio } from "@/Audio/CanonicalAudio";
 
 
 export function useTrackController() {
@@ -24,6 +26,7 @@ export function useTrackController() {
   const copyRegionSetMutation = useCopyRegionSet();
   const deleteTrackMutation = useDeleteTrack();
   const renameTrackMutation = useRenameTrack();
+  const copyTrackMutation=useCopyTrack();
 
   
 
@@ -42,14 +45,32 @@ export function useTrackController() {
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
 
-    handleCreateTrack: () => {
-      openModal({ type: 'createTrack'});
+    handleCreateTrack: (canonicalAudio:CanonicalAudio|null) => {
+      openModal({ type: 'createTrack',canonicalAudio:canonicalAudio});
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
-    handleSubmitCreateTrack: async (params: CreateTrackParams) => {
+
+     handleSubmitPasteTrack: async (sourceTrackId:string, copyTrackName: string) => {
       try {
-        await createTrackMutation.mutateAsync(params);
+        await copyTrackMutation.mutateAsync({
+            track_id:sourceTrackId,
+            copy_track_name:copyTrackName
+           
+        });
         closeModal(); // ✅ Close modal on success
+        // Optional: Show success toast
+      } catch (error) {
+        console.error('Failed to paste region:', error);
+        // ❌ Don't close modal on error
+        throw error;
+      }
+    },
+  
+    handleSubmitCreateTrack: async (params: CreateTrackParams) :Promise<CreateTrackResult>=> {
+      try {
+        const trackResult=await createTrackMutation.mutateAsync(params);
+        closeModal(); // ✅ Close modal on success
+        return trackResult
         // Optional: Show success toast
       } catch (error) {
         console.error('Failed to create region:', error);

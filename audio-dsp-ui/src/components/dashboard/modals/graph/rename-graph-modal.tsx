@@ -2,30 +2,32 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "../../../ui/input";
 import { Button } from "../../../ui/button";
 import { useEffect, useState } from "react";
-import type { GraphViewModel } from "@/Domain/Graph/GraphViewModel";
+import { useGraphStore } from "@/Stores/GraphStore";
 
 export interface RenameGraphProps {
-  graphToRename: GraphViewModel | null; // 👈 allow null
+  graphId: string; // 👈 allow null
   open: boolean;
   onClose: () => void;
   onSubmit: (regionId: string, newName: string) => void;
 }
 
-export function RenameRegionModal({
-  graphToRename,
+export function RenameGraphModal({
+  graphId,
   open,
   onClose,
   onSubmit,
 }: RenameGraphProps) {
-  const [graphName, setGraphName] = useState(graphToRename?.name ?? "");
+  const graph = useGraphStore(state => state.graphs.get(graphId));
+  
+  const [graphName, setGraphName] = useState(graph?.name ?? "");
 
   useEffect(() => {
-    setGraphName(graphToRename?.name ?? "");
-  }, [graphToRename?.name, open]);
+    setGraphName(graph?.name ?? "");
+  }, [graph?.name, open]);
 
   const handleSubmit = () => {
-    if (graphToRename && graphName.trim()) {
-      onSubmit(graphToRename.regionId, graphName.trim());
+    if (graphName && graphName.trim()) {
+      onSubmit(graphId, graphName.trim());
       onClose();
     }
   };

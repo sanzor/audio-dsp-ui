@@ -1,11 +1,8 @@
 import { useAuth } from "@/Auth/UseAuth";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { CreateTrackParams } from "@/Dtos/Tracks/AddTrackParams";
-import type { CreateTrackResult } from "@/Dtos/Tracks/AddTrackResult";
 import { AppSidebar } from "./sidebar/app-sidebar";
 import { SidebarProvider } from "../ui/sidebar-provider";
-import { CreateTrackModal } from "./modals/track/create-track-modal";
 import { DashboardLayout } from "./dashboard-layout";
 import { TransformStorePanel } from "./store/transform-store-panel";
 import { CanvasPanel } from "./graph/canvas-panel";
@@ -13,9 +10,13 @@ import { SidebarInset } from "../ui/sidebar";
 import { useTrackViewModels } from "@/Selectors/trackViewModels";
 import { WaveformPlayer } from "./waveform/WaveformPlayer";
 import { RegionSetContextMenuContainer } from "./context-menus/region-set-context-menu-container";
-import { TrackContextMenus } from "./context-menus/track-context-menu-container";
+import { TrackContextMenuContainer } from "./context-menus/track-context-menu-container";
 import { useUIStore, type OpenedContext, type SelectedContext } from "@/Stores/UIStore";
 import { useTrackController } from "@/controllers/TrackController";
+import { useRegionController } from "@/controllers/RegionController";
+import { RegionContextMenuContainer } from "./context-menus/region-context-menu-container";
+import { GraphContextMenuContainer } from "./context-menus/graph-context-menu-container";
+import { useRegionSetController } from "@/controllers/RegionSetController";
 
 
 
@@ -23,17 +24,10 @@ export function Dashboard() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
 
-  const { handleCreateTrack}=useTrackController();
+  const trackController=useTrackController();
+  const regionController=useRegionController();
+  const regionSetController=useRegionSetController();
   const {open,select} = useUIStore();
-
-
-  // const openedRegionId =
-  //   openedContext && openedContext.type === "region"
-  //     ? openedContext.regionId
-  //     : null;
-
-
-  const [addTrackModalOpen, setAddTrackModalOpen] = useState(false);
 
 
   const sidebarTracks = useTrackViewModels();
@@ -51,22 +45,21 @@ export function Dashboard() {
     open(ctx);
   }
 
-  const onSubmitAddTrackModal = async (data: CreateTrackParams): Promise<CreateTrackResult> => {
-    const result = await handleCreateTrack(data);
-    setAddTrackModalOpen(false);
-    return result;
-  };
 
-  const onCloseAddTrackModal = () => setAddTrackModalOpen(false);
 
   return (
+
     <SidebarProvider defaultOpen={true}>
+      <TrackContextMenuContainer></TrackContextMenuContainer>
+      <RegionSetContextMenuContainer></RegionSetContextMenuContainer>
+      <RegionContextMenuContainer></RegionContextMenuContainer>
+      <GraphContextMenuContainer></GraphContextMenuContainer>
       <div className="flex h-screen w-full overflow-hidden">
         {/* Sidebar - fixed width */}
         <AppSidebar
           tracks={sidebarTracks}
-          onAddTrackClick={() => setAddTrackModalOpen(true)}
-          onRightClick={setRightClickContext}
+          onAddTrackClick={()=>trackController.handleCreateTrack}
+          onRightClick={opencontextmenu}
           onSelect={handleSelect}
           onOpen={handleOpen}
           user={{
@@ -86,21 +79,20 @@ export function Dashboard() {
             canvas={<CanvasPanel />}
             waveform={
                 (openedContext &&
-                <WaveformPlayer 
-                onCopyRegion={(id)=>}
-                onEditRegion={}
-                onCreateRegionClick={}
-                onCreateRegionDrag={}
+                <WaveformPlayer
+                onRegionDetails={}
+                onDeleteRegion={}
+                onCopyRegion={regionController.handleCopyRegion}
+                onEditRegion={regionController.handleEditRegion}
+                onCreateRegionClick={()=>regionSetController.handleCreateRegion()}
+                onCreateRegionDrag={()=>}
                 openedContext={openedContext}>
                 </WaveformPlayer>)
             }
           />
         </SidebarInset>
       </div>
-
-      <CreateTrackModal open={addTrackModalOpen} onClose={onCloseAddTrackModal} onSubmit={onSubmitAddTrackModal} />
-      <RegionSetContextMenuContainer></RegionSetContextMenuContainer>
-      <TrackContextMenus></TrackContextMenus>
+      
     </SidebarProvider>
   );
 }

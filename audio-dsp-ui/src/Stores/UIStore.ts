@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import type { PasteGraphParams, PasteRegionParams, PasteRegionSetParams } from './PasteParams';
+import type { CanonicalAudio } from '@/Audio/CanonicalAudio';
 
 // Your existing types
 export type RightClickContext =
@@ -37,10 +38,11 @@ export type Clipboard =
 // Modal state for ALL your modals
 export type ModalState = 
   // Track modals
-  | { type: "createTrack" }
+  | { type: "createTrack" ,canonicalAudio:CanonicalAudio|null}
   | { type: "renameTrack"; trackId: string }
   | { type: "detailsTrack"; trackId: string }
   | { type: "deleteTrack"; trackId: string }
+  | { type:"pasteTrack";trackId:string}
   
   // RegionSet modals
   | { type: "createRegionSet"; trackId: string }

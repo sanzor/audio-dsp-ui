@@ -4,29 +4,34 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "../../../ui/input";
 import { Button } from "../../../ui/button";
 import { useEffect, useState } from "react";
+import { useTrackStore } from "@/Stores/TrackStore";
 
-export interface CopyTrackModalProps {
-  trackToCopy: { trackId: string; sourceTrackNname: string } | null; // 👈 allow null
+export interface PasteTrackModalProps {
+  trackId: string; // 👈 allow null
   open: boolean;
   onClose: () => void;
   onSubmit: (trackId: string, copyTrackName: string) => void;
 }
 
-export function CopyTrackModal({
-  trackToCopy,
+export function PasteTrackModal({
+  trackId,
   open,
   onClose,
   onSubmit,
-}: CopyTrackModalProps) {
-  const [copyTrackName, setCopyTrackName] = useState(trackToCopy?.sourceTrackNname ?? "");
+}: PasteTrackModalProps) {
+   const track = useTrackStore(
+       (s) => s.tracks.get(trackId)
+     );
+   
+  const [copyTrackName, setCopyTrackName] = useState(track?.trackInfo.name ?? "");
 
   useEffect(() => {
-    setCopyTrackName(trackToCopy?.sourceTrackNname ?? "");
-    }, [trackToCopy?.sourceTrackNname, open]);
+    setCopyTrackName(track?.trackInfo.name ?? "");
+    }, [track?.trackInfo.name, open]);
 
   const handleSubmit = () => {
-    if (copyTrackName?.trim() && trackToCopy?.trackId) {
-    onSubmit(trackToCopy.trackId, copyTrackName.trim());
+    if (copyTrackName?.trim() && track?.trackId) {
+    onSubmit(track.trackId, copyTrackName.trim());
     onClose();
     }
 };

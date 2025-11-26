@@ -4,33 +4,33 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "../../../ui/input";
 import { Button } from "../../../ui/button";
 import { useEffect, useState } from "react";
-import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
+import { useRegionSetStore } from "@/Stores/RegionSetStore";
 
 export interface RenameRegionSetProps {
-  regionSetToRename: TrackRegionSetViewModel | null; // 👈 allow null
+  regionSetId:string; // 👈 allow null
   open: boolean;
   onClose: () => void;
-  onSubmit: (trackId:string,regionSetId: string, newName: string) => void;
+  onSubmit: (regionSetId: string, newName: string) => void;
 }
 
 export function RegionSetRenameModal({
-  regionSetToRename: regionSet,
+  regionSetId,
   open,
   onClose,
   onSubmit,
 }: RenameRegionSetProps) {
-  const [regionSetName, setRegionSetName] = useState(regionSet?.name ?? "");
-
-  useEffect(() => {
-    setRegionSetName(regionSet?.name ?? "");
-  }, [regionSet?.name, open]);
-
-  const handleSubmit = () => {
-    if (regionSet && regionSetName.trim()) {
-      onSubmit(regionSet.track_id, regionSet.id, regionSetName.trim());
+  const regionSet = useRegionSetStore(state => state.regionSets.get(regionSetId));
+    const [name, setName] = useState(regionSet?.name ?? "");
+  
+    useEffect(() => {
+      setName(regionSet?.name ?? "");
+    }, [regionSet?.name, open]);
+  
+    const handleSave = () => {
+      if (!name.trim()) return;
+      onSubmit(regionSetId, name.trim());
       onClose();
-    }
-  };
+    };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -39,15 +39,15 @@ export function RegionSetRenameModal({
           <DialogTitle>Rename Region Set</DialogTitle>
         </DialogHeader>
         <Input
-          value={regionSetName}
-          onChange={(e) => setRegionSetName(e.target.value)}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           placeholder="Enter new name"
         />
         <DialogFooter className="mt-4">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>Save</Button>
+          <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

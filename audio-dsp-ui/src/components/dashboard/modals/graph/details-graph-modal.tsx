@@ -29,7 +29,7 @@ export function DetailsGraphModal({ graphId, open, onClose }: DetailsGraphProps)
 
   // If regionSet exists, pull the track
   const track = useTrackStore(state => 
-    regionSet ? state.tracks.get(regionSet.track_id) : null
+    regionSet ? state.tracks.get(regionSet.trackId) : null
   );
 
   if (!graph) {

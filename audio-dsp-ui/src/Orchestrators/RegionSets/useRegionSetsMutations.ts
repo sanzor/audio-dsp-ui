@@ -34,11 +34,11 @@ export const useCopyRegionSet = () => {
       
       // 2. Add the new copy to RegionSetStore
       addRegionSet(normalizedCopy);
-      attachRegionSet(normalizedCopy.track_id, normalizedCopy.id);
+      attachRegionSet(normalizedCopy.trackId, normalizedCopy.id);
       
       // 3. Invalidate queries to refresh UI
       // Invalidate the parent track's region sets list
-      const trackId = normalizedCopy.track_id;
+      const trackId = normalizedCopy.trackId;
       queryClient.invalidateQueries(['regionSets', 'track', trackId]);
       
       // Optionally set the new data directly to avoid refetch
@@ -68,9 +68,9 @@ export const useCreateRegionSet = () => {
     onSuccess: (data) => {
       const normalized = normalizeRegionSetWithCascade(data.region_set);
       addRegionSet(normalized);
-      attachRegionSet(normalized.track_id, normalized.id);
+      attachRegionSet(normalized.trackId, normalized.id);
 
-      queryClient.invalidateQueries(['regionSets', 'track', normalized.track_id]);
+      queryClient.invalidateQueries(['regionSets', 'track', normalized.trackId]);
       queryClient.setQueryData(['regionSet', normalized.id], normalized);
     },
     onError: (error: Error) => {
@@ -124,7 +124,7 @@ export const useDeleteRegionSet = () => {
           queryClient.invalidateQueries([
             'regionSets', 
             'track', 
-            context.previousSet.track_id
+            context.previousSet.trackId
           ]);
         }
         
@@ -142,7 +142,7 @@ export const useDeleteRegionSet = () => {
           const attachRegionSet = useTrackStore.getState().attachRegionSet;
 
           addRegionSet(context.previousSet);
-          attachRegionSet(context.previousSet.track_id, context.previousSet.id);
+          attachRegionSet(context.previousSet.trackId, context.previousSet.id);
 
           context.previousRegions.forEach(region => addRegion(region));
         }

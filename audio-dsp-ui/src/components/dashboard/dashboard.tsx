@@ -13,10 +13,8 @@ import { RegionSetContextMenuContainer } from "./context-menus/region-set-contex
 import { TrackContextMenuContainer } from "./context-menus/track-context-menu-container";
 import { useUIStore, type OpenedContext, type SelectedContext } from "@/Stores/UIStore";
 import { useTrackController } from "@/controllers/TrackController";
-import { useRegionController } from "@/controllers/RegionController";
 import { RegionContextMenuContainer } from "./context-menus/region-context-menu-container";
 import { GraphContextMenuContainer } from "./context-menus/graph-context-menu-container";
-import { useRegionSetController } from "@/controllers/RegionSetController";
 
 
 
@@ -25,9 +23,7 @@ export function Dashboard() {
   const { user, loading } = useAuth();
 
   const trackController=useTrackController();
-  const regionController=useRegionController();
-  const regionSetController=useRegionSetController();
-  const {open,select} = useUIStore();
+  const {open,select,openContextMenu} = useUIStore();
 
 
   const sidebarTracks = useTrackViewModels();
@@ -59,7 +55,7 @@ export function Dashboard() {
         <AppSidebar
           tracks={sidebarTracks}
           onAddTrackClick={()=>trackController.handleCreateTrack}
-          onRightClick={opencontextmenu}
+          onRightClick={openContextMenu}
           onSelect={handleSelect}
           onOpen={handleOpen}
           user={{
@@ -77,18 +73,7 @@ export function Dashboard() {
           <DashboardLayout
             store={<TransformStorePanel />}
             canvas={<CanvasPanel />}
-            waveform={
-                (openedContext &&
-                <WaveformPlayer
-                onRegionDetails={}
-                onDeleteRegion={}
-                onCopyRegion={regionController.handleCopyRegion}
-                onEditRegion={regionController.handleEditRegion}
-                onCreateRegionClick={()=>regionSetController.handleCreateRegion()}
-                onCreateRegionDrag={()=>}
-                openedContext={openedContext}>
-                </WaveformPlayer>)
-            }
+            waveform={<WaveformPlayer/>}
           />
         </SidebarInset>
       </div>

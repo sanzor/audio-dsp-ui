@@ -49,7 +49,7 @@ export function CreateRegionModal({
 
   // 🔥 Resolve Track (parent)
   const track = useTrackStore((state) =>
-    regionSet ? state.tracks.get(regionSet.track_id) : null
+    regionSet ? state.tracks.get(regionSet.trackId) : null
   );
 
   // Keep slider synced when modal reopens or start/end change

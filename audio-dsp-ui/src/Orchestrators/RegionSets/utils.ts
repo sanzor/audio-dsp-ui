@@ -42,6 +42,6 @@ export const cascadeDeleteRegionSet = (setId: string): void => {
     cascadeDeleteRegion(regionId);
   }
 
-  detachRegionSet(regionSet.track_id, setId);
+  detachRegionSet(regionSet.trackId, setId);
   removeRegionSet(setId);
 };

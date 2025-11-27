@@ -10,6 +10,9 @@ export type RightClickContext =
   | { type: "region"; regionId: string; x: number; y: number }
   | { type: "regionSet";regionSetId: string; x: number; y: number }
   | {type:"graph",graphId:string,x:number;y:number}
+
+  | { type: "waveform_region"; regionId: string; x: number; y: number } // Right-click on an existing region graphic
+  | { type: "waveform_timeline"; regionSetId: string; time: number; x: number; y: number } // Right-click on the timeline background
   | null;
 
 export type SelectedContext =
@@ -23,7 +26,7 @@ export type OpenedContext =
   | { type: "track"; trackId: string }
   | { type: "regionSet"; regionSetId: string }
   | { type: "region"; regionId: string }
-  | {type:"graph"; graphId:string}
+  | { type:"graph"; graphId:string}
   | null;
 
 export type Clipboard =

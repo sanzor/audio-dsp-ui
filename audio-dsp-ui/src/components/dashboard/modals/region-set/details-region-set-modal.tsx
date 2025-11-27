@@ -19,7 +19,7 @@ export function DetailsRegionSetModal({ regionSetId, open, onClose }: DetailsReg
     const regionSet = useRegionSetStore(state => state.regionSets.get(regionSetId));
     // If regionSet exists, pull the track
     const track = useTrackStore(state => 
-      regionSet ? state.tracks.get(regionSet.track_id) : null
+      regionSet ? state.tracks.get(regionSet.trackId) : null
     );
   return (
     <Dialog open={open} onOpenChange={onClose}>

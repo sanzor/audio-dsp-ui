@@ -42,7 +42,7 @@ export function useWaveformAudio(trackId: string | null) {
         return null;
       });
     };
-  }, [trackId]);
+  }, [trackId,getBlob,setBlob,track]);
 
   return { objectUrl, isLoading };
 }

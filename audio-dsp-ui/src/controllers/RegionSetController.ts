@@ -42,6 +42,17 @@ export function useRegionSetController() {
       closeContextMenu(); // ✅ Close context menu when opening modal
     },
 
+    handleCreateRegionWithTime: (regionSetId:string,time:number) => {
+      const regionSet =regionSetsMap.get(regionSetId);
+      if (!regionSet) {
+        console.error('RegionSet  not found:', { regionSetId });
+        return;
+      }
+      
+      openModal({ type: 'createRegion', regionSetId });
+      closeContextMenu(); // ✅ Close context menu when opening modal
+    },
+
     handleSubmitCreateRegion: async (params: CreateRegionParams) => {
       try {
         await createRegionMutation.mutateAsync(params);

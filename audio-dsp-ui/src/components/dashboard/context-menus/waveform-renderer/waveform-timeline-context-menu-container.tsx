@@ -11,7 +11,7 @@ export function WaveformTimelineContextMenuContainer() {
 
   if (rightClickContext?.type !== "waveform_timeline") return null;
  //used typed clipboards
-  const { regionSetId, x, y } = rightClickContext;
+  const { regionSetId, x, y,time } = rightClickContext;
 
   return (
      <WaveformTimelineContextMenu
@@ -20,7 +20,7 @@ export function WaveformTimelineContextMenuContainer() {
        regionSetId={regionSetId}
        onClose={closeContextMenu}
        onCreateRegionClick={controller.handleCreateRegion}
-       onCreateRegionDrag={controller.ha}
+       startTime={time}
      />
    );
  

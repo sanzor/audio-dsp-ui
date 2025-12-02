@@ -15,6 +15,8 @@ import { useUIStore, type OpenedContext, type SelectedContext } from "@/Stores/U
 import { useTrackController } from "@/controllers/TrackController";
 import { RegionContextMenuContainer } from "./context-menus/region-context-menu-container";
 import { GraphContextMenuContainer } from "./context-menus/graph-context-menu-container";
+import { WaveformRegionContextMenuContainer } from "./context-menus/waveform-renderer/waveform-region-context-menu-container";
+import { WaveformTimelineContextMenuContainer } from "./context-menus/waveform-renderer/waveform-timeline-context-menu-container";
 
 
 
@@ -41,15 +43,17 @@ export function Dashboard() {
     open(ctx);
   }
 
-
-
   return (
 
-    <SidebarProvider defaultOpen={true}>
+      <SidebarProvider defaultOpen={true}>
+        
       <TrackContextMenuContainer></TrackContextMenuContainer>
       <RegionSetContextMenuContainer></RegionSetContextMenuContainer>
       <RegionContextMenuContainer></RegionContextMenuContainer>
       <GraphContextMenuContainer></GraphContextMenuContainer>
+      <WaveformRegionContextMenuContainer></WaveformRegionContextMenuContainer>
+      <WaveformTimelineContextMenuContainer></WaveformTimelineContextMenuContainer>
+
       <div className="flex h-screen w-full overflow-hidden">
         {/* Sidebar - fixed width */}
         <AppSidebar

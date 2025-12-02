@@ -1,6 +1,5 @@
 // RegionContextMenuContainer.tsx - Updated
 import { useUIStore } from "@/Stores/UIStore";
-import { useGraphController } from "@/controllers/GraphController";
 import { WaveformRegionContextMenu } from "./waveform-region-context-menu";
 import { useRegionController } from "@/controllers/RegionController";
 

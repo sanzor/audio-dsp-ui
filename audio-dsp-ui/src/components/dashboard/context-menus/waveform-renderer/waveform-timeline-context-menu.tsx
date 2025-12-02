@@ -6,9 +6,8 @@ interface WaveformTimelineContextMenuProps{
   regionSetId:string,
   x: number;
   y: number;
-  time:number,
-  onCreateRegionClick:(regionSetId:string,time:number)=>void;
-  onCreateRegionDrag:(regionSetId:string,time:number)=>void;
+  startTime:number,
+  onCreateRegionClick:(regionSetId:string,startTime:number)=>void;
   onClose:()=>void;
 }
 
@@ -16,16 +15,25 @@ export function WaveformTimelineContextMenu({
   regionSetId,
   x,
   y,
-  time,
+  startTime,
   onCreateRegionClick,
   onClose 
 }: WaveformTimelineContextMenuProps) {
   return (
     <ContextMenu>
-      <ContextMenuTrigger></ContextMenuTrigger>
-       <ContextMenuContent style={{ position: "absolute", top: y, left: x, zIndex: 1000 }} onClick={onClose}>   
+      <ContextMenuTrigger>
+        
+      </ContextMenuTrigger>
+       <ContextMenuContent style={{ 
+        position: "absolute", 
+        top: y, 
+        left: x, 
+        zIndex: 1000
+         }} 
+         onClick={onClose}
+         >   
         <ContextMenuItem onClick={() => {
-          onCreateRegionClick(regionSetId,time);
+          onCreateRegionClick(regionSetId,startTime);
           onClose()}}>Create Region</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

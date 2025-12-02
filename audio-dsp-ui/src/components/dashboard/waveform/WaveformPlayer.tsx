@@ -1,4 +1,4 @@
-import { useTrackViewModelById } from "@/Selectors/trackViewModels";
+import { useRegionSetViewModel, useTrackViewModelById } from "@/Selectors/trackViewModels";
 import { useWaveformAudio } from "./WaveformAudio";
 import { WaveformRenderer } from "./WaveformRenderer";
 import { useUIStore } from "@/Stores/UIStore";
@@ -8,61 +8,65 @@ import { useRegionSetStore } from "@/Stores/RegionSetStore";
 // ... (or passed as props)
 
 export function WaveformPlayer() {
-  // 1. CALL ALL HOOKS AT THE TOP LEVEL (UNCONDITIONAL)
-
-  // Get UI context
+  // 1. CALL ALL HOOKS UNCONDITIONALLY
   const openedContext = useUIStore(x => x.openedContext);
-  
-  // Safely determine the regionSetId
+  const openModal = useUIStore(x => x.openModal);
+  const copyToClipboard = useUIStore(x => x.copyToClipboard);
+
+  // Safely determine IDs
   const regionSetId = openedContext?.type === "regionSet" ? openedContext.regionSetId : undefined;
   
-  // Get RegionSet object (Hook 2)
-  // Selector: Only try to get the RegionSet if we have a valid ID
   const regionSet = useRegionSetStore(x => 
     regionSetId ? x.regionSets.get(regionSetId) : undefined
-  ); 
-
-  // Safely derive trackId from the RegionSet
-  const trackId = regionSet?.trackId; 
+  );
   
-  // Get Track View Model (Hook 3) - Use this one, not useTrackStore
-  // The hook must be called even if trackId is null/undefined
-  const track = useTrackViewModelById(trackId); 
+  const trackId = regionSet?.trackId;
   
-  // Get Audio URL (Hook 4) - Pass trackId directly
-  // The hook must be called even if trackId is null/undefined
-  const { objectUrl, isLoading } = useWaveformAudio(trackId!==undefined?trackId:null); 
+  // Call hooks with potentially undefined values
+  // Pass undefined instead of null to indicate "no data yet"
+  const regionSetViewModel = useRegionSetViewModel(trackId, regionSetId);
+  const track = useTrackViewModelById(trackId);
+  const { objectUrl, isLoading } = useWaveformAudio(trackId ?? null);
 
-  // 2. NOW, PERFORM ALL CONDITIONAL CHECKS/EARLY EXITS
-
-  // Check 1: Is the correct context open?
+  // 2. CONDITIONAL CHECKS AFTER ALL HOOKS
   if (openedContext?.type !== "regionSet") {
     return null;
   }
   
-  // Check 2: Do we have all the required data?
-  // trackId is guaranteed to be a string here since it comes from regionSet.trackId
-  // which is required for the rest of the logic.
-  if (isLoading || !objectUrl || !track || !regionSet || !trackId) {
-    return null;
+  // Check for loading state or missing data
+  if (isLoading) {
+    return <div>Loading audio...</div>;
+  }
+  
+  // Check if we have all required data - regionSetViewModel can be null
+  if (!objectUrl || !track || !regionSet || !regionSetViewModel) {
+    return <div>Missing required data</div>;
   }
 
-  // 3. RENDER THE COMPONENT
-
+  // 3. RENDER - TypeScript now knows regionSetViewModel is non-null
   return (
     <WaveformRenderer
       url={objectUrl}
-      regionSet={regionSet}
-      // Assuming these functions are defined/imported
-      // You may need to define or import these locally:
-      /*
-      onRegionDetails={onRegionDetails}
-      onEditRegion={onEditRegion}
-      onDeleteRegion={onDeleteRegion}
-      onCopyRegion={onCopyRegion}
-      onCreateRegionClick={(time)=>onCreateRegionClick(regionSetId,time)}
-      onCreateRegionDrag={(start,end)=>onCreateRegionDrag(regionSetId,start,end)}
-      */
+      regionSet={regionSetViewModel}
+      onRegionDetails={(regionId) => openModal({ type: "detailsRegion", regionId })}
+      onEditRegion={(regionId) => openModal({ type: "renameRegion", regionId })}
+      onDeleteRegion={(regionId) => openModal({ type: "deleteRegion", regionId })}
+      onCopyRegion={(regionId) => copyToClipboard({ type: "region", regionId })}
+      onCreateRegionClick={(time) => {
+        openModal({ 
+          type: "createRegion", 
+          regionSetId: regionSet.id, 
+          startTime: time 
+        });
+      }}
+      onCreateRegionDrag={(start, end) => {
+        openModal({ 
+          type: "createRegion", 
+          regionSetId: regionSet.id, 
+          startTime: start,
+          endTime: end
+        });
+      }}
     />
   );
 }

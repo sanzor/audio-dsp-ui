@@ -4,13 +4,13 @@ import WaveSurfer from "wavesurfer.js"
 import RegionsPlugin, { type Region } from 'wavesurfer.js/dist/plugins/regions.esm.js'
 import Minimap from 'wavesurfer.js/dist/plugins/minimap.esm.js'
 import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
+import { useUIStore, type RightClickContext } from "@/Stores/UIStore";
 
 
 export interface WaveformRendererProps{
-    regionSet:TrackRegionSetViewModel 
-    url:string|null
+    regionSet:TrackRegionSetViewModel,
+    url:string|null,
     onRegionDetails:(regionId:string)=>void,
     onDeleteRegion:(regionId:string)=>void,
     onEditRegion:(regionId:string)=>void,
@@ -19,20 +19,10 @@ export interface WaveformRendererProps{
     onCopyRegion:(regionId:string)=>void
 }
 
-type ContextMenuContext =
-  | { type: 'region'; regionId: string; }
-  | { type: 'waveform'; time: number }
-  | null;
 
 export function WaveformRenderer({
     regionSet,
-    url,
-    onRegionDetails: onDetails,
-    onEditRegion,
-    onDeleteRegion,
-    onCreateRegionClick,
-    onCreateRegionDrag,
-    onCopyRegion
+    url
   }:WaveformRendererProps
   ){
     const waveRef = useRef<WaveSurfer | null>(null);
@@ -42,11 +32,7 @@ export function WaveformRenderer({
 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-
-    const [contextMenu, setContextMenu] = useState<ContextMenuContext>(null);
-    const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
-
+    const openContextMenu=useUIStore(x=>x.openContextMenu);
 
     useEffect(() => {
         const waveformElement = waveformRef.current; // ✅ Local copy of ref
@@ -59,9 +45,7 @@ export function WaveformRenderer({
             const x = e.clientX - bounding.left;
             const width = waveformElement.offsetWidth;
             const time = waveRef.current!.getDuration() * (x / width);
-
-            setContextMenu({ type: 'waveform', time });
-            setContextMenuPosition({ x: e.clientX, y: e.clientY });
+            openContextMenu({ type:'waveform_timeline',  x: e.clientX, y: e.clientY ,regionSetId:regionSet.id,time:time });
         };
 
         waveformElement.addEventListener('contextmenu', onContextMenu);
@@ -80,8 +64,7 @@ export function WaveformRenderer({
             url,
              regionSet.regions,
             waveformElement,
-            setContextMenu,
-            setContextMenuPosition
+            openContextMenu
         );
 
         waveRef.current = waveform;
@@ -156,47 +139,6 @@ export function WaveformRenderer({
         <div className="text-gray-500">Loading waveform...</div>
       </div>
     )}
-
-    <ContextMenu>
-  <ContextMenuTrigger asChild>
-    <div
-      ref={waveformRef}
-      className="w-full h-full"
-      style={{ minHeight: '150px' }}
-    />
-  </ContextMenuTrigger>
-
-    {contextMenu && contextMenuPosition && (
-    <ContextMenuContent
-      className="w-48"
-      style={{
-        position: 'fixed',
-        left: contextMenuPosition.x,
-        top: contextMenuPosition.y,
-      }}
-    >
-      {contextMenu.type === 'region' ? (
-        <>
-          <ContextMenuItem onClick={() => onEditRegion(contextMenu.regionId)}>Edit</ContextMenuItem>
-          <ContextMenuItem onClick={() => onDetails(contextMenu.regionId)}>Details</ContextMenuItem>
-          <ContextMenuItem onClick={() => onDeleteRegion(contextMenu.regionId)}>Delete</ContextMenuItem>
-          <ContextMenuItem onClick={()=>  onCopyRegion(contextMenu.regionId)}>Copy</ContextMenuItem>
-        </>
-      ) : (
-        <>
-          <ContextMenuItem onClick={() => onCreateRegionClick(contextMenu.time)}>Create Region</ContextMenuItem>
-          <ContextMenuItem
-            onClick={() =>
-              onCreateRegionDrag(Math.max(0, contextMenu.time - 1), contextMenu.time + 1)
-            }
-          >
-            Create Region (±1s)
-          </ContextMenuItem>
-        </>
-      )}
-    </ContextMenuContent>
-    )}
-    </ContextMenu>
   </div>
 );
 }
@@ -207,12 +149,8 @@ export function createWaveFormPlayer(
     url:string,
     trackRegions:TrackRegionViewModel[],
     container:HTMLElement,
-    setContextMenu:React.Dispatch<React.SetStateAction<ContextMenuContext>>,
-    setContextMenuPosition: React.Dispatch<React.SetStateAction<{
-    x: number;
-    y: number;
-} | null>>,
-    ):{wave:WaveSurfer,regions:RegionsPlugin}{
+    openContextMenu:(context: RightClickContext) => void)
+    :{wave:WaveSurfer,regions:RegionsPlugin}{
     let activeRegion:Region|null=null;
     const regions = RegionsPlugin.create();
     regions.on('region-in',(region)=>{
@@ -228,8 +166,7 @@ export function createWaveFormPlayer(
         e.preventDefault();
         e.stopImmediatePropagation();
         activeRegion=region;
-        setContextMenu({ type: 'region', regionId: region.id!.toString() });
-        setContextMenuPosition({ x: e.clientX, y: e.clientY });
+        openContextMenu({type:'waveform_region',regionId:region.id!.toString(),x:e.clientX,y:e.clientY})
         region.play(true);
         region.setOptions({color:randomColor()});
     })

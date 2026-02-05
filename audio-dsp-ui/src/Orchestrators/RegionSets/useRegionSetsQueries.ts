@@ -1,33 +1,34 @@
+import { useEffect } from "react";
 import { useAuth } from "@/Auth/UseAuth";
 import type { NormalizedTrackRegionSet } from "@/Domain/RegionSet/NormalizedTrackRegionSet";
 import type { TrackRegionSet } from "@/Domain/RegionSet/TrackRegionSet";
 import { apiGetRegionSet, apiGetRegionSetsForTrack } from "@/Services/RegionSetsService";
 import { useRegionSetStore } from "@/Stores/RegionSetStore";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { normalizeRegionSet } from "./utils";
 
 export const useGetRegionSet = (regionSetId: string) => {
-  const addRegionSet = useRegionSetStore(state => state.addRegionSet);
   const { user } = useAuth();
 
-  return useQuery<TrackRegionSet, string, NormalizedTrackRegionSet | undefined>({
+  const query = useQuery<TrackRegionSet, Error, NormalizedTrackRegionSet | undefined>({
     queryKey: ['regionSet', regionSetId],
     queryFn: () => apiGetRegionSet(regionSetId),
     enabled: !!regionSetId && !!user,
 
     select: (data) => data ? normalizeRegionSet(data) : undefined,
-
-    onSuccess: (normalized) => {
-      if (normalized) addRegionSet(normalized);
-    },
   });
+
+  useEffect(() => {
+    if (query.data) useRegionSetStore.getState().addRegionSet(query.data);
+  }, [query.data]);
+
+  return query;
 };
 
 export const useGetAllRegionSetsForTrack = (trackId: string) => {
-  const setAllRegionSets = useRegionSetStore(state => state.setAllRegionSets);
   const { user } = useAuth();
 
-  return useQuery<TrackRegionSet[], string, NormalizedTrackRegionSet[]>({
+  const query = useQuery<TrackRegionSet[], Error, NormalizedTrackRegionSet[]>({
     queryKey: ['regionSets', 'track', trackId],
     queryFn: async () => {
       const response = await apiGetRegionSetsForTrack(trackId);
@@ -36,9 +37,11 @@ export const useGetAllRegionSetsForTrack = (trackId: string) => {
     enabled: !!trackId && !!user,
 
     select: (regionSets) => regionSets.map(normalizeRegionSet),
-
-    onSuccess: (normalizedList) => {
-      setAllRegionSets(normalizedList);
-    },
   });
+
+  useEffect(() => {
+    if (query.data) useRegionSetStore.getState().setAllRegionSets(query.data);
+  }, [query.data]);
+
+  return query;
 };

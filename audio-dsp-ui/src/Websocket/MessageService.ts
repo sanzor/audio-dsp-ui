@@ -17,6 +17,7 @@ export class MessageService {
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public handleMessage(data: any) {
+    void this.eventBus;
     switch (data.kind) {
      
       case COMMAND_RESULT:
@@ -56,10 +57,12 @@ export class MessageService {
 
 
   private handlePlayCommandResult(data: any) {
+    void data;
 
   }
 
   private handlePauseCommandResult(data: any) {
+    void data;
   
   }
 
@@ -69,6 +72,7 @@ export class MessageService {
   }
 
   private handleSeekCommandResult(data: any) {
+    void data;
    
   }
 }

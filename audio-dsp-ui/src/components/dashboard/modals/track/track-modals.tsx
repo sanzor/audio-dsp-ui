@@ -1,5 +1,4 @@
 import { useUIStore } from "@/Stores/UIStore";
-import { useRegionSetController } from "@/controllers/RegionSetController";
 import { useTrackController } from "@/controllers/TrackController";
 import { DetailsTrackModal } from "./details-track-modal";
 import { RenameTrackModal } from "./rename-track-modal";
@@ -9,8 +8,7 @@ import { PasteTrackModal } from "./paste-track-modal";
 export function TrackModals() {
   const modalState = useUIStore(state => state.modalState);
   const closeModal = useUIStore(state => state.closeModal);
-  const trackController=useTrackController();
-  const regionSetController=useRegionSetController();
+  const trackController = useTrackController();
 
   if (!modalState) return null;
 
@@ -19,11 +17,11 @@ export function TrackModals() {
       return <DetailsTrackModal trackId={modalState.trackId} open onClose={closeModal} />;
 
     case "renameTrack":
-      return <RenameTrackModal 
-        trackId={modalState.trackId} 
-        open 
+      return <RenameTrackModal
+        trackId={modalState.trackId}
+        open
         onClose={closeModal}
-        onSubmit={regionSetController.handleSubmitRenameRegionSet} 
+        onSubmit={trackController.handleSubmitRenameTrack}
     />;
 
     case "createTrack":

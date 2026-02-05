@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiCopyGraph, apiCreateGraph, apiRemoveGraph, apiUpdateGraph } from "@/Services/GraphService";
 import { useGraphStore } from "@/Stores/GraphStore";
 import { normalizeGraph } from "./utils";
@@ -13,8 +13,8 @@ import type { EditGraphParams } from "@/Dtos/Graphs/EditGraphParams";
 import type { EditGraphResult } from "@/Dtos/Graphs/EditGraphResult";
 
 export const useCreateGraph = () => {
-  const addGraph=useGraphStore(state=>state.addGraph);
-  const attachGraph=useRegionStore(state=>state.attachGraph);
+  const addGraph = useGraphStore.getState().addGraph;
+  const setGraph = useRegionStore.getState().setGraph;
   return useMutation<CreateGraphResult, Error, CreateGraphParams>({
     mutationFn: (params) => apiCreateGraph(params),
     onSuccess: (data) => {
@@ -22,7 +22,7 @@ export const useCreateGraph = () => {
       const graph=data.graph;
       const normalizedGraph=normalizeGraph(graph);
       addGraph(normalizedGraph);
-      attachGraph(normalizedGraph.regionId,normalizedGraph.id);
+      setGraph(normalizedGraph.regionId,normalizedGraph.id);
     },
     onError: (error) => {
       console.error('Failed to create region', error);
@@ -33,14 +33,16 @@ export const useCreateGraph = () => {
 
 export const useCopyGraph = () => {
   const queryClient = useQueryClient();
-  const addGraph = useGraphStore(state => state.addGraph);
+  const addGraph = useGraphStore.getState().addGraph;
+  const setGraph = useRegionStore.getState().setGraph;
 
   return useMutation<CopyGraphResult, Error, CopyGraphParams>({
     mutationFn: params => apiCopyGraph(params),
     onSuccess: (data) => {
       const normalized = normalizeGraph(data.graph);
       addGraph(normalized);
-      queryClient.invalidateQueries(['graph', normalized.id]);
+      setGraph(normalized.regionId, normalized.id);
+      queryClient.invalidateQueries({ queryKey: ['graph', normalized.id] });
     },
     onError: (error) => {
       console.error("Failed to copy graph", error);
@@ -49,9 +51,9 @@ export const useCopyGraph = () => {
 };
 
 export const useDeleteGraph = () => {
-  const getGraph = useGraphStore(state => state.getGraph);
-  const removeGraph = useGraphStore(state => state.removeGraph);
-  const updateRegion = useRegionStore(state => state.updateRegion);
+  const getGraph = useGraphStore.getState().getGraph;
+  const removeGraph = useGraphStore.getState().removeGraph;
+  const updateRegion = useRegionStore.getState().updateRegion;
 
   return useMutation<
     void,
@@ -70,7 +72,11 @@ export const useDeleteGraph = () => {
 
       return { previousGraph };
     },
-    onError: (_error, _params, ctx) => {
+    onError: (
+      _error: Error,
+      _params: RemoveGraphParams,
+      ctx: { previousGraph?: NormalizedGraph } | undefined
+    ) => {
       if (ctx?.previousGraph) {
         useGraphStore.getState().addGraph(ctx.previousGraph);
         useRegionStore
@@ -84,7 +90,7 @@ export const useDeleteGraph = () => {
 };
 
 export const useEditGraph = () => {
-  const editGraph=useGraphStore(state=>state.updateGraph);
+  const editGraph = useGraphStore.getState().updateGraph;
   return useMutation<EditGraphResult, Error, EditGraphParams>({
     mutationFn: (params) => apiUpdateGraph(params),
     onSuccess: (data) => {
@@ -97,3 +103,13 @@ export const useEditGraph = () => {
     },
   });
 };
+
+/**
+ * Facade hook that bundles all graph mutations
+ */
+export const useGraphMutations = () => ({
+  create: useCreateGraph(),
+  copy: useCopyGraph(),
+  edit: useEditGraph(),
+  remove: useDeleteGraph(),
+});

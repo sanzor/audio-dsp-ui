@@ -1,14 +1,16 @@
-// RegionContextMenuContainer.tsx - Updated
+// TrackContextMenuContainer.tsx
 import { useTrackController } from "@/controllers/TrackController";
+import { useRegionSetController } from "@/controllers/RegionSetController";
 import { useUIStore } from "@/Stores/UIStore";
 import { TrackContextMenu } from "./track-context-menu";
 
 
 export function TrackContextMenuContainer() {
-  const rightClickContext=useUIStore(state=>state.rightClickContext);
+  const rightClickContext = useUIStore(state => state.rightClickContext);
   const clipboard = useUIStore(state => state.clipboard);
-  const closeContextMenu=useUIStore(state=>state.closeContextMenu);
-  const controller=useTrackController();
+  const closeContextMenu = useUIStore(state => state.closeContextMenu);
+  const trackController = useTrackController();
+  const regionSetController = useRegionSetController();
 
   if (rightClickContext?.type !== "track") return null;
  //used typed clipboards
@@ -21,14 +23,14 @@ export function TrackContextMenuContainer() {
        x={x}
        y={y}
        trackId={trackId}
-       onCreateRegionSet={()=>controller.handleCreateRegionSet(trackId)}
+       onCreateRegionSet={() => trackController.handleCreateRegionSet(trackId)}
        onClose={closeContextMenu}
-       onDetails={()=>controller.handleDetailsTrack(trackId)}
-       onRename={()=>controller.handleRenameTrack(trackId)}
-       onCopyTrack={()=>controller.handleCopyTrack(trackId)}
-       onPasteRegionSet={()=>controller.handlePasteRegionSet(trackId)}
+       onDetails={() => trackController.handleDetailsTrack(trackId)}
+       onRename={() => trackController.handleRenameTrack(trackId)}
+       onCopyTrack={() => trackController.handleCopyTrack(trackId)}
+       onPasteRegionSet={() => regionSetController.handlePasteRegionSet(trackId)}
        canPasteRegionSet={clipboard?.type === "regionSet"}
-       onRemove={() => controller.handleDeleteTrack(trackId)}
+       onRemove={() => trackController.handleDeleteTrack(trackId)}
      />
    );
  

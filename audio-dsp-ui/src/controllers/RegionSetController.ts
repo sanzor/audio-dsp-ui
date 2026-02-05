@@ -1,12 +1,13 @@
 // hooks/useRegionSetController.ts
 import { useUIStore } from "@/Stores/UIStore";
-import type { PasteRegionParams } from "@/Stores/PasteParams";
+import type { PasteRegionParams, PasteRegionSetParams } from "@/Stores/PasteParams";
 import { useCopyRegion, useCreateRegion, } from "@/Orchestrators/Regions/useRegionMutations";
 
 import { useRegionStore } from "@/Stores/RegionStore";
+import { useTrackStore } from "@/Stores/TrackStore";
 
 import { useRegionSetStore } from "@/Stores/RegionSetStore";
-import { useDeleteRegionSet, useRenameRegionSet } from "@/Orchestrators/RegionSets/useRegionSetsMutations";
+import { useCopyRegionSet, useDeleteRegionSet, useRenameRegionSet } from "@/Orchestrators/RegionSets/useRegionSetsMutations";
 import type { CreateRegionParams } from "@/Dtos/Regions/CreateRegionParams";
 
 
@@ -20,8 +21,10 @@ export function useRegionSetController() {
   // Data and mutations
   const regionSetsMap = useRegionSetStore(x=>x.regionSets);
   const regionsMap = useRegionStore(x=>x.regions);
+  const trackMap = useTrackStore(x=>x.tracks);
   const createRegionMutation = useCreateRegion();
   const useCopyRegionMutation = useCopyRegion();
+  const copyRegionSetMutation = useCopyRegionSet();
   const deleteRegionSetMutation = useDeleteRegionSet();
   const renameRegionSetMutation = useRenameRegionSet();
 
@@ -155,13 +158,13 @@ export function useRegionSetController() {
 
       // 4. Everything valid → open modal
       openModal({
-        type: "pasteGraph",
+        type: "pasteRegion",
         params: {
           source: {
-            graphId:sourceRegion.regionId
+            regionId: sourceRegion.regionId
           },
           destination: {
-            regionId:destRegionSetId
+            regionSetId: destRegionSetId
           }
         }
       });
@@ -180,6 +183,60 @@ export function useRegionSetController() {
         // Optional: Show success toast
       } catch (error) {
         console.error('Failed to paste region:', error);
+        // ❌ Don't close modal on error
+        throw error;
+      }
+    },
+
+    // ============================================
+    // PASTE REGION SET
+    // ============================================
+    handlePasteRegionSet(destTrackId: string) {
+      // 1. Validate source type
+      const clipboard = useUIStore.getState().clipboard;
+      if (!clipboard || clipboard.type !== "regionSet") return;
+
+      // 2. Validate destination existence
+      const destTrack = trackMap.get(destTrackId);
+      if (!destTrack) {
+        console.error('Track not found:', { destTrackId });
+        return;
+      }
+
+      // 3. Validate source existence
+      const sourceRegionSet = regionSetsMap.get(clipboard.regionSetId);
+      if (!sourceRegionSet) {
+        console.error('Source region set not found:', { regionSetId: clipboard.regionSetId });
+        return;
+      }
+
+      // 4. Everything valid → open modal
+      openModal({
+        type: "pasteRegionSet",
+        params: {
+          source: {
+            regionSetId: clipboard.regionSetId
+          },
+          destination: {
+            trackId: destTrackId
+          }
+        }
+      });
+
+      closeContextMenu();
+    },
+
+    handleSubmitPasteRegionSet: async (params: PasteRegionSetParams, regionSetName: string) => {
+      try {
+        await copyRegionSetMutation.mutateAsync({
+            destTrackId: params.destination.trackId,
+            sourceRegionSetId: params.source.regionSetId,
+            copy_region_set_name: regionSetName
+        });
+        closeModal(); // ✅ Close modal on success
+        // Optional: Show success toast
+      } catch (error) {
+        console.error('Failed to paste region set:', error);
         // ❌ Don't close modal on error
         throw error;
       }

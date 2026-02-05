@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTrackStore } from '@/Stores/TrackStore';
 import type { CopyTrackParams } from '@/Dtos/Tracks/CopyTrackParams';
 import type { CopyTrackResult } from '@/Dtos/Tracks/CopyTrackResult';
@@ -19,7 +19,7 @@ import type { CreateTrackResult } from '@/Dtos/Tracks/AddTrackResult';
 
 export const useCreateTrack = () => {
   const queryClient = useQueryClient();
-  const addTrack = useTrackStore(state => state.addTrack);
+  const addTrack = useTrackStore.getState().addTrack;
   
 
   return useMutation<CreateTrackResult, Error, CreateTrackParams>({
@@ -27,7 +27,7 @@ export const useCreateTrack = () => {
     onSuccess: (data) => {
       addTrack({trackId:data.track_id,trackInfo:data.track_info,region_sets_ids:[]})
 
-      queryClient.invalidateQueries([ 'track', data.track_id]);
+      queryClient.invalidateQueries({ queryKey: ['track', data.track_id] });
       queryClient.setQueryData(['track', data.track_id],data.track_id);
     },
     onError: (error: Error) => {
@@ -38,35 +38,28 @@ export const useCreateTrack = () => {
 
 export const useCopyTrack = () => {
   const queryClient = useQueryClient();
-  const addTrack = useTrackStore(state => state.addTrack);
+  const addTrack = useTrackStore.getState().addTrack;
 
-  // ✅ FIX: Correct types - CopyTrackResult and CopyTrackParams
-  return useMutation<CopyTrackResult, Error, CopyTrackParams>(
-    (copyParams: CopyTrackParams) => apiCopyTrack(copyParams),
-    {
-      onSuccess: (data: CopyTrackResult) => {
-        // 1. Normalize the entire tree (cascades to RegionSet, Region, Graph, Nodes, Edges stores)
-        const normalizedCopy = normalizeTrackWithCascade(data.track);
-        
-        // 2. Add the new copy to TrackStore
-        addTrack(normalizedCopy);
-        
-        // 3. Invalidate queries to refresh UI
-        queryClient.invalidateQueries(['tracks']);
-        
-        // Optionally set the new data directly to avoid refetch
-        queryClient.setQueryData(
-          ['track', normalizedCopy.trackId],
-          normalizedCopy
-        );
-      },
-      
-      onError: (error: Error) => {
-        console.error('Failed to copy track:', error);
-        // Could add toast notification here
-      },
-    }
-  );
+  return useMutation<CopyTrackResult, Error, CopyTrackParams>({
+    mutationFn: (copyParams: CopyTrackParams) => apiCopyTrack(copyParams),
+    onSuccess: (data: CopyTrackResult) => {
+      // 1. Normalize the entire tree (cascades to RegionSet, Region, Graph, Nodes, Edges stores)
+      const normalizedCopy = normalizeTrackWithCascade(data.track);
+
+      // 2. Add the new copy to TrackStore
+      addTrack(normalizedCopy);
+
+      // 3. Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['tracks'] });
+
+      // Optionally set the new data directly to avoid refetch
+      queryClient.setQueryData(['track', normalizedCopy.trackId], normalizedCopy);
+    },
+
+    onError: (error: Error) => {
+      console.error('Failed to copy track:', error);
+    },
+  });
 };
 
 /**
@@ -77,51 +70,63 @@ export const useCopyTrack = () => {
  */
 export const useDeleteTrack = () => {
   const queryClient = useQueryClient();
-  const getTrack = useTrackStore(state => state.getTrack);
+  const getTrack = useTrackStore.getState().getTrack;
 
-  return useMutation<RemoveTrackResult, Error, RemoveTrackParams, { previousTrack?: NormalizedTrackMeta }>(
-    (removeParams: RemoveTrackParams) => apiRemoveTrack(removeParams),
-    {
-      // Optimistic update: remove from store immediately
-      onMutate: async (removeParams: RemoveTrackParams) => {
-        const trackId = removeParams.trackId;
-        
-        // Cancel outgoing refetches
-        await queryClient.cancelQueries(['track', trackId]);
-        
-        // Snapshot the current value for rollback
-        const previousTrack = getTrack(trackId);
-        
-        // Optimistically remove from all stores
-        if (previousTrack) {
-          cascadeDeleteTrack(trackId);
-        }
-        
-        return { previousTrack };
-      },
-      
-      onSuccess: (_, removeParams, context) => {
-        const trackId = removeParams.trackId;
-        
-        // Invalidate parent project's tracks list
-        if (context?.previousTrack) {
-          queryClient.invalidateQueries(['tracks']);
-        }
-        
-        // Remove the individual query
-        queryClient.removeQueries(['track', trackId]);
-      },
-      
-      onError: (error: Error, removeParams, context) => {
-        console.error('Failed to delete track:', error);
-        
-        if (context?.previousTrack) {
-          queryClient.invalidateQueries(['track', removeParams.trackId]);
-          queryClient.invalidateQueries(['tracks']);
-        }
-      },
-    }
-  );
+  return useMutation<
+    RemoveTrackResult,
+    Error,
+    RemoveTrackParams,
+    { previousTrack?: NormalizedTrackMeta }
+  >({
+    mutationFn: (removeParams: RemoveTrackParams) => apiRemoveTrack(removeParams),
+
+    // Optimistic update: remove from store immediately
+    onMutate: async (removeParams: RemoveTrackParams) => {
+      const trackId = removeParams.trackId;
+
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['track', trackId] });
+
+      // Snapshot the current value for rollback
+      const previousTrack = getTrack(trackId);
+
+      // Optimistically remove from all stores
+      if (previousTrack) {
+        cascadeDeleteTrack(trackId);
+      }
+
+      return { previousTrack };
+    },
+
+    onSuccess: (
+      _data: RemoveTrackResult,
+      removeParams: RemoveTrackParams,
+      context: { previousTrack?: NormalizedTrackMeta } | undefined
+    ) => {
+      const trackId = removeParams.trackId;
+
+      // Invalidate parent project's tracks list
+      if (context?.previousTrack) {
+        queryClient.invalidateQueries({ queryKey: ['tracks'] });
+      }
+
+      // Remove the individual query
+      queryClient.removeQueries({ queryKey: ['track', trackId] });
+    },
+
+    onError: (
+      error: Error,
+      removeParams: RemoveTrackParams,
+      context: { previousTrack?: NormalizedTrackMeta } | undefined
+    ) => {
+      console.error('Failed to delete track:', error);
+
+      if (context?.previousTrack) {
+        queryClient.invalidateQueries({ queryKey: ['track', removeParams.trackId] });
+        queryClient.invalidateQueries({ queryKey: ['tracks'] });
+      }
+    },
+  });
 };
 
 /**
@@ -129,16 +134,16 @@ export const useDeleteTrack = () => {
  */
 export const useRenameTrack = () => {
   const queryClient = useQueryClient();
-  const updateTrack = useTrackStore(state => state.updateTrack);
-  const getTrack = useTrackStore(state => state.getTrack);
+  const updateTrack = useTrackStore.getState().updateTrack;
+  const getTrack = useTrackStore.getState().getTrack;
 
   return useMutation<
     void,
     Error,
     { trackId: string; newName: string },
     { previousTrack?: NormalizedTrackMeta }
-  >(
-    async ({ trackId, newName }) => {
+  >({
+    mutationFn: async ({ trackId, newName }) => {
       const response = await fetch(`/api/tracks/${trackId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -146,30 +151,47 @@ export const useRenameTrack = () => {
       });
       if (!response.ok) throw new Error('Failed to rename track');
     },
-    {
-      onMutate: async ({ trackId, newName }) => {
-        const previousTrack = getTrack(trackId);
-        if (previousTrack) {
-          updateTrack(trackId, {
-            trackInfo: {
-              ...previousTrack.trackInfo,
-              name: newName,
-            },
-          });
-        }
 
-        return { previousTrack };
-      },
-      
-      onError: (_, { trackId }, context) => {
-        if (context?.previousTrack) {
-          updateTrack(trackId, context.previousTrack);
-        }
-      },
+    onMutate: async ({ trackId, newName }) => {
+      const previousTrack = getTrack(trackId);
+      if (previousTrack) {
+        updateTrack(trackId, {
+          trackInfo: {
+            ...previousTrack.trackInfo,
+            name: newName,
+          },
+        });
+      }
 
-      onSettled: (_, __, { trackId }) => {
-        queryClient.invalidateQueries(['track', trackId]);
-      },
-    }
-  );
+      return { previousTrack };
+    },
+
+    onError: (
+      _error: Error,
+      { trackId }: { trackId: string; newName: string },
+      context: { previousTrack?: NormalizedTrackMeta } | undefined
+    ) => {
+      if (context?.previousTrack) {
+        updateTrack(trackId, context.previousTrack);
+      }
+    },
+
+    onSettled: (
+      _data: void | undefined,
+      _error: Error | null,
+      { trackId }: { trackId: string; newName: string }
+    ) => {
+      queryClient.invalidateQueries({ queryKey: ['track', trackId] });
+    },
+  });
 };
+
+/**
+ * Facade hook that bundles all track mutations
+ */
+export const useTrackMutations = () => ({
+  create: useCreateTrack(),
+  copy: useCopyTrack(),
+  remove: useDeleteTrack(),
+  rename: useRenameTrack(),
+});

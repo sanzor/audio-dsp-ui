@@ -25,19 +25,19 @@ function innerCreateCommand(data:Command): BaseCommandDto|null{
     switch(data.kind){
         case PLAY_COMMAND:  
             if(isPlayCommand(data)) 
-                return create_command_play(data as PlayCommand);
+                return create_command_play();
             break;
         case PAUSE_COMMAND : 
             if(isPauseCommand(data))
-                return create_command_pause(data as PauseCommand);
+                return create_command_pause();
             break;
         case SEEK_COMMAND:
             if(isSeekCommand(data))
-                return create_command_seek(data as SeekCommand);
+                return create_command_seek();
             break;
         case STOP_COMMAND :
             if(isStopCommand(data))
-                return create_command_stop(data as StopCommand);
+                return create_command_stop();
             break;
         
            
@@ -45,13 +45,13 @@ function innerCreateCommand(data:Command): BaseCommandDto|null{
     }
     return null;
 }
-function create_command_play(c:PlayCommand):PlayCommandDto{
+function create_command_play():PlayCommandDto{
     const  message:PlayCommandDto={
         command:PLAY_COMMAND
     };
     return message;
 }
- function create_command_pause(c:PauseCommand):PauseCommandDto{
+ function create_command_pause():PauseCommandDto{
    
     const message:PauseCommandDto={
         command:PAUSE_COMMAND
@@ -59,7 +59,7 @@ function create_command_play(c:PlayCommand):PlayCommandDto{
     return message;
 }
 
-function create_command_seek(c:SeekCommand):SeekCommandDto{
+function create_command_seek():SeekCommandDto{
    
     const message:SeekCommandDto={
         command:SEEK_COMMAND
@@ -67,7 +67,7 @@ function create_command_seek(c:SeekCommand):SeekCommandDto{
     return message;
     
 }
-function create_command_stop(c:StopCommand):StopCommandDto{
+function create_command_stop():StopCommandDto{
     const  message:StopCommandDto={
         command:STOP_COMMAND
     }

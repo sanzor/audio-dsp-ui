@@ -7,28 +7,26 @@ import {
 import { SidebarMenuItem, SidebarMenuButton, SidebarMenuSub } from "@/components/ui/sidebar";
 import { RegionItem } from "./region-item";
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
-import type { OpenedContext, SelectedContext } from "@/Providers/UIStore/UIStateProvider";
-import type { RightClickContext } from "../dashboard";
+import type { OpenedContext, RightClickContext, SelectedContext } from "@/Stores/UIStore";
 
 interface Props {
   regionSet: TrackRegionSetViewModel;
-  trackId: string;
   onRightClick: (ctx: RightClickContext) => void;
   onSelect: (ctx: SelectedContext) => void;
   onOpen:(ctx:OpenedContext)=>void;
 }
 
-export function RegionSetItem({ regionSet, trackId, onRightClick, onSelect, onOpen}: Props) {
+export function RegionSetItem({ regionSet, onRightClick, onSelect, onOpen}: Props) {
   return (
     <Collapsible defaultOpen className="group/collapsible">
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton
-            onClick={() => onSelect({ type: "regionSet", trackId, regionSetId: regionSet.id })}
-            onDoubleClick={() => onOpen({ type: "regionSet", trackId, regionSetId: regionSet.id })}
+            onClick={() => onSelect({ type: "regionSet", regionSetId: regionSet.id })}
+            onDoubleClick={() => onOpen({ type: "regionSet", regionSetId: regionSet.id })}
             onContextMenu={e => {
               e.preventDefault();
-              onRightClick({ type: "regionSet", trackId, regionSetId: regionSet.id, x: e.clientX, y: e.clientY });
+              onRightClick({ type: "regionSet", regionSetId: regionSet.id, x: e.clientX, y: e.clientY });
             }}
           >
             {regionSet.name}
@@ -42,7 +40,6 @@ export function RegionSetItem({ regionSet, trackId, onRightClick, onSelect, onOp
               <RegionItem
                 key={region.regionId}
                 region={region}
-                trackId={trackId}
                 onRightClick={onRightClick}
                 onSelect={onSelect}
                 onOpen={onOpen}

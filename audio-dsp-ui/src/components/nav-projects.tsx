@@ -12,7 +12,7 @@ import { useEffect } from "react";
 
 export interface NaveProjectsProps{
   tracks:TrackMetaViewModel[],
-  onRemoveTrack:(trackId:number)=>void
+  onRemoveTrack?:(trackId:string)=>void
 
 }
 export function NavProjects({tracks}:NaveProjectsProps) {
@@ -26,17 +26,19 @@ export function NavProjects({tracks}:NaveProjectsProps) {
         </div>
       </SidebarMenuButton>
       <SidebarMenu className="ml-4">
-        {track.regions.map((region) => (
-          <SidebarMenuItem key={region.region_id}>
-            <SidebarMenuButton asChild>
-              <a href={`/track/${track.trackId}/region/${region.region_id}`}>
-                <span className="text-sm text-muted-foreground hover:text-foreground">
-                  {region.name}
-                </span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
+        {track.regionSets.flatMap((regionSet) =>
+          regionSet.regions.map((region) => (
+            <SidebarMenuItem key={region.regionId}>
+              <SidebarMenuButton asChild>
+                <a href={`/track/${track.trackId}/region/${region.regionId}`}>
+                  <span className="text-sm text-muted-foreground hover:text-foreground">
+                    {regionSet.name} / {region.name}
+                  </span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))
+        )}
       </SidebarMenu>
     </SidebarMenuItem>);
 }
@@ -55,4 +57,3 @@ export function NavProjects({tracks}:NaveProjectsProps) {
     </SidebarGroup>
   );
 }
-

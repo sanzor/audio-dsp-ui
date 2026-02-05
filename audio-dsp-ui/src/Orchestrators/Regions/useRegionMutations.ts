@@ -1,4 +1,4 @@
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useRegionSetStore } from '@/Stores/RegionSetStore';
 import { useRegionStore } from '@/Stores/RegionStore';
 import { cascadeDeleteRegion, normalizeRegionWithCascade } from './utils'
@@ -16,8 +16,8 @@ import type { NormalizedTrackRegion } from '@/Domain/Region/NormalizedTrackRegio
 
 
 export const useCreateRegion = () => {
-  const addRegion=useRegionStore(state=>state.addRegion);
-  const attachRegion=useRegionSetStore(state=>state.attachRegion);
+  const addRegion = useRegionStore.getState().addRegion;
+  const attachRegion = useRegionSetStore.getState().attachRegion;
   return useMutation<CreateRegionResult, Error, CreateRegionParams>({
     mutationFn: (params) => apiAddRegion(params),
     onSuccess: (data) => {
@@ -34,8 +34,8 @@ export const useCreateRegion = () => {
 };
 
 export const useCopyRegion = () => {
-  const addRegion=useRegionStore(state=>state.addRegion);
-  const attachRegion=useRegionSetStore(state=>state.attachRegion);
+  const addRegion = useRegionStore.getState().addRegion;
+  const attachRegion = useRegionSetStore.getState().attachRegion;
   return useMutation<CopyRegionResult, Error, CopyRegionParams>({
     mutationFn: (params) => apiCopyRegion(params),
     onSuccess: (data) => {
@@ -51,7 +51,7 @@ export const useCopyRegion = () => {
 };
 
 export const useEditRegion = () => {
-  const editRegion=useRegionStore(state=>state.updateRegion);
+  const editRegion = useRegionStore.getState().updateRegion;
   return useMutation<EditRegionResult, Error, EditRegionParams>({
     mutationFn: (params) => apiEditRegion(params),
     onSuccess: (data) => {
@@ -66,35 +66,46 @@ export const useEditRegion = () => {
 };
 
 export const useDeleteRegion = () => {
-  const getRegion = useRegionStore(state => state.getRegion);
+  const getRegion = useRegionStore.getState().getRegion;
 
   return useMutation<
-    RemoveRegionResult, 
-    Error, 
-    RemoveRegionParams, 
+    RemoveRegionResult,
+    Error,
+    RemoveRegionParams,
     { previousRegion?: NormalizedTrackRegion }
-  >(
-    params => apiRemoveRegion(params),
-    {
-      onMutate: params => {
-        const prev = getRegion(params.regionId);
+  >({
+    mutationFn: (params) => apiRemoveRegion(params),
+    onMutate: (params) => {
+      const prev = getRegion(params.regionId);
 
-        if (prev) {
-          cascadeDeleteRegion(params.regionId);
-        }
-
-        return { previousRegion: prev };
-      },
-
-      onError: (error, params, ctx) => {
-        if (ctx?.previousRegion) {
-          useRegionStore.getState().addRegion(ctx.previousRegion);
-          useRegionSetStore.getState().attachRegion(
-            ctx.previousRegion.regionSetId,
-            ctx.previousRegion.regionId
-          );
-        }
+      if (prev) {
+        cascadeDeleteRegion(params.regionId);
       }
-    }
-  );
+
+      return { previousRegion: prev };
+    },
+    onError: (
+      _error: Error,
+      _params: RemoveRegionParams,
+      ctx: { previousRegion?: NormalizedTrackRegion } | undefined
+    ) => {
+      if (ctx?.previousRegion) {
+        useRegionStore.getState().addRegion(ctx.previousRegion);
+        useRegionSetStore.getState().attachRegion(
+          ctx.previousRegion.regionSetId,
+          ctx.previousRegion.regionId
+        );
+      }
+    },
+  });
 };
+
+/**
+ * Facade hook that bundles all region mutations
+ */
+export const useRegionMutations = () => ({
+  create: useCreateRegion(),
+  copy: useCopyRegion(),
+  edit: useEditRegion(),
+  remove: useDeleteRegion(),
+});

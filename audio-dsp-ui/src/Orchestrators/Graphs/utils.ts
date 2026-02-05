@@ -4,15 +4,12 @@ import { useGraphStore } from "@/Stores/GraphStore";
 
 
 
-export const normalizeGraph = (graphApi:Graph): NormalizedGraph => {
-
-
-  const { nodes, edges, ...rest } = graphApi;
-
+export const normalizeGraph = (graphApi: Graph): NormalizedGraph => {
+  // Graph is the aggregate root - nodes and edges stay as a unit
   return {
-    ...rest,
-    nodes_ids: nodes?.map(node => node.id) ?? [],
-    edges_ids: edges?.map(edge => edge.id) ?? [],
+    ...graphApi,
+    nodes: graphApi.nodes ?? [],
+    edges: graphApi.edges ?? [],
   };
 };
 

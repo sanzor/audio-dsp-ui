@@ -2,40 +2,35 @@ import { useMemo } from "react";
 import type { TrackMetaViewModel } from "@/Domain/Track/TrackMetaViewModel";
 import type { TrackRegionSetViewModel } from "@/Domain/RegionSet/TrackRegionSetViewModel";
 import type { TrackRegionViewModel } from "@/Domain/Region/TrackRegionViewModel";
-import type { GraphViewModel } from "@/Domain/Graph/GraphViewModel";
+import type { Graph } from "@/Domain/Graph/Graph";
 import type { NormalizedTrackMeta } from "@/Domain/Track/NormalizedTrackMeta";
 import type { NormalizedTrackRegionSet } from "@/Domain/RegionSet/NormalizedTrackRegionSet";
 import type { NormalizedTrackRegion } from "@/Domain/Region/NormalizedTrackRegion";
-import type { NormalizedGraph } from "@/Domain/Graph/NormalizedGraph";
 import { useTrackStore } from "@/Stores/TrackStore";
 import { useRegionSetStore } from "@/Stores/RegionSetStore";
 import { useRegionStore } from "@/Stores/RegionStore";
 import { useGraphStore } from "@/Stores/GraphStore";
 
-const buildGraphViewModel = (graph?: NormalizedGraph | null): GraphViewModel | null => {
-  if (!graph) return null;
-  return {
-    ...graph,
-    nodes: [],
-    edges: [],
-  };
+const getGraph = (graphMap: Map<string, Graph>, graphId: string | null): Graph | null => {
+  if (!graphId) return null;
+  return graphMap.get(graphId) ?? null;
 };
 
 const buildRegionViewModel = (
   region: NormalizedTrackRegion,
-  graphMap: Map<string, NormalizedGraph>
+  graphMap: Map<string, Graph>
 ): TrackRegionViewModel => {
   const { graphId, ...rest } = region;
   return {
     ...rest,
-    graph: graphId ? buildGraphViewModel(graphMap.get(graphId)) : null,
+    graph: getGraph(graphMap, graphId),
   };
 };
 
 const buildRegionSetViewModel = (
   regionSet: NormalizedTrackRegionSet,
   regionMap: Map<string, NormalizedTrackRegion>,
-  graphMap: Map<string, NormalizedGraph>
+  graphMap: Map<string, Graph>
 ): TrackRegionSetViewModel => {
   const { region_ids, ...rest } = regionSet;
 
@@ -54,7 +49,7 @@ const buildTrackViewModel = (
   track: NormalizedTrackMeta,
   regionSetMap: Map<string, NormalizedTrackRegionSet>,
   regionMap: Map<string, NormalizedTrackRegion>,
-  graphMap: Map<string, NormalizedGraph>
+  graphMap: Map<string, Graph>
 ): TrackMetaViewModel => {
   const { region_sets_ids, ...rest } = track;
 
@@ -73,7 +68,7 @@ const buildTrackViewModelMap = (
   tracks: Map<string, NormalizedTrackMeta>,
   regionSets: Map<string, NormalizedTrackRegionSet>,
   regions: Map<string, NormalizedTrackRegion>,
-  graphs: Map<string, NormalizedGraph>
+  graphs: Map<string, Graph>
 ): Map<string, TrackMetaViewModel> => {
   const result = new Map<string, TrackMetaViewModel>();
   tracks.forEach(track => {

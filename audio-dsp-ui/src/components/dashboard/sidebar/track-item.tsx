@@ -35,7 +35,6 @@ export function TrackItem({ track, onSelect,onOpen, onRightClick }: TrackItemPro
               <RegionSetItem
                 key={regionSet.id}
                 regionSet={regionSet}
-                trackId={track.trackId}
                 onRightClick={onRightClick}
                 onSelect={onSelect}
                 onOpen={onOpen}

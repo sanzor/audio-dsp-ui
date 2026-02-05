@@ -1,5 +1,5 @@
 import type { NormalizedTrackMeta } from '@/Domain/Track/NormalizedTrackMeta';
-import { create } from 'zustand';
+import { create, type StoreApi, type UseBoundStore } from 'zustand';
 
 type TrackCache = Map<string, NormalizedTrackMeta>;
 
@@ -31,11 +31,11 @@ const updateTrackRegionSets = (
     };
 };
 
-export const useTrackStore = create<TrackStore>((set, get) => ({
+export const useTrackStore: UseBoundStore<StoreApi<TrackStore>> = create<TrackStore>((set, get) => ({
     tracks: new Map(),
     loading: true,
 
-    setAllTracks: (newTracks) => {
+    setAllTracks: (newTracks: NormalizedTrackMeta[]) => {
         const trackMap = new Map<string, NormalizedTrackMeta>();
         newTracks.forEach((t) => trackMap.set(t.trackId, t));
         set({
@@ -49,7 +49,7 @@ export const useTrackStore = create<TrackStore>((set, get) => ({
     },
 
     addTrack: (track: NormalizedTrackMeta): void => {
-        set((state) => {
+        set((state: TrackState) => {
             const newMap = new Map(state.tracks);
             newMap.set(track.trackId, track);
             return { tracks: newMap };
@@ -57,7 +57,7 @@ export const useTrackStore = create<TrackStore>((set, get) => ({
     },
 
     removeTrack: (trackId: string): void => {
-        set((state) => {
+        set((state: TrackState) => {
             const newMap = new Map(state.tracks);
             newMap.delete(trackId);
             return { tracks: newMap };
@@ -65,7 +65,7 @@ export const useTrackStore = create<TrackStore>((set, get) => ({
     },
 
     updateTrack: (trackId: string, updates: Partial<NormalizedTrackMeta>): void => {
-        set((state) => {
+        set((state: TrackState) => {
             const trackToUpdate = state.tracks.get(trackId);
             if (!trackToUpdate) return state;
 
@@ -80,7 +80,7 @@ export const useTrackStore = create<TrackStore>((set, get) => ({
     },
 
     attachRegionSet: (trackId: string, regionSetId: string) => {
-        set((state) => {
+        set((state: TrackState) => {
             const track = state.tracks.get(trackId);
             if (!track) return state;
 
@@ -95,7 +95,7 @@ export const useTrackStore = create<TrackStore>((set, get) => ({
     },
 
     detachRegionSet: (trackId: string, regionSetId: string) => {
-        set((state) => {
+        set((state: TrackState) => {
             const track = state.tracks.get(trackId);
             if (!track) return state;
 

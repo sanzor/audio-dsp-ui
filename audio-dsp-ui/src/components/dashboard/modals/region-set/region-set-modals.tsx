@@ -40,9 +40,9 @@ export function RegionSetModals() {
       return (
         <PasteRegionSetModal
           params={modalState.params}
-          onSubmit={(destRegionSetId,sourceRegionId,copyName)=>
-            regionSetController.handleSubmitPasteRegion(
-              {source:{regionId:sourceRegionId},destination:{regionSetId:destRegionSetId}},copyName)}
+          onSubmit={(destTrackId, sourceRegionSetId, copyName) =>
+            regionSetController.handleSubmitPasteRegionSet(
+              { source: { regionSetId: sourceRegionSetId }, destination: { trackId: destTrackId } }, copyName)}
           open
           onClose={closeModal}
         />

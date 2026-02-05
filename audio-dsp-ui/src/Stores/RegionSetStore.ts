@@ -1,7 +1,7 @@
 // /src/Stores/useRegionSetStore.ts
 
 import type { NormalizedTrackRegionSet } from '@/Domain/RegionSet/NormalizedTrackRegionSet';
-import { create } from 'zustand';
+import { create, type StoreApi, type UseBoundStore } from 'zustand';
 
 type RegionSetCache = Map<string, NormalizedTrackRegionSet>;
 
@@ -30,34 +30,34 @@ const updateRegionIds = (
     region_ids: updater(entity.region_ids ?? []),
 });
 
-export const useRegionSetStore = create<RegionSetStore>((set, get) => ({
+export const useRegionSetStore: UseBoundStore<StoreApi<RegionSetStore>> = create<RegionSetStore>((set, get) => ({
     regionSets: new Map(),
     loading: true,
 
-    setAllRegionSets: (newRegionSets) => {
+    setAllRegionSets: (newRegionSets: NormalizedTrackRegionSet[]) => {
         const setMap = new Map<string, NormalizedTrackRegionSet>();
         newRegionSets.forEach((s) => setMap.set(s.id, s));
         set({ regionSets: setMap, loading: false });
     },
 
-    getRegionSet: (setId) => get().regionSets.get(setId),
+    getRegionSet: (setId: string) => get().regionSets.get(setId),
 
-    addRegionSet: (setToAdd) =>
-        set((state) => {
+    addRegionSet: (setToAdd: NormalizedTrackRegionSet) =>
+        set((state: RegionSetState) => {
             const newMap = new Map(state.regionSets);
             newMap.set(setToAdd.id, setToAdd);
             return { regionSets: newMap };
         }),
 
-    removeRegionSet: (setId) =>
-        set((state) => {
+    removeRegionSet: (setId: string) =>
+        set((state: RegionSetState) => {
             const newMap = new Map(state.regionSets);
             newMap.delete(setId);
             return { regionSets: newMap };
         }),
 
-    updateRegionSet: (setId, updates) =>
-        set((state) => {
+    updateRegionSet: (setId: string, updates: Partial<NormalizedTrackRegionSet>) =>
+        set((state: RegionSetState) => {
             const setEntity = state.regionSets.get(setId);
             if (!setEntity) return state;
 
@@ -66,8 +66,8 @@ export const useRegionSetStore = create<RegionSetStore>((set, get) => ({
             return { regionSets: newMap };
         }),
 
-    attachRegion: (setId, regionId) =>
-        set((state) => {
+    attachRegion: (setId: string, regionId: string) =>
+        set((state: RegionSetState) => {
             const setEntity = state.regionSets.get(setId);
             if (!setEntity) return state;
 
@@ -80,8 +80,8 @@ export const useRegionSetStore = create<RegionSetStore>((set, get) => ({
             return { regionSets: newMap };
         }),
 
-    detachRegion: (setId, regionId) =>
-        set((state) => {
+    detachRegion: (setId: string, regionId: string) =>
+        set((state: RegionSetState) => {
             const setEntity = state.regionSets.get(setId);
             if (!setEntity) return state;
 
